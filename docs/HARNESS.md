@@ -4,6 +4,21 @@ We need a check an agent can run, trust, and loop on. `npm run verify` is that c
 
 Dev Day scores this at 25 points. A green suite that lies is worse than no suite: the agent stops and a vague answer still gets `MOVE_ON`.
 
+## What this harness is for
+
+Ship an important behavior, then **lock it** so later agent work cannot quietly break it.
+
+Coding models do not keep old contracts in working memory. They optimize the prompt in front of them. They will retune a matcher, delete a testid, or “simplify” a schema to make a new feature pass. `npm run verify` is the memory they do not have: a named failure if a locked behavior moved.
+
+That is why the interview engine runs on every change, including landing-page work. You are not re-implementing the interviewer. You are proving it still follows up on a vague answer, still moves on from a concrete one, still caps follow-ups, and still rejects an empty answer. The evals are a seatbelt around a feature we already shipped.
+
+Rules:
+
+- Add the lock **with** the feature, not as a follow-up. If the check is not in `verify`, it will not exist when the next agent runs.
+- Not every line of UI needs an `evals/` fixture. Colocated unit tests lock ordinary code. `evals/` locks product judgment that a web test cannot see (`FOLLOW_UP` / `MOVE_ON`).
+- Do not weaken a lock to ship something new. Change the fixture only when the product contract itself changed, in the same diff.
+- A later important feature (session report, live adapter) gets the same pattern: implement it, freeze its contract in `verify`, keep moving.
+
 ## What verify does
 
 1. **Prettier** — formatting is not optional.

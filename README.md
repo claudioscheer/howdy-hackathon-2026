@@ -35,7 +35,9 @@ What we run in `verify`:
 5. Golden, holdout, and canary fixtures in `evals/` (does this answer get `FOLLOW_UP` or `MOVE_ON`?)
 6. Deterministic review (holdout independence, canaries, colocated tests on the diff)
 
-We do **not** use an LLM as the merge gate. Same transcript can get two scores; the judge prefers fluent prose; agents game the rubric. Schema, goldens, and unit tests are the gate. The argument is in [`docs/HARNESS.md`](./docs/HARNESS.md).
+The interview evals are a **lock** on a feature we already shipped: later work must not change `FOLLOW_UP` / `MOVE_ON` by accident. Coding models forget old contracts; `verify` does not. Same pattern for the next important feature: ship the behavior, freeze a check in `verify`, keep going. Details in [`docs/HARNESS.md`](./docs/HARNESS.md).
+
+We do **not** use an LLM as the merge gate. Same transcript can get two scores; the judge prefers fluent prose; agents game the rubric. Schema, goldens, and unit tests are the gate.
 
 `acceptance.json` records which criteria the last harness run proved. Do not set `"passes": true` by hand.
 

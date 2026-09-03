@@ -18,13 +18,27 @@ Howdy Interview Coach: a mock interviewer that follows up on weak answers and wr
 
 **Current scope:** landing page + harness. Do not implement session setup, live interview UI, reports, audio, or a live LLM adapter until a human says to. Product intent is in `SPEC.md`.
 
+## Lock important behavior
+
+An LLM will not remember last week’s contract. It rewrites nearby code to make the current task pass. That is why we wrap important behavior in `npm run verify` **as we ship it**, not later.
+
+Pattern:
+
+1. Implement the behavior (example: interviewer `FOLLOW_UP` vs `MOVE_ON`).
+2. Add a machine check that fails if that behavior regresses (golden, holdout, schema proof, colocated unit test).
+3. From then on, every other change must keep that check green.
+
+Do not delete, skip, or weaken a check to go green. If the behavior must change, change the fixture or test in the same diff, on purpose, and say why. The interview evals are that lock for follow-up decisions. Landing `data-testid`s are that lock for the page. New important features get the same treatment: ship the lock with the feature.
+
+Details: [`docs/HARNESS.md`](docs/HARNESS.md).
+
 ## Before you stop
 
 ```bash
 npm run verify
 ```
 
-Prettier, build, lint, unit tests at 100% coverage, then `evals/` goldens. Silent on success. Non-zero on failure. Never claim done if this fails. Never set `acceptance.json` `"passes": true` by hand — only `npm run harness` may do that.
+Prettier, build, lint, unit tests at 100% coverage, then `evals/` goldens, holdouts, canaries, and review. Silent on success. Non-zero on failure. Never claim done if this fails. Never set `acceptance.json` `"passes": true` by hand — only `npm run harness` may do that. Never drop a lock (eval, schema proof, or colocated test) to make a new feature pass.
 
 On failure: read the error, change the smallest thing that fixes it, run `verify` again. If you closed a full fail → fix → pass loop, add a short note to `docs/AI-DEV-LOG.md` (Dev Day evidence). Otherwise do not pad that file.
 
