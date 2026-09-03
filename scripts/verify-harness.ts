@@ -6,7 +6,7 @@ import {
 } from "../lib/harness/engine";
 import {
   InterviewerDecisionSchema,
-  QuestionState,
+  type QuestionState,
   validateTranscriptGrounding,
 } from "../lib/harness/schema";
 
@@ -33,16 +33,17 @@ function loadFixtures(dir: string): Fixture[] {
   return fs
     .readdirSync(dir)
     .filter((file) => file.endsWith(".json"))
-    .map((file) =>
-      JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"))
-    );
+    .map((file) => JSON.parse(fs.readFileSync(path.join(dir, file), "utf8")));
 }
 
-function matches(fixture: Fixture, res: {
-  decision: { decision: string; dimension?: string };
-  finalDecision: string;
-  isCapped: boolean;
-}): boolean {
+function matches(
+  fixture: Fixture,
+  res: {
+    decision: { decision: string; dimension?: string };
+    finalDecision: string;
+    isCapped: boolean;
+  },
+): boolean {
   const { expected } = fixture;
   if (expected.decision && res.decision.decision !== expected.decision) {
     return false;
@@ -95,7 +96,7 @@ async function main() {
         feedback: "Concrete metric cited.",
       },
     ],
-    transcript
+    transcript,
   );
   if (!groundCheck.valid) {
     failures.push("Layer 0 grounding verification failed");
@@ -122,7 +123,7 @@ async function main() {
       results.layer1.passedGoldens++;
     } else {
       failures.push(
-        `Golden [${fixture.id}] expected ${JSON.stringify(fixture.expected)} got decision=${res.decision.decision} dimension=${res.decision.dimension ?? ""} final=${res.finalDecision}`
+        `Golden [${fixture.id}] expected ${JSON.stringify(fixture.expected)} got decision=${res.decision.decision} dimension=${res.decision.dimension ?? ""} final=${res.finalDecision}`,
       );
     }
   }
@@ -141,7 +142,7 @@ async function main() {
       results.layer1.holdoutsPassed++;
     } else {
       failures.push(
-        `Holdout [${fixture.id}] expected ${JSON.stringify(fixture.expected)} got decision=${res.decision.decision}`
+        `Holdout [${fixture.id}] expected ${JSON.stringify(fixture.expected)} got decision=${res.decision.decision}`,
       );
     }
   }
@@ -150,12 +151,12 @@ async function main() {
   fs.mkdirSync(traceDir, { recursive: true });
   fs.writeFileSync(
     path.join(traceDir, "latest-eval.json"),
-    JSON.stringify(results, null, 2)
+    JSON.stringify(results, null, 2),
   );
 
   const acceptancePath = path.resolve(
     import.meta.dirname,
-    "../acceptance.json"
+    "../acceptance.json",
   );
   if (fs.existsSync(acceptancePath)) {
     const acceptance = JSON.parse(fs.readFileSync(acceptancePath, "utf8"));

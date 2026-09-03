@@ -19,12 +19,12 @@ Engine, UI, and Eval can proceed at the same time after they agree on `lib/harne
 
 ## Deterministic vs judgment
 
-| Rule | Kind |
-|---|---|
-| JSON shape, follow-up cap, quote must be in the transcript | Code. Always. |
-| Frozen goldens / holdouts | Code. Always. |
-| Wording of a follow-up question | Model judgment, not a test assertion |
-| “Was this a good interview overall?” | Human or optional judge. Not a gate |
+| Rule                                                       | Kind                                 |
+| ---------------------------------------------------------- | ------------------------------------ |
+| JSON shape, follow-up cap, quote must be in the transcript | Code. Always.                        |
+| Frozen goldens / holdouts                                  | Code. Always.                        |
+| Wording of a follow-up question                            | Model judgment, not a test assertion |
+| “Was this a good interview overall?”                       | Human or optional judge. Not a gate  |
 
 ## Evidence on disk
 

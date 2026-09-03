@@ -28,10 +28,11 @@ Dev Day scores harness and autonomous loops at 25 points. Agents must **build �
 
 What we run in `verify`:
 
-1. Next.js production build (typecheck)
-2. ESLint
-3. Vitest (colocated `*.test.ts` / `*.test.tsx`)
-4. Golden and holdout fixtures in `evals/` (does this answer get `FOLLOW_UP` or `MOVE_ON`?)
+1. Prettier (`npm run format:check`)
+2. Next.js production build (typecheck)
+3. ESLint — no `any` / `as unknown` / `as never`, small files, no unused vars
+4. Vitest with **100%** coverage on `app/page.tsx` and `lib/`
+5. Golden and holdout fixtures in `evals/` (does this answer get `FOLLOW_UP` or `MOVE_ON`?)
 
 We do **not** use an LLM as the merge gate. Same transcript can get two scores; the judge prefers fluent prose; agents game the rubric. Schema, goldens, and unit tests are the gate. The argument is in [`docs/HARNESS.md`](./docs/HARNESS.md).
 
@@ -39,14 +40,14 @@ We do **not** use an LLM as the merge gate. Same transcript can get two scores; 
 
 ## Docs
 
-| File | Why it exists |
-|---|---|
-| [`AGENTS.md`](./AGENTS.md) | How every coding tool (Grok, Codex, Antigravity, Claude, Cursor) should work in this repo |
-| [`SPEC.md`](./SPEC.md) | Product spec. Not implemented yet |
-| [`docs/HARNESS.md`](./docs/HARNESS.md) | What we trust, what we do not, why LLM-as-judge is not a gate |
-| [`docs/SYSTEM.md`](./docs/SYSTEM.md) | Dev Day **requires** this: roles, parallel work, how we integrate |
-| [`docs/AI-DEV-LOG.md`](./docs/AI-DEV-LOG.md) | Dev Day **requires** this: one recorded act → fail → fix → pass loop |
-| [`hackathon/howdy-2026-dev-day.md`](./hackathon/howdy-2026-dev-day.md) | Competition rules |
+| File                                                                   | Why it exists                                                                             |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [`AGENTS.md`](./AGENTS.md)                                             | How every coding tool (Grok, Codex, Antigravity, Claude, Cursor) should work in this repo |
+| [`SPEC.md`](./SPEC.md)                                                 | Product spec. Not implemented yet                                                         |
+| [`docs/HARNESS.md`](./docs/HARNESS.md)                                 | What we trust, what we do not, why LLM-as-judge is not a gate                             |
+| [`docs/SYSTEM.md`](./docs/SYSTEM.md)                                   | Dev Day **requires** this: roles, parallel work, how we integrate                         |
+| [`docs/AI-DEV-LOG.md`](./docs/AI-DEV-LOG.md)                           | Dev Day **requires** this: one recorded act → fail → fix → pass loop                      |
+| [`hackathon/howdy-2026-dev-day.md`](./hackathon/howdy-2026-dev-day.md) | Competition rules                                                                         |
 
 ## Layout
 

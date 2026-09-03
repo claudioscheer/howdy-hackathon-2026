@@ -9,7 +9,7 @@ describe("Home page", () => {
     expect(screen.getByTestId("app-badge")).toHaveTextContent(LANDING.badge);
     expect(screen.getByTestId("hero-title")).toHaveTextContent(LANDING.title);
     expect(screen.getByTestId("hero-description")).toHaveTextContent(
-      LANDING.description
+      LANDING.description,
     );
   });
 
@@ -23,7 +23,7 @@ describe("Home page", () => {
   it("tells agents how to finish work", () => {
     render(<Home />);
     expect(screen.getByTestId("harness-hint")).toHaveTextContent(
-      LANDING.harnessHint
+      LANDING.harnessHint,
     );
   });
 });

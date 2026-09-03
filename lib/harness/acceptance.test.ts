@@ -3,7 +3,10 @@ import fs from "node:fs";
 import path from "node:path";
 
 describe("acceptance.json", () => {
-  const acceptancePath = path.resolve(import.meta.dirname, "../../acceptance.json");
+  const acceptancePath = path.resolve(
+    import.meta.dirname,
+    "../../acceptance.json",
+  );
 
   it("lists criteria with ids and boolean passes flags", () => {
     expect(fs.existsSync(acceptancePath)).toBe(true);

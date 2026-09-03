@@ -24,20 +24,25 @@ Howdy Interview Coach: a mock interviewer that follows up on weak answers and wr
 npm run verify
 ```
 
-Build, lint, unit tests, then `evals/` goldens. Silent on success. Non-zero on failure. Never claim done if this fails. Never set `acceptance.json` `"passes": true` by hand — only `npm run harness` may do that.
+Prettier, build, lint, unit tests at 100% coverage, then `evals/` goldens. Silent on success. Non-zero on failure. Never claim done if this fails. Never set `acceptance.json` `"passes": true` by hand — only `npm run harness` may do that.
 
 On failure: read the error, change the smallest thing that fixes it, run `verify` again. If you closed a full fail → fix → pass loop, add a short note to `docs/AI-DEV-LOG.md` (Dev Day evidence). Otherwise do not pad that file.
 
-## TypeScript
+## TypeScript and style
 
-- `strict` is on. No `any`. No `as` to silence the compiler.
-- Prefer small, named functions and explicit return types on exports.
-- Zod at the LLM/IO boundary (`lib/harness/schema.ts`). Do not “usually return JSON.”
-- Server Components by default. `"use client"` only when the file needs state, effects, or browser APIs.
+These are enforced by `npm run verify` (Prettier, ESLint, 100% unit coverage). Do not disable the rules.
+
+- No `any`, no `as any`, no `as unknown`, no `as never`, no `!`, no `@ts-ignore`. Narrow IO with Zod or a type guard.
+- Files under `app/` and `lib/` stay small: about 200 lines, functions about 80. Split before adding more.
+- Named functions, explicit return types on exports, reuse existing helpers. Do not paste a second copy of a function.
+- Do not add runtime dependencies. Use the stdlib, then what is already in `package.json` (React, Next, Zod). Ask a human before adding a library.
+- Zod at the LLM/IO boundary. Do not “usually return JSON.”
+- Server Components by default. `"use client"` only for state, effects, or browser APIs.
 - Interactive elements need `data-testid`.
-- Colocate tests: `foo.ts` → `foo.test.ts` in the same directory. Do not add a top-level `__tests__/` folder.
-- Tailwind for styling. No new CSS framework.
+- Colocate tests: `foo.ts` → `foo.test.ts`. Cover every new branch. Coverage must stay at 100% on `app/page.tsx` and `lib/`.
+- Tailwind only. No new CSS framework.
 - Do not call a live LLM from tests or from `npm run verify`.
+- Run `npm run format` if Prettier fails; do not hand-format around the tool.
 
 ## Postgres (later)
 
@@ -47,12 +52,12 @@ On failure: read the error, change the smallest thing that fixes it, run `verify
 
 Roles, not extra chat personas. One agent, one column. Parallel work is allowed because the write paths do not overlap.
 
-| Role | Edit | Do not edit |
-|---|---|---|
-| Engine | `lib/harness/schema.ts`, `lib/harness/engine.ts` | `evals/holdouts/`, `acceptance.json`, `app/` |
-| UI | `app/`, `lib/ui/` | `evals/`, `lib/harness/`, `scripts/verify-harness.ts` |
-| Eval | `evals/goldens/`, `evals/holdouts/`, `scripts/verify.sh`, `scripts/verify-harness.ts` | Product UI and engine features |
-| Integration | `docs/AI-DEV-LOG.md` (only after a real loop) | Goldens, holdouts, product code (except a merge typo you introduced) |
+| Role        | Edit                                                                                  | Do not edit                                                          |
+| ----------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Engine      | `lib/harness/schema.ts`, `lib/harness/engine.ts`                                      | `evals/holdouts/`, `acceptance.json`, `app/`                         |
+| UI          | `app/`, `lib/ui/`                                                                     | `evals/`, `lib/harness/`, `scripts/verify-harness.ts`                |
+| Eval        | `evals/goldens/`, `evals/holdouts/`, `scripts/verify.sh`, `scripts/verify-harness.ts` | Product UI and engine features                                       |
+| Integration | `docs/AI-DEV-LOG.md` (only after a real loop)                                         | Goldens, holdouts, product code (except a merge typo you introduced) |
 
 If verify fails, the owner of the failing files fixes it. Integration runs `verify` again.
 

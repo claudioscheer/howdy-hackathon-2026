@@ -1,4 +1,4 @@
-# Agentic Software Engineering Hackathon *Build real software with agents*
+# Agentic Software Engineering Hackathon _Build real software with agents_
 
 Dev Day 2026 Competition Outline \+ Rules
 
@@ -16,20 +16,20 @@ You choose what to build. It can be useful, ambitious, weird, delightful, techni
 
 ## **Why Participate?**
 
-* **Level Up—**Experience how modern agentic software engineering actually works, hands on.  
-* **Build Differently—**Move beyond prompting and learn to engineer context, tools, workflows, verification, and feedback loops.  
-* **Think Bigger—**Use agents to tackle more ambitious work than a single developer could normally complete in a few hours.  
-* **Learn by Shipping—**Leave Dev Day with a working product, a reproducible workflow, and practical techniques you can use immediately.  
-* **Show Your System—**Demonstrate not only what you built, but how your engineering system planned, built, tested, reviewed, and improved it.  
-* **Compete—**Win prizes for the strongest agentic engineering, orchestration, harness, product, creativity, and surprise.
+- **Level Up—**Experience how modern agentic software engineering actually works, hands on.
+- **Build Differently—**Move beyond prompting and learn to engineer context, tools, workflows, verification, and feedback loops.
+- **Think Bigger—**Use agents to tackle more ambitious work than a single developer could normally complete in a few hours.
+- **Learn by Shipping—**Leave Dev Day with a working product, a reproducible workflow, and practical techniques you can use immediately.
+- **Show Your System—**Demonstrate not only what you built, but how your engineering system planned, built, tested, reviewed, and improved it.
+- **Compete—**Win prizes for the strongest agentic engineering, orchestration, harness, product, creativity, and surprise.
 
 **The goal is simple: by the end of Dev Day, every participant should have experienced what modern agentic software engineering feels like.**
 
 # **The Evolution of Dev Day**
 
-|  | 2025 | 2026 |
-| ----- | ----- | ----- |
-| **Model** | Human → AI Tool → Product | Human → Agentic System → Product |
+|           | 2025                               | 2026                                               |
+| --------- | ---------------------------------- | -------------------------------------------------- |
+| **Model** | Human → AI Tool → Product          | Human → Agentic System → Product                   |
 | **Focus** | Prompting and AI assisted building | Context, orchestration, autonomy, and verification |
 
 # **Hackathon Strategy**
@@ -46,13 +46,13 @@ There is no preferred framework or vendor.
 
 ## **What Can You Build?**
 
-* A web or mobile application  
-* A developer tool, CLI, SDK, or automation  
-* An internal productivity tool  
-* An AI powered application or agent  
-* A game or interactive experience  
-* A data or workflow product  
-* Something useful, surprising, or completely unexpected
+- A web or mobile application
+- A developer tool, CLI, SDK, or automation
+- An internal productivity tool
+- An AI powered application or agent
+- A game or interactive experience
+- A data or workflow product
+- Something useful, surprising, or completely unexpected
 
 There is no Howdy API requirement. The idea is open. The engineering approach is not.
 
@@ -142,16 +142,16 @@ The goal is not to write increasingly elaborate prompts.
 
 Instead, think about what should become part of the engineering environment:
 
-* Specifications  
-* Repository instructions  
-* Skills  
-* Tools  
-* Tests  
-* Hooks  
-* Evals  
-* Context  
-* Progress artifacts  
-* Feedback loops
+- Specifications
+- Repository instructions
+- Skills
+- Tools
+- Tests
+- Hooks
+- Evals
+- Context
+- Progress artifacts
+- Feedback loops
 
 A useful question throughout Dev Day is:
 
@@ -183,16 +183,16 @@ Subagents, separate contexts, and parallel workers should exist because they imp
 
 # **Contest Rules**
 
-1. Projects must be built during the competition window.  
-2. Projects must use a modern agentic development workflow and satisfy the required capabilities above.  
-3. Participants may use any approved agent framework, coding model, development tool, programming language, cloud platform, database, API, or external service.  
-4. There is no required framework or minimum number of named agents.  
-5. Participants must demonstrate meaningful orchestration or delegation beyond ordinary interactive AI assisted coding.  
-6. Parallel work should be demonstrated where the project and tooling provide a reasonable opportunity for independent workstreams.  
-7. The project must include a harness or automated feedback mechanism that agents can use to validate and improve their work.  
-8. The project must demonstrate at least one meaningful autonomous feedback or recovery loop.  
-9. Keep scope small enough to ship a working result in hours, not days.  
-10. The final submission must make both the product and the agentic engineering process reproducible.  
+1. Projects must be built during the competition window.
+2. Projects must use a modern agentic development workflow and satisfy the required capabilities above.
+3. Participants may use any approved agent framework, coding model, development tool, programming language, cloud platform, database, API, or external service.
+4. There is no required framework or minimum number of named agents.
+5. Participants must demonstrate meaningful orchestration or delegation beyond ordinary interactive AI assisted coding.
+6. Parallel work should be demonstrated where the project and tooling provide a reasonable opportunity for independent workstreams.
+7. The project must include a harness or automated feedback mechanism that agents can use to validate and improve their work.
+8. The project must demonstrate at least one meaningful autonomous feedback or recovery loop.
+9. Keep scope small enough to ship a working result in hours, not days.
+10. The final submission must make both the product and the agentic engineering process reproducible.
 11. All qualifying projects will be evaluated using the general rubric and considered for every applicable prize category.
 
 # **Eligibility**
@@ -203,49 +203,49 @@ The competition is open to Howdy Developers, including internal engineers and Ho
 
 Each team must submit the following (\*):
 
-* Project Name — A clear and concise title.  
-* Working Product — A link or runnable version of the application.  
-* Code Repository — Source code and the files required to run the project.  
-* Short Description — 1 to 2 sentences explaining what the product does.  
-* Engineering Spec — Requirements, architecture, constraints, acceptance criteria, and major technical decisions.  
-* Agentic System Map — How context, agents, tools, workstreams, and orchestration were structured.  
-* Parallelization Evidence — A short explanation or evidence showing which workstreams ran in parallel.  
-* Harness / Evaluation — Tests, evals, review loops, hooks, or other mechanisms used to validate and improve the product.  
-* Autonomous Loop Evidence — Show at least one place where an agent detected a problem, reacted, and continued without another human instruction.  
-* AI Development Log — Enough evidence to understand the workflow, important iterations, failures, corrections, and human decisions.  
-* README — Setup and run instructions, dependencies, environment variables, and any external services required.  
-* Demo Video — Maximum 3 minutes.
+- Project Name — A clear and concise title.
+- Working Product — A link or runnable version of the application.
+- Code Repository — Source code and the files required to run the project.
+- Short Description — 1 to 2 sentences explaining what the product does.
+- Engineering Spec — Requirements, architecture, constraints, acceptance criteria, and major technical decisions.
+- Agentic System Map — How context, agents, tools, workstreams, and orchestration were structured.
+- Parallelization Evidence — A short explanation or evidence showing which workstreams ran in parallel.
+- Harness / Evaluation — Tests, evals, review loops, hooks, or other mechanisms used to validate and improve the product.
+- Autonomous Loop Evidence — Show at least one place where an agent detected a problem, reacted, and continued without another human instruction.
+- AI Development Log — Enough evidence to understand the workflow, important iterations, failures, corrections, and human decisions.
+- README — Setup and run instructions, dependencies, environment variables, and any external services required.
+- Demo Video — Maximum 3 minutes.
 
 ## **3-Minute Demo Format**
 
-| Time | What to Show |
-| ----- | ----- |
-| **First 90 seconds** | WHAT WE BUILT — Show the product working and the problem or experience it creates. |
+| Time                 | What to Show                                                                                                                                                      |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **First 90 seconds** | WHAT WE BUILT — Show the product working and the problem or experience it creates.                                                                                |
 | **Final 90 seconds** | HOW WE BUILT IT — Show the specification, context strategy, orchestration, parallel work, harness, autonomous loops, failures, recovery, and key human decisions. |
 
 # **How Will You Be Judged?**
 
 Every qualifying project will be scored out of 100 points. The judging system intentionally rewards both the quality of the product and the quality of the agentic engineering system used to create it.
 
-| Criterion | Points | What Judges Look For |
-| ----- | ----- | ----- |
-| **Agentic Engineering** | 25 | Quality of decomposition, orchestration, delegation, context boundaries, parallel work, integration, tools, and human decision making. |
-| **Harness \+ Autonomous Loops** | 25 | Quality of tests, evals, automated review, back pressure, self correction, failure recovery, and autonomous iteration. |
-| **Product Quality** | 20 | Does it work? Is it useful or compelling? Is the implementation technically sound and the experience usable? |
-| **Context Engineering** | 10 | How deliberately the team managed context, instructions, artifacts, skills, handoffs, and agent isolation. |
-| **Innovation \+ Ambition** | 10 | Originality, technical ambition, creative use of agents, and whether the team attempted something meaningfully beyond a basic AI generated app. |
-| **Reproducibility** | 5 | Could another engineer understand and reproduce the product and agentic workflow from the submission? |
-| **Demo \+ Storytelling** | 5 | Can the team clearly communicate both the product and the engineering system behind it? |
+| Criterion                       | Points | What Judges Look For                                                                                                                            |
+| ------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Agentic Engineering**         | 25     | Quality of decomposition, orchestration, delegation, context boundaries, parallel work, integration, tools, and human decision making.          |
+| **Harness \+ Autonomous Loops** | 25     | Quality of tests, evals, automated review, back pressure, self correction, failure recovery, and autonomous iteration.                          |
+| **Product Quality**             | 20     | Does it work? Is it useful or compelling? Is the implementation technically sound and the experience usable?                                    |
+| **Context Engineering**         | 10     | How deliberately the team managed context, instructions, artifacts, skills, handoffs, and agent isolation.                                      |
+| **Innovation \+ Ambition**      | 10     | Originality, technical ambition, creative use of agents, and whether the team attempted something meaningfully beyond a basic AI generated app. |
+| **Reproducibility**             | 5      | Could another engineer understand and reproduce the product and agentic workflow from the submission?                                           |
+| **Demo \+ Storytelling**        | 5      | Can the team clearly communicate both the product and the engineering system behind it?                                                         |
 
 # **Competition Categories**
 
-* **Best Agentic Engineer / Team —** Overall winner. The strongest combination of product quality, agentic engineering, orchestration, autonomy, and execution.  
-* **Best Orchestration —** The most effective decomposition, context isolation, delegation, parallel execution, and integration.  
-* **Best Harness / Agentic Loop —** The strongest system for testing, evaluating, reviewing, recovering, and automatically improving work produced by agents.  
-* **Most Ambitious Build —** The team that used agentic engineering to successfully tackle the boldest scope within the available time.  
-* **Most Creative —** The most original idea, approach, or use of agentic software engineering.  
-* **Best Product Experience —** The strongest usability, polish, clarity, and overall product experience.  
-* **Most Surprising Result —** The project or workflow that produces the biggest “I didn’t know you could do that” moment.
+- **Best Agentic Engineer / Team —** Overall winner. The strongest combination of product quality, agentic engineering, orchestration, autonomy, and execution.
+- **Best Orchestration —** The most effective decomposition, context isolation, delegation, parallel execution, and integration.
+- **Best Harness / Agentic Loop —** The strongest system for testing, evaluating, reviewing, recovering, and automatically improving work produced by agents.
+- **Most Ambitious Build —** The team that used agentic engineering to successfully tackle the boldest scope within the available time.
+- **Most Creative —** The most original idea, approach, or use of agentic software engineering.
+- **Best Product Experience —** The strongest usability, polish, clarity, and overall product experience.
+- **Most Surprising Result —** The project or workflow that produces the biggest “I didn’t know you could do that” moment.
 
 # **What a Strong Submission Looks Like**
 
@@ -275,45 +275,45 @@ The differentiator is that the team demonstrates a deliberate, repeatable engine
 
 ## **What Will Not Score Well**
 
-* A one shot prompt that generates an entire application with little engineering involvement.  
-* Repeated manual prompting where the human specifies every next action.  
-* Using several chat sessions sequentially but calling them multiple agents without meaningful specialization or context isolation.  
-* Creating fictional agent roles simply to satisfy the competition.  
-* Artificial parallelism that provides no engineering benefit.  
-* A polished UI with no evidence of planning, testing, orchestration, or feedback loops.  
-* A complex agent setup that produces a weak or non working product.  
-* An agent that claims work is complete without meaningful verification.  
-* A workflow where the human has to discover and diagnose every failure.  
-* Blind autonomy without appropriate constraints or human judgment.  
-* A submission that cannot explain why its engineering system was designed the way it was.
+- A one shot prompt that generates an entire application with little engineering involvement.
+- Repeated manual prompting where the human specifies every next action.
+- Using several chat sessions sequentially but calling them multiple agents without meaningful specialization or context isolation.
+- Creating fictional agent roles simply to satisfy the competition.
+- Artificial parallelism that provides no engineering benefit.
+- A polished UI with no evidence of planning, testing, orchestration, or feedback loops.
+- A complex agent setup that produces a weak or non working product.
+- An agent that claims work is complete without meaningful verification.
+- A workflow where the human has to discover and diagnose every failure.
+- Blind autonomy without appropriate constraints or human judgment.
+- A submission that cannot explain why its engineering system was designed the way it was.
 
 # **Timeline**
 
-* Launch: August 31st, 2026  
-* Submission Deadline: Sep 14, 2026  
-* Judging Period: Sep 16, 2026 through Oct 5, 2026  
-* Winners Announcement: Oct 13, 2026
+- Launch: August 31st, 2026
+- Submission Deadline: Sep 14, 2026
+- Judging Period: Sep 16, 2026 through Oct 5, 2026
+- Winners Announcement: Oct 13, 2026
 
 # **Prizes**
 
 Prizes will be awarded by category. Total prize pool and category allocations: $5,500
 
-* Best Agentic Engineer / Team—$1250  
-* Best Orchestration—$1000  
-* Best Harness / Agentic Loop — $1000  
-* Most Ambitious Build—$750  
-* Most Creative—$500  
-* Best Product Experience—$500  
-* Most Surprising Result—$500
+- Best Agentic Engineer / Team—$1250
+- Best Orchestration—$1000
+- Best Harness / Agentic Loop — $1000
+- Most Ambitious Build—$750
+- Most Creative—$500
+- Best Product Experience—$500
+- Most Surprising Result—$500
 
 # **Terms and Conditions**
 
-* Ownership of Submissions — Final ownership and intellectual property terms will follow Howdy’s approved 2026 Dev Day competition terms.  
-* Confidentiality — Participants must protect any proprietary information, credentials, datasets, or internal materials made available during the competition.  
-* Secrets and Credentials — Never commit API keys, tokens, passwords, or other secrets to source control. Use environment variables and placeholder .env.example files.  
-* Data Use — Do not expose, export, or share confidential or personal data unless explicitly authorized for the competition.  
-* No Additional Compensation — Participants will not receive compensation for submissions beyond any prizes awarded under the final competition rules.  
-* Compliance — Submissions must comply with applicable laws, third party rights, Howdy policies, and the final competition terms.
+- Ownership of Submissions — Final ownership and intellectual property terms will follow Howdy’s approved 2026 Dev Day competition terms.
+- Confidentiality — Participants must protect any proprietary information, credentials, datasets, or internal materials made available during the competition.
+- Secrets and Credentials — Never commit API keys, tokens, passwords, or other secrets to source control. Use environment variables and placeholder .env.example files.
+- Data Use — Do not expose, export, or share confidential or personal data unless explicitly authorized for the competition.
+- No Additional Compensation — Participants will not receive compensation for submissions beyond any prizes awarded under the final competition rules.
+- Compliance — Submissions must comply with applicable laws, third party rights, Howdy policies, and the final competition terms.
 
 # **The 2026 Challenge**
 
@@ -370,4 +370,3 @@ No human prompt occurs between these steps.
 **Demo Video** — Provide a shareable video link, with a maximum duration of 3 minutes. We recommend approximately **90 seconds showing what you built** and **90 seconds showing how you built it**, including your specification, context strategy, orchestration, parallel work, harnesses, autonomous loops, failures, recovery, and key engineering decisions.
 
 **Keep it lightweight. We want evidence of your agentic engineering process, not paperwork.**
-

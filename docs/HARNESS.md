@@ -6,10 +6,11 @@ Dev Day scores this at 25 points. A green suite that lies is worse than no suite
 
 ## What verify does
 
-1. **Build / types / lint** — the code compiles.
-2. **Unit tests next to source** — landing copy, schema, follow-up cap, grounding.
-3. **`evals/` goldens and holdouts** — frozen (question, answer) → expected `FOLLOW_UP` or `MOVE_ON`.
-4. **Write `acceptance.json` and `evals/traces/latest-eval.json`** from that run. Do not flip `passes` by hand.
+1. **Prettier** — formatting is not optional.
+2. **Build / types / lint** — compiles; no `any` / `as unknown` / `as never`; files stay small.
+3. **Unit tests next to source, 100% coverage** on `app/page.tsx` and `lib/`.
+4. **`evals/` goldens and holdouts** — frozen (question, answer) → expected `FOLLOW_UP` or `MOVE_ON`.
+5. **Write `acceptance.json` and `evals/traces/latest-eval.json`** from that run. Do not flip `passes` by hand.
 
 Success is one line per stage. Failure dumps only the error. That keeps the agent’s context small.
 
@@ -28,7 +29,7 @@ We assert the **decision enum**, not the follow-up wording. Wording changes ever
 People want a second model to read the transcript and score the interviewer. We do not merge on that.
 
 - **Non-deterministic.** Same transcript, two scores. The agent “fixes” a 6 into a 7, re-runs, gets a 5, and either thrashes or stops on a lucky sample.
-- **Same biases as the system under test.** Long fluent answers look good. Fabricated feedback that *sounds* specific still passes a judge.
+- **Same biases as the system under test.** Long fluent answers look good. Fabricated feedback that _sounds_ specific still passes a judge.
 - **Reward hacking.** Agents have hit 100% judge pass with much lower real capability by echoing labels or writing reports the judge likes. If the judge can override goldens, the agent optimizes the judge.
 - **Slow and keyed.** Putting it in `verify` makes agents skip it or burn the budget.
 
@@ -36,12 +37,12 @@ A judge score cannot pass a failed golden. A failed judge cannot fail a passed g
 
 ## What is a gate vs not
 
-| Check | Gate? |
-|---|---|
-| Schema, follow-up cap, quote-in-transcript | Yes |
-| Goldens + holdout | Yes |
-| Colocated unit tests | Yes |
-| Playwright e2e | Not yet. Stub the model when we add it |
-| LLM-as-judge | Never |
+| Check                                      | Gate?                                  |
+| ------------------------------------------ | -------------------------------------- |
+| Schema, follow-up cap, quote-in-transcript | Yes                                    |
+| Goldens + holdout                          | Yes                                    |
+| Colocated unit tests                       | Yes                                    |
+| Playwright e2e                             | Not yet. Stub the model when we add it |
+| LLM-as-judge                               | Never                                  |
 
 The harness is working when: `npm run verify` is the only “done”; a vague golden fails on `MOVE_ON`; a fake quote fails grounding; we can point at one fail → fix → pass in `docs/AI-DEV-LOG.md`.

@@ -25,9 +25,10 @@ run_silent() {
 
 failed=0
 
+run_silent "format" npm run format:check || failed=1
 run_silent "build / typecheck" npm run build || failed=1
 run_silent "lint" npm run lint || failed=1
-run_silent "unit tests" npm run test || failed=1
+run_silent "unit tests + coverage" npm run test || failed=1
 run_silent "harness evals" npm run harness || failed=1
 
 if [ "$failed" -ne 0 ]; then

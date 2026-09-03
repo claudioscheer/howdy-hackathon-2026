@@ -39,7 +39,7 @@ export const InterviewerDecisionSchema = z
       message:
         "When decision is FOLLOW_UP, followUp question and dimension are strictly required",
       path: ["followUp"],
-    }
+    },
   );
 
 export type InterviewerDecision = z.infer<typeof InterviewerDecisionSchema>;
@@ -56,7 +56,7 @@ export interface FeedbackNote {
 
 export function validateTranscriptGrounding(
   notes: FeedbackNote[],
-  transcript: string
+  transcript: string,
 ): { valid: boolean; ungroundedQuotes: string[] } {
   const ungroundedQuotes: string[] = [];
 
@@ -86,7 +86,7 @@ export interface QuestionState {
 
 export function resolveDecisionWithPolicy(
   rawDecision: InterviewerDecision,
-  currentState: QuestionState
+  currentState: QuestionState,
 ): {
   finalDecision: DecisionType;
   isCapped: boolean;

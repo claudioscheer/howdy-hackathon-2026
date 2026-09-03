@@ -1,12 +1,13 @@
 import { describe, it, expect } from "vitest";
 import {
-  InterviewerDecision,
+  type InterviewerDecision,
   InterviewerDecisionSchema,
   MAX_FOLLOW_UPS_PER_QUESTION,
-  QuestionState,
+  MAX_SESSION_RETRIES,
+  type QuestionState,
   resolveDecisionWithPolicy,
   validateTranscriptGrounding,
-  FeedbackNote,
+  type FeedbackNote,
 } from "@/lib/harness/schema";
 
 describe("decision schema", () => {
@@ -77,6 +78,19 @@ describe("transcript grounding", () => {
     expect(result.ungroundedQuotes).toHaveLength(0);
   });
 
+  it("fails when a quote is empty", () => {
+    const notes: FeedbackNote[] = [
+      {
+        quote: "",
+        dimension: "structure",
+        feedback: "Missing citation.",
+      },
+    ];
+    const result = validateTranscriptGrounding(notes, "some transcript");
+    expect(result.valid).toBe(false);
+    expect(result.ungroundedQuotes).toEqual([""]);
+  });
+
   it("fails when a quote is not in the transcript", () => {
     const notes: FeedbackNote[] = [
       {
@@ -88,8 +102,14 @@ describe("transcript grounding", () => {
     const result = validateTranscriptGrounding(notes, transcript);
     expect(result.valid).toBe(false);
     expect(result.ungroundedQuotes).toContain(
-      "we spent the first 90 seconds on unrelated work"
+      "we spent the first 90 seconds on unrelated work",
     );
+  });
+});
+
+describe("session policy constants", () => {
+  it("caps retries at three", () => {
+    expect(MAX_SESSION_RETRIES).toBe(3);
   });
 });
 

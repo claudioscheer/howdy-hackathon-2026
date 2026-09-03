@@ -23,12 +23,14 @@ None of these are about whether the candidate can do the job. They're about inte
 ## 3. Goals / Non-Goals
 
 **Goals**
+
 - Let a recruiter or ops team member set up a practice interview for a candidate against a specific opportunity (role, seniority, tech stack, interview type).
 - Let the candidate run through a realistic mock interview on their own time, before the real one.
 - Give the candidate a specific, honest report at the end — not just a score, but what to actually change.
 - Let the candidate retry a few times with varied questions, so they're practicing the skill, not memorizing answers.
 
 **Non-Goals** (explicitly out of scope for this build)
+
 - Not a replacement for actual technical vetting or skill assessment.
 - Not solving rate/compensation mismatches — those are a screening problem, not an interview-performance problem.
 - Not building a whiteboard/diagram tool for system design (see §6).
@@ -40,7 +42,7 @@ None of these are about whether the candidate can do the job. They're about inte
    - Candidate (name/identifier)
    - Opportunity profile: role, seniority level, key skills/tech stack
    - Interview type: introduction/behavioral, technical, or system design
-   The candidate receives a link to start the session whenever they're ready.
+     The candidate receives a link to start the session whenever they're ready.
 
 2. **Answering** — the candidate can respond to each question either by typing or by recording audio. Recorded audio is transcribed to text before anything else happens, so the rest of the system only ever deals with text. The candidate never has to decide which mode is "correct" — both are always available.
 
@@ -52,7 +54,7 @@ None of these are about whether the candidate can do the job. They're about inte
 
 5. **Feedback report** — at the end of a session, the candidate gets:
    - A scorecard across a small set of dimensions (see §6 rubric)
-   - Specific written notes tied to what actually happened in *their* session (e.g., "you spent the first 90 seconds of your introduction on work unrelated to this role before mentioning anything relevant")
+   - Specific written notes tied to what actually happened in _their_ session (e.g., "you spent the first 90 seconds of your introduction on work unrelated to this role before mentioning anything relevant")
 
 6. **Retries** — the candidate can run the same mock interview again, 2–3 times. Each retry generates a varied set of questions rather than repeating the same ones, and the report shows how this attempt compares to the last.
 
@@ -66,12 +68,12 @@ None of these are about whether the candidate can do the job. They're about inte
 
 Every answer, and the session as a whole, is scored against four dimensions derived from the problem statement in §2:
 
-| Dimension | What it's checking |
-|---|---|
-| **Relevance** | Does the answer connect directly to the role/opportunity, or does it drift into unrelated history? |
-| **Specificity under follow-up** | When pushed, does the candidate give a concrete example, or repeat the same generic claim? |
-| **Fundamentals** | When tested directly on a basic, role-relevant concept, does the candidate hold up? |
-| **Communication structure** | Is the answer organized and on-topic, or does it wander / answer a different question than asked? |
+| Dimension                       | What it's checking                                                                                 |
+| ------------------------------- | -------------------------------------------------------------------------------------------------- |
+| **Relevance**                   | Does the answer connect directly to the role/opportunity, or does it drift into unrelated history? |
+| **Specificity under follow-up** | When pushed, does the candidate give a concrete example, or repeat the same generic claim?         |
+| **Fundamentals**                | When tested directly on a basic, role-relevant concept, does the candidate hold up?                |
+| **Communication structure**     | Is the answer organized and on-topic, or does it wander / answer a different question than asked?  |
 
 ## 7. Proposed Architecture
 
@@ -112,6 +114,7 @@ Recruiter Setup ──▶ Session Config (candidate + opportunity + interview ty
 ```
 
 **Data model (minimal):**
+
 - `sessions` — candidate, opportunity profile, interview type, attempt number
 - `questions` — per session, with type (intro/technical/system-design) and follow-up chain
 - `answers` — text (audio answers store a transcript; raw audio is not required downstream)
