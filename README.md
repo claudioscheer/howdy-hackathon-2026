@@ -1,75 +1,90 @@
 # Howdy Interview Coach
 
-Practice interviews for Howdy candidates. The interviewer follows up when an answer is vague, then returns a scorecard grounded in the transcript.
+Practice a realistic interview against a fictional opportunity. The interviewer
+should notice vague, irrelevant, weak, or poorly structured answers, follow up
+under pressure, and produce transcript-grounded feedback.
 
-Built for Howdy Dev Day 2026. The product UI is still a landing page. What we have working now is the **verification harness** agents must use before they call work done.
+Built for Howdy Dev Day 2026. The repository currently contains the landing page,
+stable runtime contracts, and verification foundation. The end-to-end interview
+product is the next milestone and is not represented as complete in
+`acceptance.json`.
 
-## Run the app
+## Requirements
 
-Node 20+ and Docker (Postgres is not used by the app yet).
+- Node.js 22.22.3, the smallest supported LTS version shared by the current
+  Next.js, Vitest, jsdom, and testing dependencies.
+- npm 10.9.8, bundled with the pinned Node installation.
+
+If using nvm:
 
 ```bash
-cp .env.example .env.local
-docker compose up -d
-npm install
-npm run dev          # http://localhost:3000
+nvm install
+nvm use
 ```
+
+Postgres is not required by the application. `docker-compose.yml` is retained as
+an optional future scaffold and should not be started for the current build.
+
+## Install and run
 
 ```bash
-npm test             # unit tests next to the source they cover
-npm run verify       # the gate: build, lint, tests, golden evals
+npm ci
+npm run dev
 ```
 
-`npm run verify` is silent when green. On failure it prints only the failing output and exits non-zero. Do not claim a change is done until this command passes.
+Open <http://localhost:3000>.
 
-## Harness
+No environment variables are currently required. `.env.example` documents only
+the deferred Postgres scaffold.
 
-Dev Day scores harness and autonomous loops at 25 points. Agents must **build → verify → observe → fix → repeat** without a human diagnosing every failure.
+## Verification
 
-What we run in `verify`:
-
-1. Prettier (`npm run format:check`)
-2. Next.js production build (typecheck)
-3. ESLint — no `any` / `as unknown` / `as never`, small files, no unused vars
-4. Vitest with **100%** coverage on `app/page.tsx` and `lib/`
-5. Golden, holdout, and canary fixtures in `evals/` (does this answer get `FOLLOW_UP` or `MOVE_ON`?)
-6. Deterministic review (holdout independence, canaries, colocated tests on the diff)
-
-The interview evals are a **lock** on a feature we already shipped: later work must not change `FOLLOW_UP` / `MOVE_ON` by accident. Coding models forget old contracts; `verify` does not. Same pattern for the next important feature: ship the behavior, freeze a check in `verify`, keep going. Details in [`docs/HARNESS.md`](./docs/HARNESS.md).
-
-We do **not** use an LLM as the merge gate. Same transcript can get two scores; the judge prefers fluent prose; agents game the rubric. Schema, goldens, and unit tests are the gate.
-
-`acceptance.json` records which criteria the last harness run proved. Do not set `"passes": true` by hand.
-
-## Docs
-
-| File                                                                   | Why it exists                                                                             |
-| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| [`AGENTS.md`](./AGENTS.md)                                             | How every coding tool (Grok, Codex, Antigravity, Claude, Cursor) should work in this repo |
-| [`SPEC.md`](./SPEC.md)                                                 | Product spec. Not implemented yet                                                         |
-| [`docs/HARNESS.md`](./docs/HARNESS.md)                                 | What we trust, what we do not, why LLM-as-judge is not a gate                             |
-| [`docs/SYSTEM.md`](./docs/SYSTEM.md)                                   | Dev Day **requires** this: roles, parallel work, how we integrate                         |
-| [`docs/AI-DEV-LOG.md`](./docs/AI-DEV-LOG.md)                           | Dev Day **requires** this: one recorded act → fail → fix → pass loop                      |
-| [`hackathon/howdy-2026-dev-day.md`](./hackathon/howdy-2026-dev-day.md) | Competition rules                                                                         |
-
-## Layout
-
+```bash
+npm test
+npm run verify
 ```
-.
-├── app/                      Next.js UI. page.test.tsx sits next to page.tsx
-├── lib/
-│   ├── harness/              Decision schema, stub engine, their tests
-│   └── ui/                   Landing copy + copy.test.ts
-├── evals/
-│   ├── goldens/              Frozen Q/A → expected FOLLOW_UP or MOVE_ON
-│   ├── holdouts/             Same idea; must not copy golden answers
-│   ├── canaries/             Stub must miss; a sudden pass means overfitting
-│   └── traces/               Last eval run, per-case traces, review findings
-├── scripts/verify.sh         Canonical gate
-├── acceptance.json           Default-fail criteria, written by the harness
-├── docker-compose.yml        Postgres 16 (app does not connect yet)
-├── .env.example              Compose credentials template
-├── AGENTS.md                 Agent instructions (all tools)
-├── SPEC.md                   Product spec
-└── docs/                     HARNESS, SYSTEM, AI-DEV-LOG
+
+`npm run verify` is the only completion gate. It runs formatting, production
+build/typecheck, lint, 100% unit coverage, synthetic behavioral fixtures,
+sensitivity checks, and deterministic changed-file review. It exits nonzero and
+prints the failing stage when work is not ready.
+
+Behavioral verification uses reviewed goldens plus independently worded holdouts.
+It also proves that trivial always-`MOVE_ON` and always-`FOLLOW_UP` providers
+cannot pass. It does not call a live model.
+
+The harness writes:
+
+- `acceptance.json` — shipped and unshipped product milestones;
+- `evals/traces/latest-eval.json` — per-case results, sensitivity, and review
+  evidence.
+
+See [the harness guide](./docs/HARNESS.md) for guarantees and limitations.
+
+## Documentation
+
+| File                                                                 | Purpose                                                                |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| [docs/SPEC.md](./docs/SPEC.md)                                       | Product objective, scope, runtime architecture, and definition of done |
+| [docs/SYSTEM.md](./docs/SYSTEM.md)                                   | Agentic development contexts, orchestration, controls, and integration |
+| [docs/AI-DEV-LOG.md](./docs/AI-DEV-LOG.md)                           | Concise evidence of authentic autonomous recovery loops                |
+| [AGENTS.md](./AGENTS.md)                                             | Cross-tool repository operating instructions                           |
+| [docs/HARNESS.md](./docs/HARNESS.md)                                 | Verification and behavioral-eval design                                |
+| [hackathon/howdy-2026-dev-day.md](./hackathon/howdy-2026-dev-day.md) | Competition rules                                                      |
+
+## Repository layout
+
+```text
+app/                    Next.js UI
+lib/interview/          Public runtime contracts and session event boundary
+lib/harness/            Deterministic verification implementation
+lib/ui/                 UI copy
+evals/goldens/          Reviewed behavior fixtures
+evals/holdouts/         Independently worded behavior fixtures
+evals/traces/           Generated latest-run evidence
+scripts/verify.sh       Canonical gate
+acceptance.json         Truthful generated milestone status
+docs/                   Required submission documentation and harness guide
 ```
+
+All product, fixture, and demo data must remain fictional or seeded.

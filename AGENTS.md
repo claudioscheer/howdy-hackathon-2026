@@ -16,7 +16,7 @@ This file is the source of truth for **every** coding tool (Grok, Codex, Antigra
 
 Howdy Interview Coach: a mock interviewer that follows up on weak answers and writes a transcript-grounded report. Built for Dev Day 2026.
 
-**Current scope:** landing page + harness. Do not implement session setup, live interview UI, reports, audio, or a live LLM adapter until a human says to. Product intent is in `SPEC.md`.
+**Current state:** landing page, runtime contracts, and harness foundation. The end-to-end product is not implemented. Product intent and the current definition of done are in [`docs/SPEC.md`](docs/SPEC.md). Do not start a new phase or change shared contracts without human/orchestrator direction.
 
 ## Lock important behavior
 
@@ -28,7 +28,7 @@ Pattern:
 2. Add a machine check that fails if that behavior regresses (golden, holdout, schema proof, colocated unit test).
 3. From then on, every other change must keep that check green.
 
-Do not delete, skip, or weaken a check to go green. If the behavior must change, change the fixture or test in the same diff, on purpose, and say why. The interview evals are that lock for follow-up decisions. Landing `data-testid`s are that lock for the page. New important features get the same treatment: ship the lock with the feature.
+Do not delete, skip, invert, or weaken a check to go green. If the behavior must change, change the fixture or test in the same diff, on purpose, and say why. New important features get the same treatment: ship the lock with the feature.
 
 Details: [`docs/HARNESS.md`](docs/HARNESS.md).
 
@@ -38,7 +38,7 @@ Details: [`docs/HARNESS.md`](docs/HARNESS.md).
 npm run verify
 ```
 
-Prettier, build, lint, unit tests at 100% coverage, then `evals/` goldens, holdouts, canaries, and review. Silent on success. Non-zero on failure. Never claim done if this fails. Never set `acceptance.json` `"passes": true` by hand — only `npm run harness` may do that. Never drop a lock (eval, schema proof, or colocated test) to make a new feature pass.
+Use the Node version in `.nvmrc`. The gate runs Prettier, build/typecheck, lint, unit tests at 100% coverage, goldens, holdouts, mutation sensitivity, and deterministic review. Non-zero means failure. Never claim done if this fails. Never set `acceptance.json` `"passes": true` by hand — only `npm run harness` may do that. Never drop a lock to make a new feature pass.
 
 On failure: read the error, change the smallest thing that fixes it, run `verify` again. If you closed a full fail → fix → pass loop, add a short note to `docs/AI-DEV-LOG.md` (Dev Day evidence). Otherwise do not pad that file.
 
@@ -64,14 +64,14 @@ These are enforced by `npm run verify` (Prettier, ESLint, 100% unit coverage). D
 
 ## Who may edit what
 
-Roles, not extra chat personas. One agent, one column. Parallel work is allowed because the write paths do not overlap.
+Roles, not extra chat personas. Parallel work begins only after the public contracts in `lib/interview/contracts.ts` and `lib/interview/session.ts` are frozen for the milestone. Changing those shared files requires orchestrator coordination.
 
-| Role        | Edit                                                                                                     | Do not edit                                                                    |
-| ----------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| Engine      | `lib/harness/` (schema, stub, policy, review/report helpers)                                             | `evals/holdouts/`, `evals/canaries/`, `acceptance.json`, `app/`                |
-| UI          | `app/`, `lib/ui/`                                                                                        | `evals/`, `lib/harness/`, `scripts/verify-harness.ts`                          |
-| Eval        | `evals/goldens/`, `evals/holdouts/`, `evals/canaries/`, `scripts/verify.sh`, `scripts/verify-harness.ts` | Product UI and engine features                                                 |
-| Integration | `docs/AI-DEV-LOG.md` (only after a real loop)                                                            | Goldens, holdouts, canaries, product code (except a merge typo you introduced) |
+| Workstream  | Edit                                                                    | Do not edit                                          |
+| ----------- | ----------------------------------------------------------------------- | ---------------------------------------------------- |
+| Engine      | New runtime implementation and model adapters under `lib/interview/`    | `app/`, eval-owned holdouts, harness outcomes        |
+| UI          | `app/`, `lib/ui/`                                                       | Model heuristics, `evals/`, harness implementation   |
+| Eval        | `evals/`, `lib/harness/`, verification and browser-test scripts         | Product implementation to make an eval pass          |
+| Integration | Shared contracts, acceptance mapping, submission docs after real events | Product/eval labels merely to resolve merge failures |
 
 If verify fails, the owner of the failing files fixes it. Integration runs `verify` again.
 
@@ -79,6 +79,7 @@ If verify fails, the owner of the failing files fixes it. Integration runs `veri
 
 - Audio, WebRTC, speech-to-text
 - Whiteboard / diagram tools
+- Production authentication, email delivery, Postgres/ORM work, and real Howdy integrations
 - Live LLM calls in CI
 - Feedback quotes that are not substrings of the transcript
 - Extra named agents with no file-ownership reason

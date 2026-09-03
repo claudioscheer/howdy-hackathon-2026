@@ -30,7 +30,6 @@ export const EvalFixtureSchema = z
     input: EvaluationInputSchema,
     state: QuestionStateSchema.optional(),
     expected: FixtureExpectedSchema,
-    stubMustMiss: z.boolean().optional(),
   })
   .strict();
 
@@ -75,7 +74,11 @@ export function matchesProductExpected(
   if (expected.decision && res.decision.decision !== expected.decision) {
     return false;
   }
-  if (expected.dimension && res.decision.dimension !== expected.dimension) {
+  if (
+    expected.dimension &&
+    (res.decision.decision !== "FOLLOW_UP" ||
+      res.decision.dimension !== expected.dimension)
+  ) {
     return false;
   }
   if (expected.finalDecision && res.finalDecision !== expected.finalDecision) {
@@ -91,6 +94,5 @@ export function matchesExpected(
   fixture: EvalFixture,
   res: Pick<EvaluationResult, "decision" | "finalDecision" | "isCapped">,
 ): boolean {
-  const productMatch = matchesProductExpected(fixture.expected, res);
-  return fixture.stubMustMiss ? !productMatch : productMatch;
+  return matchesProductExpected(fixture.expected, res);
 }

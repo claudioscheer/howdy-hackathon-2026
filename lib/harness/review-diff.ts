@@ -19,12 +19,17 @@ export function defaultExecGit(args: string[], cwd: string): string {
 export function collectChangedFiles(
   cwd: string,
   execGit: ExecGit = defaultExecGit,
+  reviewBaseSha: string | undefined = process.env.REVIEW_BASE_SHA,
 ): string[] {
   const parts = [
     execGit(["diff", "--name-only", "HEAD"], cwd),
     execGit(["diff", "--name-only", "--cached"], cwd),
     execGit(["ls-files", "--others", "--exclude-standard"], cwd),
   ];
+  const base = reviewBaseSha?.trim();
+  if (base && !/^0+$/.test(base)) {
+    parts.push(execGit(["diff", "--name-only", `${base}...HEAD`], cwd));
+  }
   const files = new Set<string>();
   for (const part of parts) {
     for (const line of part.split("\n")) {
@@ -87,10 +92,13 @@ export function reviewChangedFiles(
     }
     const abs = path.join(rootDir, file);
     const testPath = colocatedTestPath(file);
+    if (!fs.existsSync(abs)) {
+      continue;
+    }
     if (testPath && !fs.existsSync(path.join(rootDir, testPath))) {
       findings.push(`Changed ${file} is missing colocated test ${testPath}`);
     }
-    if (!testPath || !fs.existsSync(abs)) {
+    if (!testPath) {
       continue;
     }
     const lines = countableSourceLines(fs.readFileSync(abs, "utf8"));
@@ -104,29 +112,27 @@ export function reviewChangedFiles(
 export function mapFilesToCriteria(changedFiles: string[]): string[] {
   const mapped = new Set<string>();
   for (const file of changedFiles) {
-    if (file.includes("schema.ts") || file.includes("contracts.ts")) {
-      mapped.add("ACC-L0-SCHEMA");
-      mapped.add("ACC-L0-GROUNDING");
-      mapped.add("ACC-L0-STATE-CAP");
-      mapped.add("ACC-L0-EMPTY-ANSWER");
+    if (file.startsWith("lib/interview/")) {
+      mapped.add("ACC-RUNTIME-CONTRACTS");
     }
-    if (file.includes("engine.ts") || file.includes("heuristics.ts")) {
-      mapped.add("ACC-L1-GOLDENS");
+    if (
+      file.includes("engine.ts") ||
+      file.includes("heuristics.ts") ||
+      file.startsWith("evals/")
+    ) {
+      mapped.add("ACC-HARNESS-BEHAVIOR");
     }
-    if (file.includes("evals/goldens/")) {
-      mapped.add("ACC-L1-GOLDENS");
+    if (file.includes("setup")) {
+      mapped.add("ACC-PRODUCT-SESSION-CONFIG");
     }
-    if (file.includes("evals/holdouts/")) {
-      mapped.add("ACC-L1-HOLDOUTS");
+    if (file.includes("interview")) {
+      mapped.add("ACC-PRODUCT-ADAPTIVE-INTERVIEW");
     }
-    if (file.includes("evals/canaries/")) {
-      mapped.add("ACC-L1-CANARIES");
+    if (file.includes("report")) {
+      mapped.add("ACC-PRODUCT-GROUNDED-REPORT");
     }
     if (file.includes("review-") || file.includes("review.ts")) {
-      mapped.add("ACC-L2-REVIEW");
-    }
-    if (file.startsWith("app/page")) {
-      mapped.add("ACC-UI-LANDING");
+      mapped.add("ACC-HARNESS-REVIEW");
     }
   }
   return [...mapped].sort();

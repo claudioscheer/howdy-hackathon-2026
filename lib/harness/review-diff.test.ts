@@ -42,6 +42,20 @@ describe("collectChangedFiles", () => {
   it("ignores blank lines", () => {
     expect(collectChangedFiles("/tmp", () => "\n\n")).toEqual([]);
   });
+
+  it("includes the committed CI range when a base SHA is provided", () => {
+    const files = collectChangedFiles(
+      "/tmp",
+      (args) => (args.includes("base-sha...HEAD") ? "lib/committed.ts\n" : ""),
+      "base-sha",
+    );
+    expect(files).toEqual(["lib/committed.ts"]);
+  });
+
+  it("ignores blank and all-zero CI base values", () => {
+    expect(collectChangedFiles("/tmp", () => "", " ")).toEqual([]);
+    expect(collectChangedFiles("/tmp", () => "", "000000")).toEqual([]);
+  });
 });
 
 describe("path helpers", () => {
@@ -77,6 +91,10 @@ describe("reviewChangedFiles", () => {
     fs.writeFileSync(path.join(root, "lib/ok.ts"), "export const ok = 1;\n");
     fs.writeFileSync(path.join(root, "lib/ok.test.ts"), "test");
     fs.writeFileSync(
+      path.join(root, "lib/missing.ts"),
+      "export const missing = 1;\n",
+    );
+    fs.writeFileSync(
       path.join(root, "lib/big.ts"),
       Array.from({ length: 210 }, (_, i) => `export const n${i} = ${i};`).join(
         "\n",
@@ -104,25 +122,24 @@ describe("mapFilesToCriteria", () => {
       mapFilesToCriteria([
         "lib/harness/schema.ts",
         "lib/harness/contracts.ts",
+        "lib/interview/contracts.ts",
         "lib/harness/engine.ts",
         "lib/harness/heuristics.ts",
         "evals/goldens/a.json",
         "evals/holdouts/b.json",
-        "evals/canaries/c.json",
         "lib/harness/review.ts",
         "lib/harness/review-diff.ts",
-        "app/page.tsx",
+        "app/setup/page.tsx",
+        "app/interview/page.tsx",
+        "app/report/page.tsx",
       ]),
     ).toEqual([
-      "ACC-L0-EMPTY-ANSWER",
-      "ACC-L0-GROUNDING",
-      "ACC-L0-SCHEMA",
-      "ACC-L0-STATE-CAP",
-      "ACC-L1-CANARIES",
-      "ACC-L1-GOLDENS",
-      "ACC-L1-HOLDOUTS",
-      "ACC-L2-REVIEW",
-      "ACC-UI-LANDING",
+      "ACC-HARNESS-BEHAVIOR",
+      "ACC-HARNESS-REVIEW",
+      "ACC-PRODUCT-ADAPTIVE-INTERVIEW",
+      "ACC-PRODUCT-GROUNDED-REPORT",
+      "ACC-PRODUCT-SESSION-CONFIG",
+      "ACC-RUNTIME-CONTRACTS",
     ]);
     expect(mapFilesToCriteria(["README.md"])).toEqual([]);
   });

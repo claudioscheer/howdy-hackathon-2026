@@ -2,11 +2,20 @@
   "id": "holdout-soft-skill-claims",
   "description": "Paraphrased generic claim with no golden keywords",
   "input": {
-    "role": "Staff Distributed Systems Engineer",
-    "seniority": "Staff",
-    "targetTechStack": ["Go", "Kubernetes", "gRPC"],
-    "question": "Describe a complex distributed systems challenge you tackled.",
-    "answer": "Folks say I keep clients happy and I never drop the ball."
+    "opportunity": {
+      "id": "fictional-distributed-systems-role",
+      "role": "Staff Distributed Systems Engineer",
+      "seniority": "Staff",
+      "targetTechStack": ["Go", "Kubernetes", "gRPC"],
+      "interviewType": "technical"
+    },
+    "question": {
+      "id": "q-distributed-systems",
+      "prompt": "Describe a complex distributed systems challenge you tackled.",
+      "primaryDimension": "specificity"
+    },
+    "answer": "Folks say I keep clients happy and I never drop the ball.",
+    "history": []
   },
   "expected": {
     "decision": "FOLLOW_UP",

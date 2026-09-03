@@ -2,11 +2,20 @@
   "id": "vague-specificity",
   "description": "Vague answer with generic claims and no concrete situation or metric",
   "input": {
-    "role": "Senior Full-Stack Engineer",
-    "seniority": "Senior",
-    "targetTechStack": ["Next.js", "TypeScript", "PostgreSQL"],
-    "question": "Tell me about a challenging stakeholder disagreement you resolved.",
-    "answer": "I always communicate well with stakeholders and keep everyone aligned on project goals."
+    "opportunity": {
+      "id": "fictional-full-stack-role",
+      "role": "Senior Full-Stack Engineer",
+      "seniority": "Senior",
+      "targetTechStack": ["Next.js", "TypeScript", "PostgreSQL"],
+      "interviewType": "behavioral"
+    },
+    "question": {
+      "id": "q-stakeholder-disagreement",
+      "prompt": "Tell me about a challenging stakeholder disagreement you resolved.",
+      "primaryDimension": "specificity"
+    },
+    "answer": "I always communicate well with stakeholders and keep everyone aligned on project goals.",
+    "history": []
   },
   "expected": {
     "decision": "FOLLOW_UP",

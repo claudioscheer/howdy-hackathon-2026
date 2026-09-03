@@ -2,11 +2,20 @@
   "id": "empty-answer",
   "description": "Blank answer must fail closed to FOLLOW_UP before any provider runs",
   "input": {
-    "role": "Software Engineer",
-    "seniority": "Mid",
-    "targetTechStack": ["TypeScript"],
-    "question": "Tell me about a recent production incident you owned.",
-    "answer": ""
+    "opportunity": {
+      "id": "fictional-software-role",
+      "role": "Software Engineer",
+      "seniority": "Mid",
+      "targetTechStack": ["TypeScript"],
+      "interviewType": "behavioral"
+    },
+    "question": {
+      "id": "q-recent-incident",
+      "prompt": "Tell me about a recent production incident you owned.",
+      "primaryDimension": "specificity"
+    },
+    "answer": "",
+    "history": []
   },
   "expected": {
     "decision": "FOLLOW_UP",

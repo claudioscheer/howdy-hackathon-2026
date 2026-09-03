@@ -12,29 +12,36 @@ const idleState: QuestionState = {
 
 function input(answer: string, question = "Tell me about a recent project.") {
   return {
-    role: "Engineer",
-    seniority: "Senior",
-    targetTechStack: ["TypeScript"],
-    question,
+    opportunity: {
+      id: "fictional-role",
+      role: "Engineer",
+      seniority: "Senior",
+      targetTechStack: ["TypeScript"],
+      interviewType: "technical" as const,
+    },
+    question: {
+      id: "q1",
+      prompt: question,
+      primaryDimension: "specificity" as const,
+    },
     answer,
+    history: [],
   };
 }
 
-describe("golden, holdout, and canary fixtures", () => {
+describe("golden and holdout fixtures", () => {
   const engine = new InterviewEngine(new DeterministicStubProvider());
   const evalsDir = path.resolve(import.meta.dirname, "../../evals");
   const goldens = loadFixturesFromDir(path.join(evalsDir, "goldens"));
   const holdouts = loadFixturesFromDir(path.join(evalsDir, "holdouts"));
-  const canaries = loadFixturesFromDir(path.join(evalsDir, "canaries"));
 
-  it("has a regression set, independent holdouts, and a canary", () => {
+  it("has a regression set and independent holdouts", () => {
     expect(goldens.length).toBeGreaterThanOrEqual(7);
     expect(holdouts.length).toBeGreaterThanOrEqual(3);
-    expect(canaries.length).toBeGreaterThanOrEqual(1);
   });
 
-  for (const fixture of [...goldens, ...holdouts, ...canaries]) {
-    it(`${fixture.stubMustMiss ? "canary" : "fixture"} [${fixture.id}]: ${fixture.description}`, async () => {
+  for (const fixture of [...goldens, ...holdouts]) {
+    it(`fixture [${fixture.id}]: ${fixture.description}`, async () => {
       const result = await engine.evaluateTurn(
         fixture.input,
         fixtureState(fixture),

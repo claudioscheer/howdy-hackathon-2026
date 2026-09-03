@@ -98,38 +98,13 @@ export function dimensionCoverageFailures(goldens: EvalFixture[]): string[] {
   return failures;
 }
 
-export function canaryFlagFailures(
-  goldens: EvalFixture[],
-  holdouts: EvalFixture[],
-  canaries: EvalFixture[],
-): string[] {
-  const failures: string[] = [];
-  if (canaries.length === 0) {
-    failures.push("Suite needs at least one canary fixture");
-  }
-  for (const fixture of [...goldens, ...holdouts]) {
-    if (fixture.stubMustMiss) {
-      failures.push(`[${fixture.id}] is not a canary but sets stubMustMiss`);
-    }
-  }
-  for (const fixture of canaries) {
-    if (fixture.stubMustMiss !== true) {
-      failures.push(`Canary [${fixture.id}] must set stubMustMiss: true`);
-    }
-  }
-  return failures;
-}
-
 export function reviewEvalSuite(input: {
   goldens: EvalFixture[];
   holdouts: EvalFixture[];
-  canaries: EvalFixture[];
 }): string[] {
   return [
-    ...duplicateIdFailures([input.goldens, input.holdouts, input.canaries]),
+    ...duplicateIdFailures([input.goldens, input.holdouts]),
     ...dimensionCoverageFailures(input.goldens),
-    ...canaryFlagFailures(input.goldens, input.holdouts, input.canaries),
     ...independenceFailures(input.goldens, input.holdouts, "Holdout"),
-    ...independenceFailures(input.goldens, input.canaries, "Canary"),
   ];
 }

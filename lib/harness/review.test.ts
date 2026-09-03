@@ -9,7 +9,6 @@ describe("reviewHarness", () => {
     const report = reviewHarness({
       goldens: loadFixturesFromDir(path.join(root, "evals/goldens")),
       holdouts: loadFixturesFromDir(path.join(root, "evals/holdouts")),
-      canaries: loadFixturesFromDir(path.join(root, "evals/canaries")),
       rootDir: root,
       changedFiles: [],
     });
@@ -23,7 +22,6 @@ describe("reviewHarness", () => {
     const report = reviewHarness({
       goldens: loadFixturesFromDir(path.join(root, "evals/goldens")),
       holdouts: loadFixturesFromDir(path.join(root, "evals/holdouts")),
-      canaries: loadFixturesFromDir(path.join(root, "evals/canaries")),
       rootDir: root,
     });
     expect(report.changedFiles.length).toBeGreaterThan(0);

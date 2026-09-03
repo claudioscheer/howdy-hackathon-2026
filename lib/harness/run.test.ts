@@ -32,11 +32,20 @@ describe("evaluateSuite", () => {
       id: "mismatch",
       description: "Expects MOVE_ON on a vague answer",
       input: {
-        role: "Engineer",
-        seniority: "Senior",
-        targetTechStack: ["Go"],
-        question: "Tell me about a recent project.",
+        opportunity: {
+          id: "fictional-role",
+          role: "Engineer",
+          seniority: "Senior",
+          targetTechStack: ["Go"],
+          interviewType: "technical",
+        },
+        question: {
+          id: "q1",
+          prompt: "Tell me about a recent project.",
+          primaryDimension: "specificity",
+        },
         answer: "I always communicate well with stakeholders.",
+        history: [],
       },
       expected: { decision: "MOVE_ON" },
     });
@@ -61,11 +70,20 @@ describe("evaluateSuite", () => {
       id: "no-dimension",
       description: "Expects FOLLOW_UP, provider returns MOVE_ON",
       input: {
-        role: "Engineer",
-        seniority: "Senior",
-        targetTechStack: ["Go"],
-        question: "Tell me about a recent project.",
+        opportunity: {
+          id: "fictional-role",
+          role: "Engineer",
+          seniority: "Senior",
+          targetTechStack: ["Go"],
+          interviewType: "technical",
+        },
+        question: {
+          id: "q1",
+          prompt: "Tell me about a recent project.",
+          primaryDimension: "specificity",
+        },
         answer: "We cut p99 from 800ms to 80ms.",
+        history: [],
       },
       expected: { decision: "FOLLOW_UP", dimension: "specificity" },
     });
@@ -120,7 +138,8 @@ describe("runHarness", () => {
     expect(result.trace.timestamp).toBe("2026-09-03T00:00:00.000Z");
     expect(result.trace.layer1.totalGoldens).toBeGreaterThanOrEqual(7);
     expect(result.trace.layer1.totalHoldouts).toBeGreaterThanOrEqual(3);
-    expect(result.trace.layer1.totalCanaries).toBeGreaterThanOrEqual(1);
+    expect(result.trace.sensitivity.alwaysMoveOnRejected).toBe(true);
+    expect(result.trace.sensitivity.alwaysFollowUpRejected).toBe(true);
   });
 
   it("uses the system clock when now is omitted", async () => {

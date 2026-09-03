@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { type EvalFixture, EvalFixtureSchema } from "./fixtures";
 import {
   answerSimilarityFailure,
-  canaryFlagFailures,
   dimensionCoverageFailures,
   duplicateIdFailures,
   independenceFailures,
@@ -13,20 +12,27 @@ function fixture(
   id: string,
   answer: string,
   expected: EvalFixture["expected"],
-  stubMustMiss?: boolean,
 ): EvalFixture {
   return EvalFixtureSchema.parse({
     id,
     description: `Fixture ${id}`,
     input: {
-      role: "Engineer",
-      seniority: "Senior",
-      targetTechStack: ["Go"],
-      question: "Describe a distributed systems challenge.",
+      opportunity: {
+        id: "fictional-role",
+        role: "Engineer",
+        seniority: "Senior",
+        targetTechStack: ["Go"],
+        interviewType: "technical",
+      },
+      question: {
+        id: "q1",
+        prompt: "Describe a distributed systems challenge.",
+        primaryDimension: "specificity",
+      },
       answer,
+      history: [],
     },
     expected,
-    stubMustMiss,
   });
 }
 
@@ -86,29 +92,6 @@ describe("dimensionCoverageFailures", () => {
   });
 });
 
-describe("canaryFlagFailures", () => {
-  it("requires canaries and stubMustMiss only on canaries", () => {
-    const golden = fixture("g", "golden answer text here", {
-      decision: "MOVE_ON",
-    });
-    const flagged = fixture(
-      "g2",
-      "another golden answer text",
-      { decision: "MOVE_ON" },
-      true,
-    );
-    expect(canaryFlagFailures([golden], [], []).join(" ")).toMatch(
-      /at least one canary/,
-    );
-    expect(canaryFlagFailures([flagged], [], [golden])).toEqual(
-      expect.arrayContaining([
-        expect.stringMatching(/not a canary/),
-        expect.stringMatching(/must set stubMustMiss/),
-      ]),
-    );
-  });
-});
-
 describe("reviewEvalSuite", () => {
   it("returns no findings for a balanced independent suite", () => {
     const goldens = [
@@ -142,14 +125,6 @@ describe("reviewEvalSuite", () => {
         dimension: "specificity",
       }),
     ];
-    const canaries = [
-      fixture(
-        "c1",
-        "handled the usual stuff and it went fine",
-        { decision: "FOLLOW_UP", dimension: "specificity" },
-        true,
-      ),
-    ];
-    expect(reviewEvalSuite({ goldens, holdouts, canaries })).toEqual([]);
+    expect(reviewEvalSuite({ goldens, holdouts })).toEqual([]);
   });
 });

@@ -15,11 +15,20 @@ const fixture: EvalFixture = EvalFixtureSchema.parse({
   id: "sample",
   description: "Report fixture",
   input: {
-    role: "Engineer",
-    seniority: "Senior",
-    targetTechStack: ["Go"],
-    question: "Tell me about a recent project.",
+    opportunity: {
+      id: "fictional-role",
+      role: "Engineer",
+      seniority: "Senior",
+      targetTechStack: ["Go"],
+      interviewType: "technical",
+    },
+    question: {
+      id: "q1",
+      prompt: "Tell me about a recent project.",
+      primaryDimension: "specificity",
+    },
     answer: "We cut p99 from 800ms to 80ms.",
+    history: [],
   },
   expected: { decision: "MOVE_ON" },
 });
@@ -37,7 +46,6 @@ describe("buildCaseTrace", () => {
       true,
     );
     expect(trace.dimension).toBeNull();
-    expect(trace.stubMustMiss).toBe(false);
     expect(trace.pass).toBe(true);
   });
 });
@@ -45,14 +53,14 @@ describe("buildCaseTrace", () => {
 describe("acceptance document", () => {
   it("defaults unproven criteria to false", () => {
     const doc = buildAcceptanceDocument({
-      "ACC-L0-SCHEMA": { pass: true, evidence: "schema" },
+      "ACC-RUNTIME-CONTRACTS": { pass: true, evidence: "contracts" },
     });
     expect(doc.project).toBe("Howdy Interview Coach");
     expect(doc.criteria).toHaveLength(ACCEPTANCE_SPECS.length);
     expect(doc.criteria[0]?.passes).toBe(true);
     expect(doc.criteria.some((item) => item.passes === false)).toBe(true);
     expect(
-      doc.criteria.find((item) => item.id === "ACC-L2-REVIEW")?.evidence,
+      doc.criteria.find((item) => item.id === "ACC-HARNESS-REVIEW")?.evidence,
     ).toBe("not proven this run");
   });
 });
@@ -70,14 +78,18 @@ describe("persistHarnessOutputs", () => {
           totalGoldens: 1,
           holdoutsPassed: 0,
           totalHoldouts: 0,
-          canariesPassed: 0,
-          totalCanaries: 0,
+        },
+        sensitivity: {
+          alwaysMoveOnRejected: true,
+          alwaysFollowUpRejected: true,
         },
         review: { findings: [], changedFiles: [], mappedCriteria: [] },
         cases: [],
         failures: [],
       },
-      { "ACC-L0-SCHEMA": { pass: true, evidence: "schema" } },
+      {
+        "ACC-RUNTIME-CONTRACTS": { pass: true, evidence: "contracts" },
+      },
     );
     expect(
       fs.existsSync(path.join(root, "evals/traces/latest-eval.json")),
@@ -117,6 +129,5 @@ describe("countSuite", () => {
     ];
     expect(countSuite(cases, "golden")).toEqual({ passed: 1, total: 1 });
     expect(countSuite(cases, "holdout")).toEqual({ passed: 0, total: 1 });
-    expect(countSuite(cases, "canary")).toEqual({ passed: 0, total: 0 });
   });
 });
