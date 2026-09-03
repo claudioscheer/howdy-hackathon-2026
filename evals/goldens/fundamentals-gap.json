@@ -1,0 +1,15 @@
+{
+  "id": "fundamentals-gap",
+  "description": "Senior claims paired with failure on basic role concepts",
+  "input": {
+    "role": "Principal Database Architect",
+    "seniority": "Principal",
+    "targetTechStack": ["PostgreSQL", "Distributed SQL"],
+    "question": "How do you optimize slow analytical queries on a large PostgreSQL database?",
+    "answer": "As a principal architect with 15 years experience, I run SELECT * FROM users WHERE id IN (SELECT user_id FROM orders), and honestly I don't use indexes because they take up too much memory."
+  },
+  "expected": {
+    "decision": "FOLLOW_UP",
+    "dimension": "fundamentals"
+  }
+}

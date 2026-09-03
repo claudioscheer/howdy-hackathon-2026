@@ -1,0 +1,41 @@
+{
+  "project": "Howdy Interview Coach",
+  "version": "1.0.0",
+  "criteria": [
+    {
+      "id": "ACC-L0-SCHEMA",
+      "layer": 0,
+      "description": "Deterministic contract: Model output parses against strict decision schema with required followUp and dimension on FOLLOW_UP",
+      "passes": true,
+      "evidence": "evals/traces/latest-eval.json#layer0.schema"
+    },
+    {
+      "id": "ACC-L0-GROUNDING",
+      "layer": 0,
+      "description": "Deterministic contract: Feedback report quotes must match verbatim substrings in transcript",
+      "passes": true,
+      "evidence": "evals/traces/latest-eval.json#layer0.grounding"
+    },
+    {
+      "id": "ACC-L0-STATE-CAP",
+      "layer": 0,
+      "description": "State machine contract: Maximum 2 follow-ups per question before forced MOVE_ON",
+      "passes": true,
+      "evidence": "__tests__/harness/state-machine.test.ts"
+    },
+    {
+      "id": "ACC-L1-GOLDENS",
+      "layer": 1,
+      "description": "Golden transcripts: 100% pass on frozen failure mode fixtures (specificity, relevance, fundamentals, structure, cap)",
+      "passes": true,
+      "evidence": "evals/traces/latest-eval.json#layer1.passedGoldens"
+    },
+    {
+      "id": "ACC-L1-HOLDOUTS",
+      "layer": 1,
+      "description": "Holdout fixtures: Anti-overfitting validation passes without hardcoded answer overrides",
+      "passes": true,
+      "evidence": "evals/traces/latest-eval.json#layer1.holdoutsPassed"
+    }
+  ]
+}

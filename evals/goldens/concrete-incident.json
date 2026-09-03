@@ -1,0 +1,14 @@
+{
+  "id": "concrete-incident",
+  "description": "Concrete technical response with specific metrics, diagnosis, and tradeoffs",
+  "input": {
+    "role": "Senior Backend Engineer",
+    "seniority": "Senior",
+    "targetTechStack": ["Java", "Spring Boot", "PostgreSQL"],
+    "question": "Can you walk through a production incident you diagnosed and resolved?",
+    "answer": "In Q3 2025 on our checkout service, P99 latency jumped from 45ms to 1200ms. I analyzed thread dumps, identified connection pool exhaustion in HikariCP due to an unindexed query, added the composite index on (order_id, tenant_id), and adjusted max pool size from 20 to 50, bringing P99 back down to 38ms."
+  },
+  "expected": {
+    "decision": "MOVE_ON"
+  }
+}

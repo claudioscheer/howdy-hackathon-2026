@@ -1,0 +1,15 @@
+{
+  "id": "answers-different-question",
+  "description": "Candidate wanders off-topic answering a completely different question than asked",
+  "input": {
+    "role": "Lead Data Engineer",
+    "seniority": "Lead",
+    "targetTechStack": ["PostgreSQL", "Kafka", "ClickHouse"],
+    "question": "How would you design a database schema for multi-tenant billing with partitioned audit logs?",
+    "answer": "I really love agile standups and daily syncs because they allow us to talk about velocity, and I always ensure the team finishes their Jira sprint tasks on time."
+  },
+  "expected": {
+    "decision": "FOLLOW_UP",
+    "dimension": "structure"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "id": "followup-cap-exhausted",
+  "description": "Third weak answer on the same question must trigger MOVE_ON by state-machine policy",
+  "input": {
+    "role": "Software Engineer",
+    "seniority": "Mid",
+    "targetTechStack": ["TypeScript"],
+    "question": "Can you give me more detail on that implementation?",
+    "answer": "I work hard and deliver results, that's just how I work."
+  },
+  "state": {
+    "questionId": "q-1",
+    "followUpCount": 2,
+    "isComplete": false
+  },
+  "expected": {
+    "finalDecision": "MOVE_ON",
+    "isCapped": true
+  }
+}

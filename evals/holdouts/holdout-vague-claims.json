@@ -1,0 +1,15 @@
+{
+  "id": "holdout-vague-claims",
+  "description": "Holdout test fixture: candidate claims soft skills without any metrics or examples",
+  "input": {
+    "role": "Staff Distributed Systems Engineer",
+    "seniority": "Staff",
+    "targetTechStack": ["Go", "Kubernetes", "gRPC"],
+    "question": "Describe a complex distributed systems challenge you tackled.",
+    "answer": "I am a good communicator and I always make sure our microservices are robust and agile."
+  },
+  "expected": {
+    "decision": "FOLLOW_UP",
+    "dimension": "specificity"
+  }
+}
