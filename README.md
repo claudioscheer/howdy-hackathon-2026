@@ -1,83 +1,70 @@
 # Howdy Interview Coach
 
-Adaptive mock interviews for Howdy candidates, built for **Dev Day 2026**. The product is still a landing scaffold. The thing we are shipping first is the **verification harness** agents must use to build the rest.
+Practice interviews for Howdy candidates. The interviewer follows up when an answer is vague, then returns a scorecard grounded in the transcript.
 
-## What this repo is right now
+Built for Howdy Dev Day 2026. The product UI is still a landing page. What we have working now is the **verification harness** agents must use before they call work done.
 
-- A Next.js 16 app at the **repository root** (the nested `my-app/` folder is gone).
-- A landing page with pinned copy and `data-testid`s so unit tests can catch UI regressions.
-- A harness agents run before they claim work is done: **build → lint → unit tests → golden evals**.
-- Interview *product* flows (session setup, live interviewer, reports) are **not implemented yet**. Specs stay in `SPEC.md` for later.
+## Run the app
 
-## Why the harness matters
-
-Dev Day scores **Harness + Autonomous Loops at 25 points** (tied for first) and has a dedicated prize for it. Judges want:
-
-```
-BUILD → VERIFY → OBSERVE → FIX → REPEAT
-```
-
-with no human diagnosing every failure. That only works if verify tells the truth.
-
-We do **not** use LLM-as-judge as a gate. Same transcript, two scores; verbosity bias; agents game the rubric; it is slow and needs an API key. Details: [`docs/HARNESS.md`](./docs/HARNESS.md).
-
-What we do use:
-
-| Layer | What | Gate? |
-|---|---|---|
-| 0 | Typecheck, lint, Zod decision schema, transcript substring grounding, follow-up cap | Yes |
-| 1 | Frozen goldens + a holdout the engine must not overfit | Yes |
-| UI unit tests | Landing copy and `data-testid`s | Yes |
-| Playwright e2e | Later, stubbed LLM | Not yet |
-| LLM-as-judge | Optional commentary | Never |
-
-## Run it
-
-Need Node 20+.
+Node 20+ and Docker (Postgres is not used by the app yet).
 
 ```bash
+cp .env.example .env.local
+docker compose up -d
 npm install
 npm run dev          # http://localhost:3000
-npm test             # Vitest (fast). Claude Stop hook runs this.
-npm run verify       # Canonical gate. Silent on success, full output on failure.
 ```
 
-`npm run verify` runs `scripts/verify.sh`:
-
-1. `npm run build` — Next.js production build / TypeScript
-2. `npm run lint`
-3. `npm run test` — Vitest
-4. `npm run harness` — goldens, holdouts, writes `evals/traces/latest-eval.json` and updates `acceptance.json` from evidence
-
-Do not claim a workstream is done if verify exits non-zero.
-
-## Repository layout
-
-```
-app/                    Next.js App Router (landing only for now)
-lib/ui/copy.ts          Landing copy pinned by unit tests
-lib/harness/            Decision schema, stub provider, engine
-__tests__/              Unit tests (page + harness contracts)
-evals/goldens/          Frozen FOLLOW_UP / MOVE_ON fixtures
-evals/holdouts/         Fixtures the implementer should not “fix” to pass
-evals/traces/           Last harness run
-scripts/verify.sh       Canonical gate (silent success)
-acceptance.json         Default-fail criteria flipped only with evidence
-AGENTS.md               Agent operating rules
-CLAUDE.md               @AGENTS.md
-docs/HARNESS.md         Why this harness, including judge flakiness
-hackathon/              Dev Day rules
-SPEC.md                 Product spec (future work)
+```bash
+npm test             # unit tests next to the source they cover
+npm run verify       # the gate: build, lint, tests, golden evals
 ```
 
-## Agents
+`npm run verify` is silent when green. On failure it prints only the failing output and exits non-zero. Do not claim a change is done until this command passes.
 
-- Read [`AGENTS.md`](./AGENTS.md) first. [`CLAUDE.md`](./CLAUDE.md) only points there.
-- Claude Code Stop hook: `.claude/hooks/stop-verify.sh` blocks stop when unit tests fail.
-- Worker map and parallelization: [`docs/SYSTEM.md`](./docs/SYSTEM.md).
+## Harness
 
-## Related docs
+Dev Day scores harness and autonomous loops at 25 points. Agents must **build → verify → observe → fix → repeat** without a human diagnosing every failure.
 
-- [`SPEC.md`](./SPEC.md) — product requirements (not the current build target)
-- [`docs/HARNESS.md`](./docs/HARNESS.md) — harness philosophy
-- [`hackathon/howdy-2026-dev-day.md`](./hackathon/howdy-2026-dev-day.md) — scoring
+What we run in `verify`:
+
+1. Next.js production build (typecheck)
+2. ESLint
+3. Vitest (colocated `*.test.ts` / `*.test.tsx`)
+4. Golden and holdout fixtures in `evals/` (does this answer get `FOLLOW_UP` or `MOVE_ON`?)
+
+We do **not** use an LLM as the merge gate. Same transcript can get two scores; the judge prefers fluent prose; agents game the rubric. Schema, goldens, and unit tests are the gate. The argument is in [`docs/HARNESS.md`](./docs/HARNESS.md).
+
+`acceptance.json` records which criteria the last harness run proved. Do not set `"passes": true` by hand.
+
+## Docs
+
+| File | Why it exists |
+|---|---|
+| [`AGENTS.md`](./AGENTS.md) | How every coding tool (Grok, Codex, Antigravity, Claude, Cursor) should work in this repo |
+| [`SPEC.md`](./SPEC.md) | Product spec. Not implemented yet |
+| [`docs/HARNESS.md`](./docs/HARNESS.md) | What we trust, what we do not, why LLM-as-judge is not a gate |
+| [`docs/SYSTEM.md`](./docs/SYSTEM.md) | Dev Day **requires** this: roles, parallel work, how we integrate |
+| [`docs/AI-DEV-LOG.md`](./docs/AI-DEV-LOG.md) | Dev Day **requires** this: one recorded act → fail → fix → pass loop |
+| [`hackathon/howdy-2026-dev-day.md`](./hackathon/howdy-2026-dev-day.md) | Competition rules |
+
+## Layout
+
+```
+.
+├── app/                      Next.js UI. page.test.tsx sits next to page.tsx
+├── lib/
+│   ├── harness/              Decision schema, stub engine, their tests
+│   └── ui/                   Landing copy + copy.test.ts
+├── evals/
+│   ├── goldens/              Frozen Q/A → expected FOLLOW_UP or MOVE_ON
+│   ├── holdouts/             Same idea; engine must not “fix” these to pass
+│   └── traces/               Last harness run
+├── scripts/verify.sh         Canonical gate
+├── acceptance.json           Default-fail criteria, written by the harness
+├── docker-compose.yml        Postgres 16 (app does not connect yet)
+├── .env.example              Compose credentials template
+├── AGENTS.md                 Agent instructions (all tools)
+├── SPEC.md                   Product spec
+└── docs/                     HARNESS, SYSTEM, AI-DEV-LOG
+```

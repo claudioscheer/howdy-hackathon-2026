@@ -21,7 +21,7 @@
       "layer": 0,
       "description": "State machine contract: Maximum 2 follow-ups per question before forced MOVE_ON",
       "passes": true,
-      "evidence": "__tests__/harness/state-machine.test.ts"
+      "evidence": "lib/harness/schema.test.ts"
     },
     {
       "id": "ACC-L1-GOLDENS",
@@ -42,7 +42,7 @@
       "layer": 0,
       "description": "Landing page exposes badge, title, description, start-practice, and harness hint via data-testid",
       "passes": true,
-      "evidence": "__tests__/page.test.tsx"
+      "evidence": "app/page.test.tsx"
     }
   ]
 }

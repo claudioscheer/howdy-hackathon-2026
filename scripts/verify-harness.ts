@@ -168,7 +168,7 @@ async function main() {
         item.evidence = "evals/traces/latest-eval.json#layer0.grounding";
       } else if (item.id === "ACC-L0-STATE-CAP") {
         item.passes = failures.length === 0;
-        item.evidence = "__tests__/harness/state-machine.test.ts";
+        item.evidence = "lib/harness/schema.test.ts";
       } else if (item.id === "ACC-L1-GOLDENS") {
         item.passes =
           results.layer1.passedGoldens === results.layer1.totalGoldens &&
@@ -181,7 +181,7 @@ async function main() {
         item.evidence = "evals/traces/latest-eval.json#layer1.holdoutsPassed";
       } else if (item.id === "ACC-UI-LANDING") {
         item.passes = failures.length === 0;
-        item.evidence = "__tests__/page.test.tsx";
+        item.evidence = "app/page.test.tsx";
       }
     }
     fs.writeFileSync(acceptancePath, JSON.stringify(acceptance, null, 2));
