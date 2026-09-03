@@ -75,4 +75,36 @@ Eval trace saved to: evals/traces/latest-eval.json
 Updated acceptance.json with verified evidence.
 ✅ ALL HARNESS CHECKS PASSED.
 ```
-Result: The loop closed autonomously and updated the default-fail acceptance tracker [acceptance.json](file:///Users/howdy/Documents/GitHub/howdy-hackathon-2026/acceptance.json).
+Result: The loop closed autonomously and updated the default-fail acceptance tracker (`acceptance.json`).
+
+---
+
+## Log Entry 4: Landing UI regression caught by unit tests
+
+- **Date:** 2026-09-03
+- **Phase:** Harness test bed only (no interview product yet).
+
+### ACT
+Landing copy moved to `lib/ui/copy.ts`. Page gained `data-testid="start-practice"` so agents have a stable target.
+
+### VERIFY → OBSERVE A PROBLEM
+`start-practice` was removed from `app/page.tsx` to check the gate. `npm test -- __tests__/page.test.tsx` failed:
+
+```
+Unable to find an element by: [data-testid="start-practice"]
+```
+
+Exit code 1. No human diagnosis required — the test named the missing control.
+
+### FIX → VERIFY AGAIN
+Restored the control. `npm run verify` (silent-on-success):
+
+```
+  ✓ build / typecheck
+  ✓ lint
+  ✓ unit tests
+  ✓ harness evals
+verify passed
+```
+
+This is the loop Dev Day asks for, on the current Next.js app, without implementing SPEC flows.

@@ -6,37 +6,14 @@
 
 ## 1. High-Level Architecture
 
-The system coordinates specialized autonomous workers around deterministic contracts and mechanical backpressure:
+The system coordinates specialized **roles** around deterministic contracts. The operating rules agents actually follow live in [`AGENTS.md` §3](../AGENTS.md) (file ownership, not the ASCII drawing).
 
-```
-                         HUMAN (Claudio / Matheus)
-                                    │
-                           architecture / scope cuts
-                                    │
-                                    ▼
-                         ORCHESTRATOR AGENT
-                                    │
-       ┌────────────────────────────┼────────────────────────────┐
-       │                            │                            │
-       ▼                            ▼                            ▼
- Interview Engine Worker       Product UI Worker          Eval / Harness Worker
- (Prompts, schema, state)      (Next.js App, UI, a11y)    (Goldens, holdouts, trace runner)
-       │                            │                            │
-       └────────────────────────────┬────────────────────────────┘
-                                    ▼
-                          INTEGRATION AGENT
-                                    │
-                                    ▼
-                          FULL VERIFICATION GATE
-                          (`npm run verify`)
-                                    │
-                         failures? ─┴─ yes ──┐
-                                  ▲           │
-                                  └───────────┘
-                                        │ no
-                                        ▼
-                                 READY TO SHIP
-```
+**Sequence (serial at the ends, parallel in the middle):**
+
+1. Human sets architecture and scope.
+2. Orchestrator splits work into Engine / UI / Eval workstreams (these three may run in parallel; their write paths do not overlap).
+3. Integration runs `npm run verify`.
+4. On failure: return the log to the worker that owns the failing files, then verify again. On success: stop. Evidence is `acceptance.json` + `evals/traces/latest-eval.json`.
 
 ---
 
@@ -81,7 +58,7 @@ Dev Day emphasizes that **agent count is not the goal** and penalizes arbitrary 
   - Merges workstreams from the three workers.
   - Runs the canonical gate command: `npm run verify`.
   - Parses failure logs and directs targeted feedback back to the failing worker.
-  - Updates `PROGRESS.md` and generates verifiable traces.
+  - Confirms `npm run verify` is green; does not keep a separate progress log.
 
 ---
 
@@ -99,10 +76,9 @@ Rather than dumping all project files, test logs, and prompts into a single mass
 - When failures occur, only the failing assertion, diff, and file line are extracted and delivered to the fixing loop. This prevents context exhaustion and stops models from hallucinating false fixes.
 
 ### Durable Handoff on Disk
-- Workstream states survive context resets via:
-  - `PROGRESS.md`: Current active tasks and workstream statuses.
-  - `acceptance.json`: Default-fail criteria with verified trace pointers.
-  - `evals/traces/latest-eval.json`: Timestamped execution data.
+- `acceptance.json`: Default-fail criteria with verified trace pointers (written by `npm run harness` only).
+- `evals/traces/latest-eval.json`: Last harness run.
+- Git: the next session reads the repo.
 
 ---
 

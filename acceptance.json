@@ -36,6 +36,13 @@
       "description": "Holdout fixtures: Anti-overfitting validation passes without hardcoded answer overrides",
       "passes": true,
       "evidence": "evals/traces/latest-eval.json#layer1.holdoutsPassed"
+    },
+    {
+      "id": "ACC-UI-LANDING",
+      "layer": 0,
+      "description": "Landing page exposes badge, title, description, start-practice, and harness hint via data-testid",
+      "passes": true,
+      "evidence": "__tests__/page.test.tsx"
     }
   ]
 }

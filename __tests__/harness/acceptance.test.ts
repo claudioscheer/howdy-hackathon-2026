@@ -18,5 +18,8 @@ describe("Layer 4: Acceptance Criteria Registry", () => {
       expect(item).toHaveProperty("description");
       expect(typeof item.passes).toBe("boolean");
     }
+
+    const ids = content.criteria.map((item: { id: string }) => item.id);
+    expect(ids).toContain("ACC-UI-LANDING");
   });
 });

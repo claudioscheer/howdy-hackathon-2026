@@ -221,9 +221,9 @@ Canary: we keep at least one fixture that **must fail** if someone wires the jud
 
 Gates do not count unless the agent **cannot stop without them**.
 
-**One command:** `pnpm verify`
+**One command:** `npm run verify` (`scripts/verify.sh`)
 
-Runs Layer 0 → Layer 1 (stubbed goldens) → Layer 2 (e2e, stubbed LLM). Live-model evals and any judge run are a separate, explicit command, not on the Stop path.
+Runs Layer 0 (build, lint, schema tests) → Layer 1 (stubbed goldens) → landing unit tests. Live-model evals and any judge run are a separate, explicit command, not on the Stop path. Playwright e2e is not wired yet.
 
 **Silent on success, loud on failure.** Exit code 2 on fail so the coding-agent Stop hook re-engages. The agent sees the error, not a novel of passing tests.
 
@@ -231,7 +231,7 @@ Runs Layer 0 → Layer 1 (stubbed goldens) → Layer 2 (e2e, stubbed LLM). Live-
 
 **Independent evaluator.** After the builder thinks it is done, a **fresh-context** agent with no write/edit tools runs `pnpm verify` (and may use Playwright MCP on the running app). It returns `PASS` or `NEEDS_WORK`. Findings become the next builder prompt. The builder does not get to grade its own diff.
 
-**Handoff on disk.** `PROGRESS.md` + git. The loop survives a context window. That is the Dev Day autonomous-loop requirement: act → verify → observe a problem → fix → verify again, **with no new human instruction in the middle**.
+**Handoff on disk.** `acceptance.json`, `evals/traces/latest-eval.json`, and git. The loop survives a context window without a separate progress file: act → verify → observe a problem → fix → verify again, **with no new human instruction in the middle**.
 
 ## 4. Why this harness is the right one for us
 

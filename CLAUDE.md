@@ -9,4 +9,4 @@
 - **Specification:** See `SPEC.md`
 - **Architecture & System Map:** See `docs/SYSTEM.md`
 - **Harness Philosophy:** See `docs/HARNESS.md`
-- **Development Progress:** See `PROGRESS.md`
+- **Done means:** `npm run verify` exits 0 and `acceptance.json` was updated from that run (do not edit it by hand)

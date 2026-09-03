@@ -49,45 +49,37 @@ To keep implementation focused and prevent models from hallucinating unneeded fe
 
 ## 3. Worker Architecture & Ownership Boundaries
 
-Work is divided into 3 specialized roles, coordinated by an Orchestrator and verified by an Integration Agent:
+These are **roles**, not a requirement to spawn four named chat sessions. One agent may play one role per workstream. Do not invent extra agent personas.
 
-```
-                         HUMAN (Claudio / Matheus)
-                                    │
-                           architecture / scope cuts
-                                    │
-                                    ▼
-                         ORCHESTRATOR AGENT
-                                    │
-       ┌────────────────────────────┼────────────────────────────┐
-       │                            │                            │
-       ▼                            ▼                            ▼
- Interview Engine Worker       Product UI Worker          Eval / Harness Worker
- (Prompts, schema, state)      (Next.js App, UI, a11y)    (Goldens, holdouts, trace runner)
-       │                            │                            │
-       └────────────────────────────┬────────────────────────────┘
-                                    ▼
-                          INTEGRATION AGENT
-                                    │
-                                    ▼
-                          FULL VERIFICATION GATE
-                          (`npm run verify`)
-                                    │
-                         failures? ─┴─ yes ──┐
-                                  ▲           │
-                                  └───────────┘
-                                        │ no
-                                        ▼
-                                 READY TO SHIP
-```
+### Order of work
 
-### Worker Boundary Rules
-| Worker | Owns | FORBIDDEN From Modifying |
-|---|---|---|
-| **Interview Engine Worker** | Prompt templates, state machine (`lib/harness/schema.ts`), question router, scoring logic | `evals/holdouts/`, manual flips of `acceptance.json` |
-| **Product UI Worker** | App Router pages (`app/`), components, interactive UI, styling, `data-testid` attributes | Declaring features done without harness verification |
-| **Eval / Harness Worker** | Golden fixtures (`evals/goldens/`), holdouts (`evals/holdouts/`), harness runner, acceptance registry | Implementing core product features |
-| **Integration Agent** | Running `npm run verify`, regression checking, handoff logging in `PROGRESS.md` | Editing code without failing test context |
+1. **Human** sets architecture and scope (what is in / out). Do not expand scope.
+2. **Orchestrator** splits work into at most three parallel workstreams and names the owner of each. It does not implement features.
+3. **Workers** implement only inside their file list (below). They may run in parallel because their files do not overlap.
+4. **Integration** runs `npm run verify` after workers finish (or when merging). It does not rewrite product code to “make tests pass” by weakening goldens.
+5. If verify **fails**: send the failing log back to the worker that owns those files. That worker fixes. Integration runs verify again. Repeat until green. Do not skip this loop.
+6. If verify **passes**: the workstream is done. Do not also maintain a separate progress file.
+
+### Who owns which files
+
+Stay in your column. If a change needs another column, stop and hand off — do not edit across the boundary.
+
+| Role | You may edit | You must not edit | You are done when |
+|---|---|---|---|
+| **Interview Engine** | `lib/harness/schema.ts`, `lib/harness/engine.ts`, future `lib/engine/` prompts | `evals/holdouts/`, `acceptance.json` by hand, `app/` UI | Schema/engine tests pass; you have **not** touched holdouts |
+| **Product UI** | `app/`, `lib/ui/`, `__tests__/page.test.tsx`, styles, `data-testid`s | `evals/`, `lib/harness/`, `scripts/verify-harness.ts`, `acceptance.json` | Page tests pass; you have **not** declared the product done |
+| **Eval / Harness** | `evals/goldens/`, `evals/holdouts/`, `scripts/verify.sh`, `scripts/verify-harness.ts`, `__tests__/harness/` | `app/`, product feature code in `lib/engine/` (when it exists) | Goldens/holdouts still fail if the engine is wrong; you have **not** shipped UI |
+| **Integration** | `docs/AI-DEV-LOG.md` (one loop example for Dev Day, only when the loop actually ran) | Product logic, goldens, holdouts, UI — unless a verify failure names a one-line typo you introduced while merging | `npm run verify` exits 0 |
+
+`acceptance.json` is written **only** by `npm run harness` from evidence. Never set `"passes": true` by hand.
+
+### Parallelism (why three workers)
+
+Engine, UI, and Eval can run at the same time because they do not share write paths. Integration is **serial** and runs after those three. That is the only orchestration that matters.
+
+### Current phase (overrides the table)
+
+Interview setup / live session / report UI are **out of scope**. Engine worker: keep stub + schema, do not build a live LLM adapter yet. UI worker: landing page only. Eval worker: keep goldens and `verify`. Do not implement `SPEC.md` flows until a human says to.
 
 ---
 
@@ -99,17 +91,20 @@ Agents must operate autonomously:
 BUILD → VERIFY → OBSERVE → FIX → REPEAT
 ```
 
+### Current phase
+The interview product (setup, live session, report UI) is **not in scope yet**. Do not implement SPEC flows. The landing page and harness are the test bed. Small UI changes must keep `__tests__/page.test.tsx` green.
+
 ### Canonical Gate Command
 ```bash
 npm run verify
-# or
-pnpm verify
 ```
-This single command runs:
-1. `npm run build` (Next.js production build & TypeScript typecheck)
-2. `npm run lint` (ESLint checks)
-3. `npm run test` (Vitest unit and contract tests)
-4. `npm run harness` (Golden fixtures and acceptance evaluation)
+Runs `scripts/verify.sh` (silent on success, full log on failure, exit 2 on fail):
+1. `npm run build`
+2. `npm run lint`
+3. `npm run test`
+4. `npm run harness`
+
+Claude Code **Stop** hook runs `npm test` only (fast). Claiming done still requires `npm run verify`.
 
 **RULE:** An agent must NEVER claim work is complete if `npm run verify` exits with a non-zero code.
 
@@ -122,8 +117,8 @@ This single command runs:
 - **Layer 1 (Golden Transcripts - GATE):**
   - Frozen fixtures in `evals/goldens/` covering all 4 dimensions, concrete answers, and cap limits.
   - Holdout fixtures in `evals/holdouts/` to prevent prompt/router overfitting.
-- **Layer 2 (Browser / E2E - GATE):**
-  - Headless Playwright tests using deterministic stub providers.
+- **Layer 2 (Browser / E2E):**
+  - Not wired yet. Do not add Playwright until the interview UI exists. Landing regressions are caught by Vitest + Testing Library.
 - **Layer 3 (LLM-as-a-Judge - ADVISOR ONLY):**
   - Never a gate or stop-hook. LLM-as-judge is non-deterministic, biased toward verbosity, vulnerable to reward hacking, and slow. It cannot override failed contracts or goldens.
 - **Layer 4 (Default-Fail Acceptance - GATE):**
@@ -148,4 +143,4 @@ When verification fails during an agent run:
 2. **Formulate a hypothesis:** Diagnose the root cause in code or state logic.
 3. **Apply a minimal, targeted fix:** Do not rewrite unrelated components.
 4. **Rerun verification:** Execute `npm run verify` to confirm the fix works.
-5. **Log evidence:** Update `PROGRESS.md` and `docs/AI-DEV-LOG.md`.
+5. **Stop.** Green `npm run verify` is the evidence. Add a short note to `docs/AI-DEV-LOG.md` only when you closed a full ACT → VERIFY → FIX → VERIFY loop for the submission.
