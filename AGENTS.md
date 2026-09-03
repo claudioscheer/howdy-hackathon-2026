@@ -52,12 +52,12 @@ These are enforced by `npm run verify` (Prettier, ESLint, 100% unit coverage). D
 
 Roles, not extra chat personas. One agent, one column. Parallel work is allowed because the write paths do not overlap.
 
-| Role        | Edit                                                                                  | Do not edit                                                          |
-| ----------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Engine      | `lib/harness/schema.ts`, `lib/harness/engine.ts`                                      | `evals/holdouts/`, `acceptance.json`, `app/`                         |
-| UI          | `app/`, `lib/ui/`                                                                     | `evals/`, `lib/harness/`, `scripts/verify-harness.ts`                |
-| Eval        | `evals/goldens/`, `evals/holdouts/`, `scripts/verify.sh`, `scripts/verify-harness.ts` | Product UI and engine features                                       |
-| Integration | `docs/AI-DEV-LOG.md` (only after a real loop)                                         | Goldens, holdouts, product code (except a merge typo you introduced) |
+| Role        | Edit                                                                                                     | Do not edit                                                                    |
+| ----------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Engine      | `lib/harness/` (schema, stub, policy, review/report helpers)                                             | `evals/holdouts/`, `evals/canaries/`, `acceptance.json`, `app/`                |
+| UI          | `app/`, `lib/ui/`                                                                                        | `evals/`, `lib/harness/`, `scripts/verify-harness.ts`                          |
+| Eval        | `evals/goldens/`, `evals/holdouts/`, `evals/canaries/`, `scripts/verify.sh`, `scripts/verify-harness.ts` | Product UI and engine features                                                 |
+| Integration | `docs/AI-DEV-LOG.md` (only after a real loop)                                                            | Goldens, holdouts, canaries, product code (except a merge typo you introduced) |
 
 If verify fails, the owner of the failing files fixes it. Integration runs `verify` again.
 

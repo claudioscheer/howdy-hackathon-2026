@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
+import { ACCEPTANCE_SPECS } from "./report";
 
 describe("acceptance.json", () => {
   const acceptancePath = path.resolve(
@@ -21,8 +22,13 @@ describe("acceptance.json", () => {
       expect(item).toHaveProperty("description");
       expect(typeof item.passes).toBe("boolean");
     }
+  });
 
-    const ids = content.criteria.map((item: { id: string }) => item.id);
+  it("keeps canonical criterion ids in the harness spec", () => {
+    const ids = ACCEPTANCE_SPECS.map((item) => item.id);
     expect(ids).toContain("ACC-UI-LANDING");
+    expect(ids).toContain("ACC-L2-REVIEW");
+    expect(ids).toContain("ACC-L1-CANARIES");
+    expect(ids).toContain("ACC-L0-EMPTY-ANSWER");
   });
 });

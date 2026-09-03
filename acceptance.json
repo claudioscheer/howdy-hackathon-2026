@@ -5,44 +5,65 @@
     {
       "id": "ACC-L0-SCHEMA",
       "layer": 0,
-      "description": "Deterministic contract: Model output parses against strict decision schema with required followUp and dimension on FOLLOW_UP",
+      "description": "Deterministic contract: FOLLOW_UP requires followUp and dimension; invalid payloads are rejected",
       "passes": true,
-      "evidence": "evals/traces/latest-eval.json#layer0.schema"
+      "evidence": "lib/harness/schema.ts#InterviewerDecisionSchema (positive FOLLOW_UP and two negatives)"
     },
     {
       "id": "ACC-L0-GROUNDING",
       "layer": 0,
-      "description": "Deterministic contract: Feedback report quotes must match verbatim substrings in transcript",
+      "description": "Deterministic contract: Feedback quotes must be transcript substrings; fabricated and empty quotes fail",
       "passes": true,
-      "evidence": "evals/traces/latest-eval.json#layer0.grounding"
+      "evidence": "lib/harness/schema.ts#validateTranscriptGrounding (substring pass, fabricated fail, empty fail)"
     },
     {
       "id": "ACC-L0-STATE-CAP",
       "layer": 0,
       "description": "State machine contract: Maximum 2 follow-ups per question before forced MOVE_ON",
       "passes": true,
-      "evidence": "lib/harness/schema.test.ts"
+      "evidence": "lib/harness/schema.ts#resolveDecisionWithPolicy"
+    },
+    {
+      "id": "ACC-L0-EMPTY-ANSWER",
+      "layer": 0,
+      "description": "Empty or whitespace answers fail closed to FOLLOW_UP / specificity",
+      "passes": true,
+      "evidence": "lib/harness/schema.ts#blankAnswerDecision"
     },
     {
       "id": "ACC-L1-GOLDENS",
       "layer": 1,
-      "description": "Golden transcripts: 100% pass on frozen failure mode fixtures (specificity, relevance, fundamentals, structure, cap)",
+      "description": "Golden transcripts: 100% pass on frozen failure-mode fixtures",
       "passes": true,
       "evidence": "evals/traces/latest-eval.json#layer1.passedGoldens"
     },
     {
       "id": "ACC-L1-HOLDOUTS",
       "layer": 1,
-      "description": "Holdout fixtures: Anti-overfitting validation passes without hardcoded answer overrides",
+      "description": "Holdout fixtures pass without copying golden answers",
       "passes": true,
       "evidence": "evals/traces/latest-eval.json#layer1.holdoutsPassed"
+    },
+    {
+      "id": "ACC-L1-CANARIES",
+      "layer": 1,
+      "description": "Canaries stay unsolved by the stub so a 100% suite cannot be faked",
+      "passes": true,
+      "evidence": "evals/traces/latest-eval.json#layer1.canariesPassed"
+    },
+    {
+      "id": "ACC-L2-REVIEW",
+      "layer": 2,
+      "description": "Deterministic review: suite health, holdout independence, colocated tests for changed source",
+      "passes": true,
+      "evidence": "evals/traces/latest-eval.json#review"
     },
     {
       "id": "ACC-UI-LANDING",
       "layer": 0,
       "description": "Landing page exposes badge, title, description, start-practice, and harness hint via data-testid",
       "passes": true,
-      "evidence": "app/page.test.tsx"
+      "evidence": "app/page.tsx data-testid markers"
     }
   ]
 }

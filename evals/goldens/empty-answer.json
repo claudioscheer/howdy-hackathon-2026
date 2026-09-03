@@ -1,0 +1,15 @@
+{
+  "id": "empty-answer",
+  "description": "Blank answer must fail closed to FOLLOW_UP before any provider runs",
+  "input": {
+    "role": "Software Engineer",
+    "seniority": "Mid",
+    "targetTechStack": ["TypeScript"],
+    "question": "Tell me about a recent production incident you owned.",
+    "answer": ""
+  },
+  "expected": {
+    "decision": "FOLLOW_UP",
+    "dimension": "specificity"
+  }
+}

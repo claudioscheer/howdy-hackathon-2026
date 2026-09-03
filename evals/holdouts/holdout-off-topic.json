@@ -1,0 +1,15 @@
+{
+  "id": "holdout-off-topic",
+  "description": "Process-talk answer to a technical Kafka question",
+  "input": {
+    "role": "Lead Data Engineer",
+    "seniority": "Lead",
+    "targetTechStack": ["Kafka", "PostgreSQL"],
+    "question": "How would you partition a Kafka topic for tenant isolation?",
+    "answer": "Our sprint rituals keep the team honest and Jira stays green."
+  },
+  "expected": {
+    "decision": "FOLLOW_UP",
+    "dimension": "structure"
+  }
+}

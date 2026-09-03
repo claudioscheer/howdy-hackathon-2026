@@ -44,10 +44,28 @@ export const InterviewerDecisionSchema = z
 
 export type InterviewerDecision = z.infer<typeof InterviewerDecisionSchema>;
 
-/**
- * Grounding verification: Every quote in a feedback report must
- * match a verbatim substring in the candidate's transcript.
- */
+export const HistoryTurnSchema = z.object({
+  role: z.enum(["interviewer", "candidate"]),
+  content: z.string(),
+});
+
+export const EvaluationInputSchema = z.object({
+  role: z.string().min(1),
+  seniority: z.string().min(1),
+  targetTechStack: z.array(z.string()),
+  question: z.string().min(1),
+  answer: z.string(),
+  history: z.array(HistoryTurnSchema).optional(),
+});
+export type EvaluationInput = z.infer<typeof EvaluationInputSchema>;
+
+export const QuestionStateSchema = z.object({
+  questionId: z.string().min(1),
+  followUpCount: z.number().int().nonnegative(),
+  isComplete: z.boolean(),
+});
+export type QuestionState = z.infer<typeof QuestionStateSchema>;
+
 export interface FeedbackNote {
   quote: string;
   dimension: RubricDimension;
@@ -72,16 +90,26 @@ export function validateTranscriptGrounding(
   };
 }
 
-/**
- * State machine limits: Cap follow-ups per question and retries per session.
- */
-export const MAX_FOLLOW_UPS_PER_QUESTION = 2; // Max 2 follow-ups allowed per question
+export const MAX_FOLLOW_UPS_PER_QUESTION = 2;
 export const MAX_SESSION_RETRIES = 3;
 
-export interface QuestionState {
-  questionId: string;
-  followUpCount: number;
-  isComplete: boolean;
+export function isSessionRetryAllowed(attemptNumber: number): boolean {
+  return attemptNumber < MAX_SESSION_RETRIES;
+}
+
+export function isBlankAnswer(answer: string): boolean {
+  return answer.trim().length === 0;
+}
+
+export function blankAnswerDecision(): InterviewerDecision {
+  return {
+    decision: "FOLLOW_UP",
+    dimension: "specificity",
+    reason:
+      "The candidate submitted an empty answer with no evidence to evaluate.",
+    followUp:
+      "Take a moment and walk me through a specific example from your recent work.",
+  };
 }
 
 export function resolveDecisionWithPolicy(
@@ -94,7 +122,6 @@ export function resolveDecisionWithPolicy(
   dimension?: RubricDimension;
   reason: string;
 } {
-  // If decision is FOLLOW_UP but cap is exhausted, force MOVE_ON
   if (
     rawDecision.decision === "FOLLOW_UP" &&
     currentState.followUpCount >= MAX_FOLLOW_UPS_PER_QUESTION

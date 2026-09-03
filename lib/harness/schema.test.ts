@@ -1,7 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
+  blankAnswerDecision,
   type InterviewerDecision,
   InterviewerDecisionSchema,
+  isBlankAnswer,
+  isSessionRetryAllowed,
   MAX_FOLLOW_UPS_PER_QUESTION,
   MAX_SESSION_RETRIES,
   type QuestionState,
@@ -107,9 +110,27 @@ describe("transcript grounding", () => {
   });
 });
 
-describe("session policy constants", () => {
-  it("caps retries at three", () => {
+describe("session retries", () => {
+  it("allows three attempts and no more", () => {
     expect(MAX_SESSION_RETRIES).toBe(3);
+    expect(isSessionRetryAllowed(0)).toBe(true);
+    expect(isSessionRetryAllowed(2)).toBe(true);
+    expect(isSessionRetryAllowed(3)).toBe(false);
+  });
+});
+
+describe("blank answers", () => {
+  it("treats empty and whitespace as blank", () => {
+    expect(isBlankAnswer("")).toBe(true);
+    expect(isBlankAnswer("  \n")).toBe(true);
+    expect(isBlankAnswer("done")).toBe(false);
+  });
+
+  it("fails closed to a specificity follow-up", () => {
+    const decision = blankAnswerDecision();
+    expect(decision.decision).toBe("FOLLOW_UP");
+    expect(decision.dimension).toBe("specificity");
+    expect(decision.followUp?.length).toBeGreaterThan(0);
   });
 });
 

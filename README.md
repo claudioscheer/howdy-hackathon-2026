@@ -32,7 +32,8 @@ What we run in `verify`:
 2. Next.js production build (typecheck)
 3. ESLint — no `any` / `as unknown` / `as never`, small files, no unused vars
 4. Vitest with **100%** coverage on `app/page.tsx` and `lib/`
-5. Golden and holdout fixtures in `evals/` (does this answer get `FOLLOW_UP` or `MOVE_ON`?)
+5. Golden, holdout, and canary fixtures in `evals/` (does this answer get `FOLLOW_UP` or `MOVE_ON`?)
+6. Deterministic review (holdout independence, canaries, colocated tests on the diff)
 
 We do **not** use an LLM as the merge gate. Same transcript can get two scores; the judge prefers fluent prose; agents game the rubric. Schema, goldens, and unit tests are the gate. The argument is in [`docs/HARNESS.md`](./docs/HARNESS.md).
 
@@ -59,8 +60,9 @@ We do **not** use an LLM as the merge gate. Same transcript can get two scores; 
 │   └── ui/                   Landing copy + copy.test.ts
 ├── evals/
 │   ├── goldens/              Frozen Q/A → expected FOLLOW_UP or MOVE_ON
-│   ├── holdouts/             Same idea; engine must not “fix” these to pass
-│   └── traces/               Last harness run
+│   ├── holdouts/             Same idea; must not copy golden answers
+│   ├── canaries/             Stub must miss; a sudden pass means overfitting
+│   └── traces/               Last eval run, per-case traces, review findings
 ├── scripts/verify.sh         Canonical gate
 ├── acceptance.json           Default-fail criteria, written by the harness
 ├── docker-compose.yml        Postgres 16 (app does not connect yet)

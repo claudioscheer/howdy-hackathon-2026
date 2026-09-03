@@ -40,7 +40,8 @@ const eslintConfig = defineConfig([
         },
         {
           selector: "TSAsExpression[typeAnnotation.type='TSUnknownKeyword']",
-          message: "Do not use `as unknown` (including `as unknown as T`). Narrow with Zod or a type guard.",
+          message:
+            "Do not use `as unknown` (including `as unknown as T`). Narrow with Zod or a type guard.",
         },
         {
           selector: "TSTypeAssertion",

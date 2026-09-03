@@ -1,14 +1,341 @@
 {
-  "timestamp": "2026-09-03T17:07:47.093Z",
+  "timestamp": "2026-09-03T18:11:50.744Z",
   "layer0": {
     "schema": true,
-    "grounding": true
+    "grounding": true,
+    "stateCap": true,
+    "emptyAnswer": true,
+    "landing": true
   },
   "layer1": {
-    "passedGoldens": 6,
-    "totalGoldens": 6,
-    "holdoutsPassed": 1,
-    "totalHoldouts": 1
+    "passedGoldens": 7,
+    "totalGoldens": 7,
+    "holdoutsPassed": 3,
+    "totalHoldouts": 3,
+    "canariesPassed": 1,
+    "totalCanaries": 1
   },
+  "review": {
+    "findings": [],
+    "changedFiles": [
+      ".github/workflows/verify.yml",
+      "AGENTS.md",
+      "README.md",
+      "acceptance.json",
+      "docs/AI-DEV-LOG.md",
+      "docs/HARNESS.md",
+      "docs/SYSTEM.md",
+      "eslint.config.mjs",
+      "evals/canaries/canary-usual-stuff.json",
+      "evals/goldens/empty-answer.json",
+      "evals/holdouts/holdout-off-topic.json",
+      "evals/holdouts/holdout-old-stack.json",
+      "evals/holdouts/holdout-soft-skill-claims.json",
+      "evals/holdouts/holdout-vague-claims.json",
+      "evals/traces/latest-eval.json",
+      "lib/harness/acceptance.test.ts",
+      "lib/harness/contracts.test.ts",
+      "lib/harness/contracts.ts",
+      "lib/harness/engine.test.ts",
+      "lib/harness/engine.ts",
+      "lib/harness/fixtures.test.ts",
+      "lib/harness/fixtures.ts",
+      "lib/harness/heuristics.test.ts",
+      "lib/harness/heuristics.ts",
+      "lib/harness/report.test.ts",
+      "lib/harness/report.ts",
+      "lib/harness/review-diff.test.ts",
+      "lib/harness/review-diff.ts",
+      "lib/harness/review-suite.test.ts",
+      "lib/harness/review-suite.ts",
+      "lib/harness/review.test.ts",
+      "lib/harness/review.ts",
+      "lib/harness/run.test.ts",
+      "lib/harness/run.ts",
+      "lib/harness/schema.test.ts",
+      "lib/harness/schema.ts",
+      "lib/harness/tokens.test.ts",
+      "lib/harness/tokens.ts",
+      "scripts/verify-harness.ts"
+    ],
+    "mappedCriteria": [
+      "ACC-L0-EMPTY-ANSWER",
+      "ACC-L0-GROUNDING",
+      "ACC-L0-SCHEMA",
+      "ACC-L0-STATE-CAP",
+      "ACC-L1-CANARIES",
+      "ACC-L1-GOLDENS",
+      "ACC-L1-HOLDOUTS",
+      "ACC-L2-REVIEW"
+    ]
+  },
+  "cases": [
+    {
+      "id": "answers-different-question",
+      "suite": "golden",
+      "input": {
+        "role": "Lead Data Engineer",
+        "seniority": "Lead",
+        "targetTechStack": [
+          "PostgreSQL",
+          "Kafka",
+          "ClickHouse"
+        ],
+        "question": "How would you design a database schema for multi-tenant billing with partitioned audit logs?",
+        "answer": "I really love agile standups and daily syncs because they allow us to talk about velocity, and I always ensure the team finishes their Jira sprint tasks on time."
+      },
+      "expected": {
+        "decision": "FOLLOW_UP",
+        "dimension": "structure"
+      },
+      "stubMustMiss": false,
+      "decision": "FOLLOW_UP",
+      "dimension": "structure",
+      "finalDecision": "FOLLOW_UP",
+      "isCapped": false,
+      "pass": true
+    },
+    {
+      "id": "concrete-incident",
+      "suite": "golden",
+      "input": {
+        "role": "Senior Backend Engineer",
+        "seniority": "Senior",
+        "targetTechStack": [
+          "Java",
+          "Spring Boot",
+          "PostgreSQL"
+        ],
+        "question": "Can you walk through a production incident you diagnosed and resolved?",
+        "answer": "In Q3 2025 on our checkout service, P99 latency jumped from 45ms to 1200ms. I analyzed thread dumps, identified connection pool exhaustion in HikariCP due to an unindexed query, added the composite index on (order_id, tenant_id), and adjusted max pool size from 20 to 50, bringing P99 back down to 38ms."
+      },
+      "expected": {
+        "decision": "MOVE_ON"
+      },
+      "stubMustMiss": false,
+      "decision": "MOVE_ON",
+      "dimension": null,
+      "finalDecision": "MOVE_ON",
+      "isCapped": false,
+      "pass": true
+    },
+    {
+      "id": "empty-answer",
+      "suite": "golden",
+      "input": {
+        "role": "Software Engineer",
+        "seniority": "Mid",
+        "targetTechStack": [
+          "TypeScript"
+        ],
+        "question": "Tell me about a recent production incident you owned.",
+        "answer": ""
+      },
+      "expected": {
+        "decision": "FOLLOW_UP",
+        "dimension": "specificity"
+      },
+      "stubMustMiss": false,
+      "decision": "FOLLOW_UP",
+      "dimension": "specificity",
+      "finalDecision": "FOLLOW_UP",
+      "isCapped": false,
+      "pass": true
+    },
+    {
+      "id": "followup-cap-exhausted",
+      "suite": "golden",
+      "input": {
+        "role": "Software Engineer",
+        "seniority": "Mid",
+        "targetTechStack": [
+          "TypeScript"
+        ],
+        "question": "Can you give me more detail on that implementation?",
+        "answer": "I work hard and deliver results, that's just how I work."
+      },
+      "expected": {
+        "finalDecision": "MOVE_ON",
+        "isCapped": true
+      },
+      "stubMustMiss": false,
+      "decision": "FOLLOW_UP",
+      "dimension": "specificity",
+      "finalDecision": "MOVE_ON",
+      "isCapped": true,
+      "pass": true
+    },
+    {
+      "id": "fundamentals-gap",
+      "suite": "golden",
+      "input": {
+        "role": "Principal Database Architect",
+        "seniority": "Principal",
+        "targetTechStack": [
+          "PostgreSQL",
+          "Distributed SQL"
+        ],
+        "question": "How do you optimize slow analytical queries on a large PostgreSQL database?",
+        "answer": "As a principal architect with 15 years experience, I run SELECT * FROM users WHERE id IN (SELECT user_id FROM orders), and honestly I don't use indexes because they take up too much memory."
+      },
+      "expected": {
+        "decision": "FOLLOW_UP",
+        "dimension": "fundamentals"
+      },
+      "stubMustMiss": false,
+      "decision": "FOLLOW_UP",
+      "dimension": "fundamentals",
+      "finalDecision": "FOLLOW_UP",
+      "isCapped": false,
+      "pass": true
+    },
+    {
+      "id": "recency-mismatch",
+      "suite": "golden",
+      "input": {
+        "role": "Frontend Staff Engineer",
+        "seniority": "Staff",
+        "targetTechStack": [
+          "Next.js 16",
+          "React 19",
+          "Tailwind CSS"
+        ],
+        "question": "What is your recent experience architecting modern frontend apps with Server Components?",
+        "answer": "Back in 2018 at my first job, I built our company portal with jQuery and PHP 5, and we deployed via FTP to Apache."
+      },
+      "expected": {
+        "decision": "FOLLOW_UP",
+        "dimension": "relevance"
+      },
+      "stubMustMiss": false,
+      "decision": "FOLLOW_UP",
+      "dimension": "relevance",
+      "finalDecision": "FOLLOW_UP",
+      "isCapped": false,
+      "pass": true
+    },
+    {
+      "id": "vague-specificity",
+      "suite": "golden",
+      "input": {
+        "role": "Senior Full-Stack Engineer",
+        "seniority": "Senior",
+        "targetTechStack": [
+          "Next.js",
+          "TypeScript",
+          "PostgreSQL"
+        ],
+        "question": "Tell me about a challenging stakeholder disagreement you resolved.",
+        "answer": "I always communicate well with stakeholders and keep everyone aligned on project goals."
+      },
+      "expected": {
+        "decision": "FOLLOW_UP",
+        "dimension": "specificity"
+      },
+      "stubMustMiss": false,
+      "decision": "FOLLOW_UP",
+      "dimension": "specificity",
+      "finalDecision": "FOLLOW_UP",
+      "isCapped": false,
+      "pass": true
+    },
+    {
+      "id": "holdout-off-topic",
+      "suite": "holdout",
+      "input": {
+        "role": "Lead Data Engineer",
+        "seniority": "Lead",
+        "targetTechStack": [
+          "Kafka",
+          "PostgreSQL"
+        ],
+        "question": "How would you partition a Kafka topic for tenant isolation?",
+        "answer": "Our sprint rituals keep the team honest and Jira stays green."
+      },
+      "expected": {
+        "decision": "FOLLOW_UP",
+        "dimension": "structure"
+      },
+      "stubMustMiss": false,
+      "decision": "FOLLOW_UP",
+      "dimension": "structure",
+      "finalDecision": "FOLLOW_UP",
+      "isCapped": false,
+      "pass": true
+    },
+    {
+      "id": "holdout-old-stack",
+      "suite": "holdout",
+      "input": {
+        "role": "Frontend Staff Engineer",
+        "seniority": "Staff",
+        "targetTechStack": [
+          "Next.js 16",
+          "React 19"
+        ],
+        "question": "What is your recent experience architecting modern frontend apps with Server Components?",
+        "answer": "Years ago at my very first company I built the homepage with classic ASP."
+      },
+      "expected": {
+        "decision": "FOLLOW_UP",
+        "dimension": "relevance"
+      },
+      "stubMustMiss": false,
+      "decision": "FOLLOW_UP",
+      "dimension": "relevance",
+      "finalDecision": "FOLLOW_UP",
+      "isCapped": false,
+      "pass": true
+    },
+    {
+      "id": "holdout-soft-skill-claims",
+      "suite": "holdout",
+      "input": {
+        "role": "Staff Distributed Systems Engineer",
+        "seniority": "Staff",
+        "targetTechStack": [
+          "Go",
+          "Kubernetes",
+          "gRPC"
+        ],
+        "question": "Describe a complex distributed systems challenge you tackled.",
+        "answer": "Folks say I keep clients happy and I never drop the ball."
+      },
+      "expected": {
+        "decision": "FOLLOW_UP",
+        "dimension": "specificity"
+      },
+      "stubMustMiss": false,
+      "decision": "FOLLOW_UP",
+      "dimension": "specificity",
+      "finalDecision": "FOLLOW_UP",
+      "isCapped": false,
+      "pass": true
+    },
+    {
+      "id": "canary-usual-stuff",
+      "suite": "canary",
+      "input": {
+        "role": "Senior Full-Stack Engineer",
+        "seniority": "Senior",
+        "targetTechStack": [
+          "TypeScript",
+          "PostgreSQL"
+        ],
+        "question": "Tell me about a challenging delivery you owned recently.",
+        "answer": "I handled the usual stuff on that project and it went fine."
+      },
+      "expected": {
+        "decision": "FOLLOW_UP",
+        "dimension": "specificity"
+      },
+      "stubMustMiss": true,
+      "decision": "MOVE_ON",
+      "dimension": null,
+      "finalDecision": "MOVE_ON",
+      "isCapped": false,
+      "pass": true
+    }
+  ],
   "failures": []
 }
