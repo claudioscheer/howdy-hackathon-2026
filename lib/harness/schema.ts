@@ -1,4 +1,18 @@
 import { z } from "zod";
+import {
+  AnswerEvaluationInputSchema,
+  DecisionTypeSchema,
+  InterviewerDecisionSchema,
+  RubricDimensionSchema,
+  type AnswerEvaluationInput,
+  type DecisionType,
+  type InterviewerDecision,
+  type RubricDimension,
+} from "../interview/contracts";
+import {
+  MAX_FOLLOW_UPS_PER_QUESTION,
+  MAX_SESSION_ATTEMPTS,
+} from "../interview/session";
 
 /**
  * Layer 0: Deterministic Contracts
@@ -6,58 +20,16 @@ import { z } from "zod";
  * state machine constraints, and transcript grounding.
  */
 
-export const RubricDimensionSchema = z.enum([
-  "relevance",
-  "specificity",
-  "fundamentals",
-  "structure",
-]);
-export type RubricDimension = z.infer<typeof RubricDimensionSchema>;
+export {
+  DecisionTypeSchema,
+  InterviewerDecisionSchema,
+  MAX_FOLLOW_UPS_PER_QUESTION,
+  RubricDimensionSchema,
+};
+export type { DecisionType, InterviewerDecision, RubricDimension };
 
-export const DecisionTypeSchema = z.enum(["FOLLOW_UP", "MOVE_ON"]);
-export type DecisionType = z.infer<typeof DecisionTypeSchema>;
-
-export const InterviewerDecisionSchema = z
-  .object({
-    decision: DecisionTypeSchema,
-    reason: z.string().min(5, "Reason must provide meaningful justification"),
-    dimension: RubricDimensionSchema.optional(),
-    followUp: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.decision === "FOLLOW_UP") {
-        return (
-          typeof data.followUp === "string" &&
-          data.followUp.trim().length > 0 &&
-          data.dimension !== undefined
-        );
-      }
-      return true;
-    },
-    {
-      message:
-        "When decision is FOLLOW_UP, followUp question and dimension are strictly required",
-      path: ["followUp"],
-    },
-  );
-
-export type InterviewerDecision = z.infer<typeof InterviewerDecisionSchema>;
-
-export const HistoryTurnSchema = z.object({
-  role: z.enum(["interviewer", "candidate"]),
-  content: z.string(),
-});
-
-export const EvaluationInputSchema = z.object({
-  role: z.string().min(1),
-  seniority: z.string().min(1),
-  targetTechStack: z.array(z.string()),
-  question: z.string().min(1),
-  answer: z.string(),
-  history: z.array(HistoryTurnSchema).optional(),
-});
-export type EvaluationInput = z.infer<typeof EvaluationInputSchema>;
+export const EvaluationInputSchema = AnswerEvaluationInputSchema;
+export type EvaluationInput = AnswerEvaluationInput;
 
 export const QuestionStateSchema = z.object({
   questionId: z.string().min(1),
@@ -90,8 +62,7 @@ export function validateTranscriptGrounding(
   };
 }
 
-export const MAX_FOLLOW_UPS_PER_QUESTION = 2;
-export const MAX_SESSION_RETRIES = 3;
+export const MAX_SESSION_RETRIES = MAX_SESSION_ATTEMPTS;
 
 export function isSessionRetryAllowed(attemptNumber: number): boolean {
   return attemptNumber < MAX_SESSION_RETRIES;
@@ -133,11 +104,19 @@ export function resolveDecisionWithPolicy(
     };
   }
 
+  if (rawDecision.decision === "FOLLOW_UP") {
+    return {
+      finalDecision: "FOLLOW_UP",
+      isCapped: false,
+      followUp: rawDecision.followUp,
+      dimension: rawDecision.dimension,
+      reason: rawDecision.reason,
+    };
+  }
+
   return {
-    finalDecision: rawDecision.decision,
+    finalDecision: "MOVE_ON",
     isCapped: false,
-    followUp: rawDecision.followUp,
-    dimension: rawDecision.dimension,
     reason: rawDecision.reason,
   };
 }

@@ -16,11 +16,20 @@ function input(
   question = "Tell me about a recent project.",
 ): EvaluationInput {
   return {
-    role: "Engineer",
-    seniority: "Senior",
-    targetTechStack: ["TypeScript"],
-    question,
+    opportunity: {
+      id: "fictional-role",
+      role: "Engineer",
+      seniority: "Senior",
+      targetTechStack: ["TypeScript"],
+      interviewType: "technical",
+    },
+    question: {
+      id: "q1",
+      prompt: question,
+      primaryDimension: "specificity",
+    },
     answer,
+    history: [],
   };
 }
 

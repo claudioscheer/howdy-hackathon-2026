@@ -20,11 +20,20 @@ function sampleFixture(
     id: "sample",
     description: "A valid fixture used in unit tests.",
     input: {
-      role: "Engineer",
-      seniority: "Senior",
-      targetTechStack: ["TypeScript"],
-      question: "Tell me about a recent project.",
+      opportunity: {
+        id: "fictional-role",
+        role: "Engineer",
+        seniority: "Senior",
+        targetTechStack: ["TypeScript"],
+        interviewType: "technical",
+      },
+      question: {
+        id: "q1",
+        prompt: "Tell me about a recent project.",
+        primaryDimension: "specificity",
+      },
       answer: "We cut p99 from 800ms to 80ms.",
+      history: [],
     },
     expected: { decision: "MOVE_ON" },
     ...overrides,
@@ -88,6 +97,8 @@ describe("matchesExpected", () => {
     decision: {
       decision: "FOLLOW_UP" as const,
       dimension: "specificity" as const,
+      reason: "The answer needs a more concrete example.",
+      followUp: "What did you personally change?",
     },
     finalDecision: "MOVE_ON" as const,
     isCapped: true,
@@ -118,18 +129,20 @@ describe("matchesExpected", () => {
     ).toBe(true);
   });
 
-  it("inverts the product match for canaries", () => {
-    const canary = sampleFixture({
+  it("never treats an incorrect product decision as success", () => {
+    const fixture = sampleFixture({
       expected: { decision: "FOLLOW_UP", dimension: "specificity" },
-      stubMustMiss: true,
     });
-    expect(matchesExpected(canary, pass)).toBe(false);
+    expect(matchesExpected(fixture, pass)).toBe(true);
     expect(
-      matchesExpected(canary, {
-        decision: { decision: "MOVE_ON" },
+      matchesExpected(fixture, {
+        decision: {
+          decision: "MOVE_ON",
+          reason: "The mutation moved on incorrectly.",
+        },
         finalDecision: "MOVE_ON",
         isCapped: false,
       }),
-    ).toBe(true);
+    ).toBe(false);
   });
 });

@@ -107,7 +107,7 @@ export function matchHeuristic(
   if (isRecencyMismatch(answer)) {
     return RELEVANCE_DECISION;
   }
-  if (isOffTopic(input.question, answer)) {
+  if (isOffTopic(input.question.prompt, answer)) {
     return STRUCTURE_DECISION;
   }
   if (isFundamentalsGap(answer)) {

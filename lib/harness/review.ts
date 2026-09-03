@@ -9,7 +9,6 @@ import { reviewEvalSuite } from "./review-suite";
 export interface ReviewInput {
   goldens: EvalFixture[];
   holdouts: EvalFixture[];
-  canaries: EvalFixture[];
   rootDir: string;
   changedFiles?: string[];
 }
@@ -26,7 +25,6 @@ export function reviewHarness(input: ReviewInput): ReviewReport {
     ...reviewEvalSuite({
       goldens: input.goldens,
       holdouts: input.holdouts,
-      canaries: input.canaries,
     }),
     ...reviewChangedFiles(input.rootDir, changedFiles),
   ];
@@ -47,7 +45,6 @@ export {
 } from "./review-diff";
 export {
   answerSimilarityFailure,
-  canaryFlagFailures,
   dimensionCoverageFailures,
   duplicateIdFailures,
   independenceFailures,

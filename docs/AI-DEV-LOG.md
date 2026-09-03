@@ -53,3 +53,51 @@ The canary-flag test asserted on an array. `reviewHarness` and `runHarness` had 
   ✓ harness evals
 verify passed
 ```
+
+---
+
+## 2026-09-03 — CI-shaped review exposed an uncovered fallback
+
+**Act.** Ran the full gate with `REVIEW_BASE_SHA` set to the main-branch commit,
+matching the new clean-checkout CI review path.
+
+**Verify / observe.** All 106 tests passed, but coverage failed because the
+blank/all-zero base-SHA fallback had not executed:
+
+```text
+review-diff.ts | 100 | 98.24 | 100 | 100 | 30
+ERROR: Coverage for branches (99.52%) does not meet global threshold (100%)
+```
+
+**Fix / verify again.** Added explicit blank and all-zero base cases, then reran
+the same CI-shaped command without a human prompt. All five verification stages
+passed.
+
+---
+
+## 2026-09-03 — Runtime contract migration caught by the full gate
+
+**Act.** Moved model-boundary decisions to a discriminated runtime contract and
+replaced the inverted canary with constant-decision sensitivity checks.
+
+**Verify / observe.** Unit tests passed, but `npm run verify` continued into the
+production build and lint stages and found two integration defects:
+
+```text
+Property 'dimension' does not exist on type ... { decision: "MOVE_ON" }
+Async function 'runHarness' has too many lines (84). Maximum allowed is 80
+```
+
+**Fix / verify again.** Narrowed decisions on `decision === "FOLLOW_UP"` before
+reading follow-up-only fields and extracted sensitivity bookkeeping from the main
+runner. No human prompt occurred between failure and correction. The next full
+run completed:
+
+```text
+✓ format
+✓ build / typecheck
+✓ lint
+✓ unit tests + coverage
+✓ harness evals
+verify passed
+```

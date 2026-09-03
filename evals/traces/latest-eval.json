@@ -1,43 +1,50 @@
 {
-  "timestamp": "2026-09-03T18:11:50.744Z",
+  "timestamp": "2026-09-03T19:11:26.823Z",
   "layer0": {
     "schema": true,
     "grounding": true,
     "stateCap": true,
     "emptyAnswer": true,
+    "runtimeContracts": true,
     "landing": true
   },
   "layer1": {
     "passedGoldens": 7,
     "totalGoldens": 7,
     "holdoutsPassed": 3,
-    "totalHoldouts": 3,
-    "canariesPassed": 1,
-    "totalCanaries": 1
+    "totalHoldouts": 3
+  },
+  "sensitivity": {
+    "alwaysMoveOnRejected": true,
+    "alwaysFollowUpRejected": true
   },
   "review": {
     "findings": [],
     "changedFiles": [
       ".github/workflows/verify.yml",
+      ".nvmrc",
       "AGENTS.md",
       "README.md",
+      "SPEC.md",
       "acceptance.json",
       "docs/AI-DEV-LOG.md",
       "docs/HARNESS.md",
+      "docs/SPEC.md",
       "docs/SYSTEM.md",
-      "eslint.config.mjs",
       "evals/canaries/canary-usual-stuff.json",
+      "evals/goldens/answers-different-question.json",
+      "evals/goldens/concrete-incident.json",
       "evals/goldens/empty-answer.json",
+      "evals/goldens/followup-cap-exhausted.json",
+      "evals/goldens/fundamentals-gap.json",
+      "evals/goldens/recency-mismatch.json",
+      "evals/goldens/vague-specificity.json",
       "evals/holdouts/holdout-off-topic.json",
       "evals/holdouts/holdout-old-stack.json",
       "evals/holdouts/holdout-soft-skill-claims.json",
-      "evals/holdouts/holdout-vague-claims.json",
       "evals/traces/latest-eval.json",
       "lib/harness/acceptance.test.ts",
-      "lib/harness/contracts.test.ts",
-      "lib/harness/contracts.ts",
       "lib/harness/engine.test.ts",
-      "lib/harness/engine.ts",
       "lib/harness/fixtures.test.ts",
       "lib/harness/fixtures.ts",
       "lib/harness/heuristics.test.ts",
@@ -52,21 +59,24 @@
       "lib/harness/review.ts",
       "lib/harness/run.test.ts",
       "lib/harness/run.ts",
-      "lib/harness/schema.test.ts",
+      "lib/harness/runtime-contract-proof.test.ts",
+      "lib/harness/runtime-contract-proof.ts",
       "lib/harness/schema.ts",
-      "lib/harness/tokens.test.ts",
-      "lib/harness/tokens.ts",
-      "scripts/verify-harness.ts"
+      "lib/harness/sensitivity.test.ts",
+      "lib/harness/sensitivity.ts",
+      "lib/interview/contracts.test.ts",
+      "lib/interview/contracts.ts",
+      "lib/interview/session.test.ts",
+      "lib/interview/session.ts",
+      "package-lock.json",
+      "package.json"
     ],
     "mappedCriteria": [
-      "ACC-L0-EMPTY-ANSWER",
-      "ACC-L0-GROUNDING",
-      "ACC-L0-SCHEMA",
-      "ACC-L0-STATE-CAP",
-      "ACC-L1-CANARIES",
-      "ACC-L1-GOLDENS",
-      "ACC-L1-HOLDOUTS",
-      "ACC-L2-REVIEW"
+      "ACC-HARNESS-BEHAVIOR",
+      "ACC-HARNESS-REVIEW",
+      "ACC-PRODUCT-ADAPTIVE-INTERVIEW",
+      "ACC-PRODUCT-GROUNDED-REPORT",
+      "ACC-RUNTIME-CONTRACTS"
     ]
   },
   "cases": [
@@ -74,21 +84,29 @@
       "id": "answers-different-question",
       "suite": "golden",
       "input": {
-        "role": "Lead Data Engineer",
-        "seniority": "Lead",
-        "targetTechStack": [
-          "PostgreSQL",
-          "Kafka",
-          "ClickHouse"
-        ],
-        "question": "How would you design a database schema for multi-tenant billing with partitioned audit logs?",
-        "answer": "I really love agile standups and daily syncs because they allow us to talk about velocity, and I always ensure the team finishes their Jira sprint tasks on time."
+        "opportunity": {
+          "id": "fictional-data-role",
+          "role": "Lead Data Engineer",
+          "seniority": "Lead",
+          "targetTechStack": [
+            "PostgreSQL",
+            "Kafka",
+            "ClickHouse"
+          ],
+          "interviewType": "system_design"
+        },
+        "question": {
+          "id": "q-multi-tenant-schema",
+          "prompt": "How would you design a database schema for multi-tenant billing with partitioned audit logs?",
+          "primaryDimension": "structure"
+        },
+        "answer": "I really love agile standups and daily syncs because they allow us to talk about velocity, and I always ensure the team finishes their Jira sprint tasks on time.",
+        "history": []
       },
       "expected": {
         "decision": "FOLLOW_UP",
         "dimension": "structure"
       },
-      "stubMustMiss": false,
       "decision": "FOLLOW_UP",
       "dimension": "structure",
       "finalDecision": "FOLLOW_UP",
@@ -99,20 +117,28 @@
       "id": "concrete-incident",
       "suite": "golden",
       "input": {
-        "role": "Senior Backend Engineer",
-        "seniority": "Senior",
-        "targetTechStack": [
-          "Java",
-          "Spring Boot",
-          "PostgreSQL"
-        ],
-        "question": "Can you walk through a production incident you diagnosed and resolved?",
-        "answer": "In Q3 2025 on our checkout service, P99 latency jumped from 45ms to 1200ms. I analyzed thread dumps, identified connection pool exhaustion in HikariCP due to an unindexed query, added the composite index on (order_id, tenant_id), and adjusted max pool size from 20 to 50, bringing P99 back down to 38ms."
+        "opportunity": {
+          "id": "fictional-backend-role",
+          "role": "Senior Backend Engineer",
+          "seniority": "Senior",
+          "targetTechStack": [
+            "Java",
+            "Spring Boot",
+            "PostgreSQL"
+          ],
+          "interviewType": "technical"
+        },
+        "question": {
+          "id": "q-production-incident",
+          "prompt": "Can you walk through a production incident you diagnosed and resolved?",
+          "primaryDimension": "specificity"
+        },
+        "answer": "In Q3 2025 on our checkout service, P99 latency jumped from 45ms to 1200ms. I analyzed thread dumps, identified connection pool exhaustion in HikariCP due to an unindexed query, added the composite index on (order_id, tenant_id), and adjusted max pool size from 20 to 50, bringing P99 back down to 38ms.",
+        "history": []
       },
       "expected": {
         "decision": "MOVE_ON"
       },
-      "stubMustMiss": false,
       "decision": "MOVE_ON",
       "dimension": null,
       "finalDecision": "MOVE_ON",
@@ -123,19 +149,27 @@
       "id": "empty-answer",
       "suite": "golden",
       "input": {
-        "role": "Software Engineer",
-        "seniority": "Mid",
-        "targetTechStack": [
-          "TypeScript"
-        ],
-        "question": "Tell me about a recent production incident you owned.",
-        "answer": ""
+        "opportunity": {
+          "id": "fictional-software-role",
+          "role": "Software Engineer",
+          "seniority": "Mid",
+          "targetTechStack": [
+            "TypeScript"
+          ],
+          "interviewType": "behavioral"
+        },
+        "question": {
+          "id": "q-recent-incident",
+          "prompt": "Tell me about a recent production incident you owned.",
+          "primaryDimension": "specificity"
+        },
+        "answer": "",
+        "history": []
       },
       "expected": {
         "decision": "FOLLOW_UP",
         "dimension": "specificity"
       },
-      "stubMustMiss": false,
       "decision": "FOLLOW_UP",
       "dimension": "specificity",
       "finalDecision": "FOLLOW_UP",
@@ -146,19 +180,27 @@
       "id": "followup-cap-exhausted",
       "suite": "golden",
       "input": {
-        "role": "Software Engineer",
-        "seniority": "Mid",
-        "targetTechStack": [
-          "TypeScript"
-        ],
-        "question": "Can you give me more detail on that implementation?",
-        "answer": "I work hard and deliver results, that's just how I work."
+        "opportunity": {
+          "id": "fictional-software-role",
+          "role": "Software Engineer",
+          "seniority": "Mid",
+          "targetTechStack": [
+            "TypeScript"
+          ],
+          "interviewType": "technical"
+        },
+        "question": {
+          "id": "q-1",
+          "prompt": "Can you give me more detail on that implementation?",
+          "primaryDimension": "specificity"
+        },
+        "answer": "I work hard and deliver results, that's just how I work.",
+        "history": []
       },
       "expected": {
         "finalDecision": "MOVE_ON",
         "isCapped": true
       },
-      "stubMustMiss": false,
       "decision": "FOLLOW_UP",
       "dimension": "specificity",
       "finalDecision": "MOVE_ON",
@@ -169,20 +211,28 @@
       "id": "fundamentals-gap",
       "suite": "golden",
       "input": {
-        "role": "Principal Database Architect",
-        "seniority": "Principal",
-        "targetTechStack": [
-          "PostgreSQL",
-          "Distributed SQL"
-        ],
-        "question": "How do you optimize slow analytical queries on a large PostgreSQL database?",
-        "answer": "As a principal architect with 15 years experience, I run SELECT * FROM users WHERE id IN (SELECT user_id FROM orders), and honestly I don't use indexes because they take up too much memory."
+        "opportunity": {
+          "id": "fictional-database-role",
+          "role": "Principal Database Architect",
+          "seniority": "Principal",
+          "targetTechStack": [
+            "PostgreSQL",
+            "Distributed SQL"
+          ],
+          "interviewType": "technical"
+        },
+        "question": {
+          "id": "q-query-optimization",
+          "prompt": "How do you optimize slow analytical queries on a large PostgreSQL database?",
+          "primaryDimension": "fundamentals"
+        },
+        "answer": "As a principal architect with 15 years experience, I run SELECT * FROM users WHERE id IN (SELECT user_id FROM orders), and honestly I don't use indexes because they take up too much memory.",
+        "history": []
       },
       "expected": {
         "decision": "FOLLOW_UP",
         "dimension": "fundamentals"
       },
-      "stubMustMiss": false,
       "decision": "FOLLOW_UP",
       "dimension": "fundamentals",
       "finalDecision": "FOLLOW_UP",
@@ -193,21 +243,29 @@
       "id": "recency-mismatch",
       "suite": "golden",
       "input": {
-        "role": "Frontend Staff Engineer",
-        "seniority": "Staff",
-        "targetTechStack": [
-          "Next.js 16",
-          "React 19",
-          "Tailwind CSS"
-        ],
-        "question": "What is your recent experience architecting modern frontend apps with Server Components?",
-        "answer": "Back in 2018 at my first job, I built our company portal with jQuery and PHP 5, and we deployed via FTP to Apache."
+        "opportunity": {
+          "id": "fictional-frontend-role",
+          "role": "Frontend Staff Engineer",
+          "seniority": "Staff",
+          "targetTechStack": [
+            "Next.js 16",
+            "React 19",
+            "Tailwind CSS"
+          ],
+          "interviewType": "technical"
+        },
+        "question": {
+          "id": "q-modern-frontend",
+          "prompt": "What is your recent experience architecting modern frontend apps with Server Components?",
+          "primaryDimension": "relevance"
+        },
+        "answer": "Back in 2018 at my first job, I built our company portal with jQuery and PHP 5, and we deployed via FTP to Apache.",
+        "history": []
       },
       "expected": {
         "decision": "FOLLOW_UP",
         "dimension": "relevance"
       },
-      "stubMustMiss": false,
       "decision": "FOLLOW_UP",
       "dimension": "relevance",
       "finalDecision": "FOLLOW_UP",
@@ -218,21 +276,29 @@
       "id": "vague-specificity",
       "suite": "golden",
       "input": {
-        "role": "Senior Full-Stack Engineer",
-        "seniority": "Senior",
-        "targetTechStack": [
-          "Next.js",
-          "TypeScript",
-          "PostgreSQL"
-        ],
-        "question": "Tell me about a challenging stakeholder disagreement you resolved.",
-        "answer": "I always communicate well with stakeholders and keep everyone aligned on project goals."
+        "opportunity": {
+          "id": "fictional-full-stack-role",
+          "role": "Senior Full-Stack Engineer",
+          "seniority": "Senior",
+          "targetTechStack": [
+            "Next.js",
+            "TypeScript",
+            "PostgreSQL"
+          ],
+          "interviewType": "behavioral"
+        },
+        "question": {
+          "id": "q-stakeholder-disagreement",
+          "prompt": "Tell me about a challenging stakeholder disagreement you resolved.",
+          "primaryDimension": "specificity"
+        },
+        "answer": "I always communicate well with stakeholders and keep everyone aligned on project goals.",
+        "history": []
       },
       "expected": {
         "decision": "FOLLOW_UP",
         "dimension": "specificity"
       },
-      "stubMustMiss": false,
       "decision": "FOLLOW_UP",
       "dimension": "specificity",
       "finalDecision": "FOLLOW_UP",
@@ -243,20 +309,28 @@
       "id": "holdout-off-topic",
       "suite": "holdout",
       "input": {
-        "role": "Lead Data Engineer",
-        "seniority": "Lead",
-        "targetTechStack": [
-          "Kafka",
-          "PostgreSQL"
-        ],
-        "question": "How would you partition a Kafka topic for tenant isolation?",
-        "answer": "Our sprint rituals keep the team honest and Jira stays green."
+        "opportunity": {
+          "id": "fictional-data-role",
+          "role": "Lead Data Engineer",
+          "seniority": "Lead",
+          "targetTechStack": [
+            "Kafka",
+            "PostgreSQL"
+          ],
+          "interviewType": "technical"
+        },
+        "question": {
+          "id": "q-kafka-partitioning",
+          "prompt": "How would you partition a Kafka topic for tenant isolation?",
+          "primaryDimension": "structure"
+        },
+        "answer": "Our sprint rituals keep the team honest and Jira stays green.",
+        "history": []
       },
       "expected": {
         "decision": "FOLLOW_UP",
         "dimension": "structure"
       },
-      "stubMustMiss": false,
       "decision": "FOLLOW_UP",
       "dimension": "structure",
       "finalDecision": "FOLLOW_UP",
@@ -267,20 +341,28 @@
       "id": "holdout-old-stack",
       "suite": "holdout",
       "input": {
-        "role": "Frontend Staff Engineer",
-        "seniority": "Staff",
-        "targetTechStack": [
-          "Next.js 16",
-          "React 19"
-        ],
-        "question": "What is your recent experience architecting modern frontend apps with Server Components?",
-        "answer": "Years ago at my very first company I built the homepage with classic ASP."
+        "opportunity": {
+          "id": "fictional-frontend-role",
+          "role": "Frontend Staff Engineer",
+          "seniority": "Staff",
+          "targetTechStack": [
+            "Next.js 16",
+            "React 19"
+          ],
+          "interviewType": "technical"
+        },
+        "question": {
+          "id": "q-modern-frontend-holdout",
+          "prompt": "What is your recent experience architecting modern frontend apps with Server Components?",
+          "primaryDimension": "relevance"
+        },
+        "answer": "Years ago at my very first company I built the homepage with classic ASP.",
+        "history": []
       },
       "expected": {
         "decision": "FOLLOW_UP",
         "dimension": "relevance"
       },
-      "stubMustMiss": false,
       "decision": "FOLLOW_UP",
       "dimension": "relevance",
       "finalDecision": "FOLLOW_UP",
@@ -291,48 +373,32 @@
       "id": "holdout-soft-skill-claims",
       "suite": "holdout",
       "input": {
-        "role": "Staff Distributed Systems Engineer",
-        "seniority": "Staff",
-        "targetTechStack": [
-          "Go",
-          "Kubernetes",
-          "gRPC"
-        ],
-        "question": "Describe a complex distributed systems challenge you tackled.",
-        "answer": "Folks say I keep clients happy and I never drop the ball."
+        "opportunity": {
+          "id": "fictional-distributed-systems-role",
+          "role": "Staff Distributed Systems Engineer",
+          "seniority": "Staff",
+          "targetTechStack": [
+            "Go",
+            "Kubernetes",
+            "gRPC"
+          ],
+          "interviewType": "technical"
+        },
+        "question": {
+          "id": "q-distributed-systems",
+          "prompt": "Describe a complex distributed systems challenge you tackled.",
+          "primaryDimension": "specificity"
+        },
+        "answer": "Folks say I keep clients happy and I never drop the ball.",
+        "history": []
       },
       "expected": {
         "decision": "FOLLOW_UP",
         "dimension": "specificity"
       },
-      "stubMustMiss": false,
       "decision": "FOLLOW_UP",
       "dimension": "specificity",
       "finalDecision": "FOLLOW_UP",
-      "isCapped": false,
-      "pass": true
-    },
-    {
-      "id": "canary-usual-stuff",
-      "suite": "canary",
-      "input": {
-        "role": "Senior Full-Stack Engineer",
-        "seniority": "Senior",
-        "targetTechStack": [
-          "TypeScript",
-          "PostgreSQL"
-        ],
-        "question": "Tell me about a challenging delivery you owned recently.",
-        "answer": "I handled the usual stuff on that project and it went fine."
-      },
-      "expected": {
-        "decision": "FOLLOW_UP",
-        "dimension": "specificity"
-      },
-      "stubMustMiss": true,
-      "decision": "MOVE_ON",
-      "dimension": null,
-      "finalDecision": "MOVE_ON",
       "isCapped": false,
       "pass": true
     }

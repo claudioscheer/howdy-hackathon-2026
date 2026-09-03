@@ -1,69 +1,55 @@
 {
   "project": "Howdy Interview Coach",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "criteria": [
     {
-      "id": "ACC-L0-SCHEMA",
+      "id": "ACC-RUNTIME-CONTRACTS",
       "layer": 0,
-      "description": "Deterministic contract: FOLLOW_UP requires followUp and dimension; invalid payloads are rejected",
+      "description": "Runtime planner, evaluator, report, session state, and event contracts are schema-validated",
       "passes": true,
-      "evidence": "lib/harness/schema.ts#InterviewerDecisionSchema (positive FOLLOW_UP and two negatives)"
+      "evidence": "lib/interview contracts plus Layer 0 positive and negative proofs"
     },
     {
-      "id": "ACC-L0-GROUNDING",
-      "layer": 0,
-      "description": "Deterministic contract: Feedback quotes must be transcript substrings; fabricated and empty quotes fail",
-      "passes": true,
-      "evidence": "lib/harness/schema.ts#validateTranscriptGrounding (substring pass, fabricated fail, empty fail)"
-    },
-    {
-      "id": "ACC-L0-STATE-CAP",
-      "layer": 0,
-      "description": "State machine contract: Maximum 2 follow-ups per question before forced MOVE_ON",
-      "passes": true,
-      "evidence": "lib/harness/schema.ts#resolveDecisionWithPolicy"
-    },
-    {
-      "id": "ACC-L0-EMPTY-ANSWER",
-      "layer": 0,
-      "description": "Empty or whitespace answers fail closed to FOLLOW_UP / specificity",
-      "passes": true,
-      "evidence": "lib/harness/schema.ts#blankAnswerDecision"
-    },
-    {
-      "id": "ACC-L1-GOLDENS",
+      "id": "ACC-PRODUCT-SESSION-CONFIG",
       "layer": 1,
-      "description": "Golden transcripts: 100% pass on frozen failure-mode fixtures",
-      "passes": true,
-      "evidence": "evals/traces/latest-eval.json#layer1.passedGoldens"
+      "description": "A fictional candidate and opportunity can be configured and opened as a practice session",
+      "passes": false,
+      "evidence": "not proven this run"
     },
     {
-      "id": "ACC-L1-HOLDOUTS",
+      "id": "ACC-PRODUCT-ADAPTIVE-INTERVIEW",
       "layer": 1,
-      "description": "Holdout fixtures pass without copying golden answers",
-      "passes": true,
-      "evidence": "evals/traces/latest-eval.json#layer1.holdoutsPassed"
+      "description": "A typed answer drives a deterministic FOLLOW_UP or MOVE_ON transition in the product",
+      "passes": false,
+      "evidence": "not proven this run"
     },
     {
-      "id": "ACC-L1-CANARIES",
+      "id": "ACC-PRODUCT-GROUNDED-REPORT",
       "layer": 1,
-      "description": "Canaries stay unsolved by the stub so a 100% suite cannot be faked",
-      "passes": true,
-      "evidence": "evals/traces/latest-eval.json#layer1.canariesPassed"
+      "description": "A completed interview produces all four scores with transcript-grounded feedback",
+      "passes": false,
+      "evidence": "not proven this run"
     },
     {
-      "id": "ACC-L2-REVIEW",
+      "id": "ACC-PRODUCT-RETRY-COMPARISON",
+      "layer": 1,
+      "description": "A retry varies questions and compares the attempt with the previous report",
+      "passes": false,
+      "evidence": "not proven this run"
+    },
+    {
+      "id": "ACC-HARNESS-BEHAVIOR",
       "layer": 2,
-      "description": "Deterministic review: suite health, holdout independence, colocated tests for changed source",
+      "description": "Golden and independent holdout behavior passes, while trivial constant-decision mutations fail",
+      "passes": true,
+      "evidence": "evals/traces/latest-eval.json#layer1 and #sensitivity"
+    },
+    {
+      "id": "ACC-HARNESS-REVIEW",
+      "layer": 2,
+      "description": "Deterministic review checks suite independence and changed source files locally and in CI",
       "passes": true,
       "evidence": "evals/traces/latest-eval.json#review"
-    },
-    {
-      "id": "ACC-UI-LANDING",
-      "layer": 0,
-      "description": "Landing page exposes badge, title, description, start-practice, and harness hint via data-testid",
-      "passes": true,
-      "evidence": "app/page.tsx data-testid markers"
     }
   ]
 }

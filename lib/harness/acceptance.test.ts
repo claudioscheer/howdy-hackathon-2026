@@ -26,9 +26,9 @@ describe("acceptance.json", () => {
 
   it("keeps canonical criterion ids in the harness spec", () => {
     const ids = ACCEPTANCE_SPECS.map((item) => item.id);
-    expect(ids).toContain("ACC-UI-LANDING");
-    expect(ids).toContain("ACC-L2-REVIEW");
-    expect(ids).toContain("ACC-L1-CANARIES");
-    expect(ids).toContain("ACC-L0-EMPTY-ANSWER");
+    expect(ids).toContain("ACC-RUNTIME-CONTRACTS");
+    expect(ids).toContain("ACC-PRODUCT-ADAPTIVE-INTERVIEW");
+    expect(ids).toContain("ACC-PRODUCT-GROUNDED-REPORT");
+    expect(ids).toContain("ACC-HARNESS-BEHAVIOR");
   });
 });
