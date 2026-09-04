@@ -1,6 +1,6 @@
 # Verification harness
 
-`npm run verify` is the repository completion gate. It gives an implementation
+`pnpm run verify` is the repository completion gate. It gives an implementation
 agent deterministic back pressure it can act on without asking a human to
 diagnose every failure.
 

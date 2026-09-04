@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Agent instructions
 
-This file is the source of truth for **every** coding tool (Grok, Codex, Antigravity, Claude Code, Cursor). `CLAUDE.md` only points here. Do not add tool-specific hook folders as the gate. The gate is `npm run verify`.
+This file is the source of truth for **every** coding tool (Grok, Codex, Antigravity, Claude Code, Cursor). `CLAUDE.md` only points here. Do not add tool-specific hook folders as the gate. The gate is `pnpm run verify`.
 
 ## What this repo is
 
@@ -20,7 +20,7 @@ Howdy Interview Coach: a mock interviewer that follows up on weak answers and wr
 
 ## Lock important behavior
 
-An LLM will not remember last week’s contract. It rewrites nearby code to make the current task pass. That is why we wrap important behavior in `npm run verify` **as we ship it**, not later.
+An LLM will not remember last week’s contract. It rewrites nearby code to make the current task pass. That is why we wrap important behavior in `pnpm run verify` **as we ship it**, not later.
 
 Pattern:
 
@@ -35,16 +35,16 @@ Details: [`docs/HARNESS.md`](docs/HARNESS.md).
 ## Before you stop
 
 ```bash
-npm run verify
+pnpm run verify
 ```
 
-Use the Node version in `.nvmrc`. The gate runs Prettier, build/typecheck, lint, unit tests at 100% coverage, goldens, holdouts, mutation sensitivity, and deterministic review. Non-zero means failure. Never claim done if this fails. Never set `acceptance.json` `"passes": true` by hand — only `npm run harness` may do that. Never drop a lock to make a new feature pass.
+Use the Node version in `.nvmrc`. The gate runs Prettier, build/typecheck, lint, unit tests at 100% coverage, goldens, holdouts, mutation sensitivity, and deterministic review. Non-zero means failure. Never claim done if this fails. Never set `acceptance.json` `"passes": true` by hand — only `pnpm run harness` may do that. Never drop a lock to make a new feature pass.
 
 On failure: read the error, change the smallest thing that fixes it, run `verify` again. If you closed a full fail → fix → pass loop, add a short note to `docs/AI-DEV-LOG.md` (Dev Day evidence). Otherwise do not pad that file.
 
 ## TypeScript and style
 
-These are enforced by `npm run verify` (Prettier, ESLint, 100% unit coverage). Do not disable the rules.
+These are enforced by `pnpm run verify` (Prettier, ESLint, 100% unit coverage). Do not disable the rules.
 
 - No `any`, no `as any`, no `as unknown`, no `as never`, no `!`, no `@ts-ignore`. Narrow IO with Zod or a type guard.
 - Files under `app/` and `lib/` stay small: about 200 lines, functions about 80. Split before adding more.
@@ -55,8 +55,8 @@ These are enforced by `npm run verify` (Prettier, ESLint, 100% unit coverage). D
 - Interactive elements need `data-testid`.
 - Colocate tests: `foo.ts` → `foo.test.ts`. Cover every new branch. Coverage must stay at 100% on `app/page.tsx` and `lib/`.
 - Tailwind only. No new CSS framework.
-- Do not call a live LLM from tests or from `npm run verify`.
-- Run `npm run format` if Prettier fails; do not hand-format around the tool.
+- Do not call a live LLM from tests or from `pnpm run verify`.
+- Run `pnpm run format` if Prettier fails; do not hand-format around the tool.
 
 ## Postgres (later)
 

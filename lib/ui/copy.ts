@@ -1,6 +1,6 @@
 /**
  * Landing copy is a contract the unit tests pin.
- * If this file and the page drift, `npm test` fails — that is the harness
+ * If this file and the page drift, `pnpm test` fails — that is the harness
  * catching a UI regression before anyone claims the work is done.
  */
 export const LANDING = {
@@ -9,7 +9,7 @@ export const LANDING = {
   description:
     "Adaptive mock interviews with real-time feedback and follow-up probing.",
   startPractice: "Start practice",
-  harnessHint: "Run npm run verify before calling work done.",
+  harnessHint: "Run pnpm run verify before calling work done.",
 } as const;
 
 export function practiceButtonLabel(): string {

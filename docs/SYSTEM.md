@@ -18,7 +18,7 @@ Serial integration: verify → inspect → fix → verify
 Human decides whether the milestone is acceptable
 ```
 
-`AGENTS.md` is the cross-tool operating contract. `npm run verify` is the single
+`AGENTS.md` is the cross-tool operating contract. `pnpm run verify` is the single
 machine-readable completion gate.
 
 ## Context strategy
@@ -62,16 +62,16 @@ timeline after it occurs, including task boundaries and integration results.
 
 ## Deterministic controls
 
-| Guarantee                                 | Control                                                                  |
-| ----------------------------------------- | ------------------------------------------------------------------------ |
-| Model output has the required shape       | Zod schemas in `lib/interview/contracts.ts`                              |
-| Session ownership is explicit             | State and event schemas in `lib/interview/session.ts`                    |
-| Follow-ups cannot continue forever        | Application policy cap of two                                            |
-| Feedback cannot quote invented text       | Exact transcript-substring validation                                    |
-| Trivial constant interviewers cannot pass | Always-`MOVE_ON` and always-`FOLLOW_UP` sensitivity checks               |
-| Holdouts are not copies of goldens        | Containment and token-similarity review                                  |
-| Changed source remains test-backed        | Local diff plus CI base-to-head deterministic review                     |
-| Build quality stays observable            | Format, build/typecheck, lint, coverage, and harness in `npm run verify` |
+| Guarantee                                 | Control                                                                   |
+| ----------------------------------------- | ------------------------------------------------------------------------- |
+| Model output has the required shape       | Zod schemas in `lib/interview/contracts.ts`                               |
+| Session ownership is explicit             | State and event schemas in `lib/interview/session.ts`                     |
+| Follow-ups cannot continue forever        | Application policy cap of two                                             |
+| Feedback cannot quote invented text       | Exact transcript-substring validation                                     |
+| Trivial constant interviewers cannot pass | Always-`MOVE_ON` and always-`FOLLOW_UP` sensitivity checks                |
+| Holdouts are not copies of goldens        | Containment and token-similarity review                                   |
+| Changed source remains test-backed        | Local diff plus CI base-to-head deterministic review                      |
+| Build quality stays observable            | Format, build/typecheck, lint, coverage, and harness in `pnpm run verify` |
 
 Model judgment chooses question wording and evaluates answer quality. It does not
 control question counts, state transitions, retry limits, persistence, schema
@@ -81,7 +81,7 @@ validity, or evidence grounding.
 
 1. Each workstream runs its focused tests.
 2. The orchestrator integrates the outputs.
-3. `npm run verify` runs on the supported Node version.
+3. `pnpm run verify` runs on the supported Node version.
 4. Product milestones also receive browser verification.
 5. A failure is returned to the owner with the smallest relevant context.
 6. The owner fixes it and reruns verification without waiting for a new human

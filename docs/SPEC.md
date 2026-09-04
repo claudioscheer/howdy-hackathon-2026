@@ -116,7 +116,7 @@ state events.
 
 The system used to build this product is separate from the runtime above. Coding
 agents may work in Engine, UI, and Evaluation contexts after the public contracts
-are stable. Their outputs integrate through `npm run verify` and browser
+are stable. Their outputs integrate through `pnpm run verify` and browser
 verification. See `SYSTEM.md` for ownership, context, and evidence rules.
 
 ## Constraints and non-goals
@@ -127,7 +127,7 @@ verification. See `SYSTEM.md` for ownership, context, and evidence rules.
 - Audio recording/transcription is optional and deferred.
 - Production authentication, email delivery, Postgres, ORM/migrations, live
   Howdy integrations/data, and whiteboarding are deferred.
-- No live model call may run in `npm run verify` or CI.
+- No live model call may run in `pnpm run verify` or CI.
 - This is interview-performance coaching, not production candidate vetting.
 
 ## Implementation approach
@@ -155,7 +155,7 @@ the user journey uses browser tests.
 - [ ] The final report covers all four dimensions with validated transcript
       evidence.
 - [ ] One retry varies questions and compares against the previous attempt.
-- [ ] `npm ci` and `npm run verify` pass locally and in GitHub Actions on the
+- [ ] `pnpm install` and `pnpm run verify` pass locally and in GitHub Actions on the
       documented Node version.
 - [ ] The repository contains authentic orchestration and autonomous recovery
       evidence from development.

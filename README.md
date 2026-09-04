@@ -13,13 +13,14 @@ product is the next milestone and is not represented as complete in
 
 - Node.js 22.22.3, the smallest supported LTS version shared by the current
   Next.js, Vitest, jsdom, and testing dependencies.
-- npm 10.9.8, bundled with the pinned Node installation.
+- pnpm 11.25.0, managed via Corepack or standalone install.
 
 If using nvm:
 
 ```bash
 nvm install
 nvm use
+corepack enable
 ```
 
 Postgres is not required by the application. `docker-compose.yml` is retained as
@@ -28,8 +29,8 @@ an optional future scaffold and should not be started for the current build.
 ## Install and run
 
 ```bash
-npm ci
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Open <http://localhost:3000>.
@@ -40,11 +41,11 @@ the deferred Postgres scaffold.
 ## Verification
 
 ```bash
-npm test
-npm run verify
+pnpm test
+pnpm run verify
 ```
 
-`npm run verify` is the only completion gate. It runs formatting, production
+`pnpm run verify` is the only completion gate. It runs formatting, production
 build/typecheck, lint, 100% unit coverage, synthetic behavioral fixtures,
 sensitivity checks, and deterministic changed-file review. It exits nonzero and
 prints the failing stage when work is not ready.
