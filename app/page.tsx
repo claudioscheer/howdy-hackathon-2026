@@ -1,9 +1,48 @@
 import { LANDING } from "@/lib/ui/copy";
 
-export default function Home() {
+export default function Home(): React.JSX.Element {
   return (
-    <div className="flex min-h-screen flex-1 flex-col items-center justify-center bg-white font-sans text-black">
-      <main className="flex w-full max-w-4xl flex-1 flex-col items-center justify-center gap-10 px-8 py-24 sm:items-start sm:px-16">
+    <div className="relative flex min-h-screen flex-1 flex-col items-center justify-center overflow-hidden bg-white font-sans text-black">
+      <div
+        data-testid="landing-grid-bg"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 select-none overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e0e0e8_1px,transparent_1px),linear-gradient(to_bottom,#e0e0e8_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40" />
+
+        <div className="absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full border border-[#e0e0e8] opacity-60" />
+        <div className="absolute -top-16 -right-16 h-[380px] w-[380px] rounded-full border border-[#e0e0e8]/80 opacity-40" />
+        <div className="absolute -bottom-40 -left-40 h-[600px] w-[600px] rounded-full border border-[#e0e0e8] opacity-50" />
+        <div className="absolute -bottom-24 -left-24 h-[440px] w-[440px] rounded-full border border-[#e0e0e8]/80 opacity-30" />
+
+        <span className="absolute top-8 left-8 text-xs font-mono text-[#5a5a5f]/40">
+          +
+        </span>
+        <span className="absolute top-8 right-8 text-xs font-mono text-[#5a5a5f]/40">
+          +
+        </span>
+        <span className="absolute bottom-8 left-8 text-xs font-mono text-[#5a5a5f]/40">
+          +
+        </span>
+        <span className="absolute bottom-8 right-8 text-xs font-mono text-[#5a5a5f]/40">
+          +
+        </span>
+
+        <div className="absolute top-8 left-14 hidden text-[10px] font-mono uppercase tracking-[2px] text-[#5a5a5f]/50 sm:block">
+          SYS.LOC // 28.5721° N 80.6480° W
+        </div>
+        <div className="absolute top-8 right-14 hidden text-[10px] font-mono uppercase tracking-[2px] text-[#5a5a5f]/50 sm:block">
+          STATUS // ADAPTIVE COACH ONLINE
+        </div>
+        <div className="absolute bottom-8 left-14 hidden text-[10px] font-mono uppercase tracking-[2px] text-[#5a5a5f]/50 sm:block">
+          TELEMETRY // TRANSCRIPT GROUNDED
+        </div>
+        <div className="absolute bottom-8 right-14 hidden text-[10px] font-mono uppercase tracking-[2px] text-[#5a5a5f]/50 sm:block">
+          PROTOCOL // 2-TRIAL EXPIRING SEAMS
+        </div>
+      </div>
+
+      <main className="relative z-10 flex w-full max-w-4xl flex-1 flex-col items-center justify-center gap-10 px-8 py-24 sm:items-start sm:px-16">
         <span
           data-testid="app-badge"
           className="inline-flex items-center rounded-full border border-[#e0e0e8] bg-white px-4 py-1 text-xs font-normal uppercase tracking-[0.96px] text-[#5a5a5f]"

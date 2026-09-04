@@ -13,11 +13,12 @@ describe("Home page", () => {
     );
   });
 
-  it("renders the start-practice control", () => {
+  it("renders the start-practice control and background elements", () => {
     render(<Home />);
     const start = screen.getByTestId("start-practice");
     expect(start).toHaveTextContent(LANDING.startPractice);
     expect(start).toHaveAttribute("href", "/login");
+    expect(screen.getByTestId("landing-grid-bg")).toBeInTheDocument();
   });
 
   it("applies DESIGN.md styling classes", () => {
