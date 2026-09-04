@@ -9,7 +9,7 @@ diagnose every failure.
 1. Prettier formatting check.
 2. Next.js production build and TypeScript validation.
 3. ESLint, including unsafe-cast and source-size restrictions.
-4. Colocated Vitest tests with 100% coverage on `app/page.tsx` and `lib/`.
+4. Colocated Vitest tests with 100% coverage on changed files (running only affected tests; full suite via `pnpm run test:all`).
 5. Synthetic golden and independent holdout interview fixtures.
 6. Behavioral sensitivity checks.
 7. Deterministic changed-file review.

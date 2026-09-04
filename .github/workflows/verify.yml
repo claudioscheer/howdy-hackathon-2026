@@ -6,8 +6,23 @@ on:
     branches: [main]
 
 jobs:
-  verify:
+  stage:
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: format
+            command: pnpm run format:check
+          - name: build / typecheck
+            command: pnpm run build
+          - name: lint
+            command: pnpm run lint
+          - name: unit tests + coverage (full)
+            command: pnpm run test:all
+          - name: harness evals
+            command: pnpm run harness
     steps:
       - uses: actions/checkout@v4
         with:
@@ -18,6 +33,14 @@ jobs:
           node-version-file: ".nvmrc"
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run verify
+      - run: ${{ matrix.command }}
         env:
           REVIEW_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          TEST_ALL: "1"
+
+  verify:
+    name: verify
+    needs: [stage]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All parallel verification stages passed."

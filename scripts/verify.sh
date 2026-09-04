@@ -5,31 +5,64 @@ set -u
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-run_silent() {
-  local desc="$1"
-  shift
-  local tmp
-  tmp="$(mktemp)"
-  if "$@" >"$tmp" 2>&1; then
-    printf "  ✓ %s\n" "$desc"
-    rm -f "$tmp"
-    return 0
-  else
-    local code=$?
-    printf "  ✗ %s\n" "$desc"
-    cat "$tmp"
-    rm -f "$tmp"
-    return "$code"
-  fi
+
+if [ "${1:-}" = "--all" ]; then
+  export TEST_ALL=1
+fi
+
+tmp_dir="$(mktemp -d)"
+trap 'rm -rf "$tmp_dir"' EXIT
+
+stages=("format" "build / typecheck" "lint" "unit tests + coverage" "harness evals")
+
+run_stage() {
+  case "$1" in
+    0) pnpm run format:check ;;
+    1) pnpm run build ;;
+    2) pnpm run lint ;;
+    3) pnpm run test ;;
+    4) pnpm run harness ;;
+  esac
 }
 
-failed=0
+declare -a pids
+for i in "${!stages[@]}"; do
+  log="$tmp_dir/$i.log"
+  status_file="$tmp_dir/$i.status"
+  (
+    if run_stage "$i" >"$log" 2>&1; then
+      echo 0 > "$status_file"
+    else
+      echo $? > "$status_file"
+    fi
+  ) &
+  pids[$i]=$!
+done
 
-run_silent "format" pnpm run format:check || failed=1
-run_silent "build / typecheck" pnpm run build || failed=1
-run_silent "lint" pnpm run lint || failed=1
-run_silent "unit tests + coverage" pnpm run test || failed=1
-run_silent "harness evals" pnpm run harness || failed=1
+for pid in "${pids[@]}"; do
+  wait "$pid" 2>/dev/null || true
+done
+
+failed=0
+for i in "${!stages[@]}"; do
+  stage="${stages[$i]}"
+  log="$tmp_dir/$i.log"
+  status_file="$tmp_dir/$i.status"
+  code=1
+  if [ -f "$status_file" ]; then
+    code="$(cat "$status_file")"
+  fi
+
+  if [ "$code" -eq 0 ]; then
+    printf "  ✓ %s\n" "$stage"
+  else
+    failed=1
+    printf "  ✗ %s\n" "$stage"
+    if [ -f "$log" ]; then
+      cat "$log"
+    fi
+  fi
+done
 
 if [ "$failed" -ne 0 ]; then
   echo "verify failed"
@@ -38,3 +71,4 @@ fi
 
 echo "verify passed"
 exit 0
+

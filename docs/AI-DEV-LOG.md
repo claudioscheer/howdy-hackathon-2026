@@ -178,3 +178,51 @@ app/dashboard/page.tsx
   ✓ harness evals
 verify passed
 ```
+
+---
+
+## 2026-09-04 — Harness affected-test execution gate
+
+**Act.** Created [`lib/harness/test-args.ts`](file:///C:/Users/water/Documents/GitHub/howdy-hackathon-2026/lib/harness/test-args.ts) and [`scripts/run-tests.ts`](file:///C:/Users/water/Documents/GitHub/howdy-hackathon-2026/scripts/run-tests.ts) to run only unit tests affected by working tree or `REVIEW_BASE_SHA` changes with colocated 100% coverage, adding `pnpm run test:all` for full suite execution.
+
+**Verify / observe.** `pnpm run verify` failed at format stage:
+
+```text
+[warn] lib/harness/test-args.ts
+[warn] Code style issues found in the above file. Run Prettier with --write to fix.
+```
+
+**Fix / verify again.** Executed `pnpm run format` to resolve Prettier issues. Ran `pnpm run verify`:
+
+```text
+  ✓ format
+  ✓ build / typecheck
+  ✓ lint
+  ✓ unit tests + coverage
+  ✓ harness evals
+verify passed
+```
+
+---
+
+## 2026-09-04 — Parallel full-coverage execution for prepush and GitHub Actions
+
+**Act.** Upgraded `scripts/verify.sh` to run verification stages concurrently in parallel, added `pnpm run prepush` (`scripts/verify.sh --all`), updated `.git/hooks/pre-push` to invoke prepush, and parallelized `.github/workflows/verify.yml` matrix jobs with full test coverage (`TEST_ALL=1`).
+
+**Verify / observe.** `pnpm run prepush` failed at format stage due to unformatted `.github/workflows/verify.yml`:
+
+```text
+[warn] .github/workflows/verify.yml
+[warn] Code style issues found in the above file. Run Prettier with --write to fix.
+```
+
+**Fix / verify again.** Ran `pnpm run format` and re-executed `pnpm run prepush`:
+
+```text
+  ✓ format
+  ✓ build / typecheck
+  ✓ lint
+  ✓ unit tests + coverage
+  ✓ harness evals
+verify passed
+```
