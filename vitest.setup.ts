@@ -15,6 +15,20 @@ Object.defineProperty(window, "matchMedia", {
   }),
 });
 
+vi.mock("next/font/google", () => ({
+  Geist: () => ({
+    variable: "--font-geist-sans",
+    className: "font-geist",
+  }),
+  Geist_Mono: () => ({
+    variable: "--font-geist-mono",
+    className: "font-geist-mono",
+  }),
+  Barlow: () => ({
+    className: "font-barlow-italic",
+  }),
+}));
+
 vi.mock("next/navigation", () => ({
   useRouter: vi.fn(() => ({
     push: vi.fn(),

@@ -1,5 +1,12 @@
+import { Barlow } from "next/font/google";
 import { LANDING } from "@/lib/ui/copy";
 import { QuestionCycle } from "@/lib/ui/question-cycle";
+
+const spokenLead = Barlow({
+  subsets: ["latin"],
+  weight: ["500"],
+  style: ["italic"],
+});
 
 function LandingAtmosphere(): React.JSX.Element {
   return (
@@ -44,7 +51,7 @@ export default function Home(): React.JSX.Element {
       <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-8 pb-24 sm:px-16 lg:px-20">
         <p
           data-testid="hero-description"
-          className="mb-8 max-w-xl text-base font-normal leading-[1.7] tracking-[0.32px] text-[#5a5a5f]"
+          className={`${spokenLead.className} mb-10 max-w-2xl text-xl font-medium italic leading-[1.4] tracking-[0.2px] text-black sm:text-2xl`}
         >
           {LANDING.description}
         </p>

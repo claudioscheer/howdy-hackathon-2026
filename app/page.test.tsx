@@ -17,6 +17,11 @@ describe("Home page", () => {
     expect(screen.getByTestId("hero-description")).toHaveTextContent(
       LANDING.description,
     );
+    expect(screen.getByTestId("hero-description")).toHaveClass(
+      "font-barlow-italic",
+      "italic",
+      "text-black",
+    );
   });
 
   it("sends the visitor to login and keeps location chrome off the page", () => {

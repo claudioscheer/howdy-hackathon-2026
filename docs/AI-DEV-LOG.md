@@ -8,6 +8,16 @@ with no new human prompt in the middle of that loop. Keep it short. Add a note o
 
 ---
 
+## 2026-09-04 — Barlow lead font broke unit tests
+
+**Act.** Set the landing sell line in italic Barlow so it sits apart from the uppercase question.
+
+**Verify / observe.** `pnpm run verify` failed: Vitest loaded `next/font/google` and `Barlow is not a function`.
+
+**Fix / verify again.** Mock `Barlow` (and the existing Geist faces) in `vitest.setup.ts`. `pnpm run verify` passed.
+
+---
+
 ## 2026-09-04 — Random hero broke the title lock
 
 **Act.** Replaced the landing questions with harder prompts so they match “hard questions here first.”
