@@ -16,24 +16,28 @@ verification harness exist; the end-to-end interview experience does not yet.
 
 ## Core user journey
 
-1. A recruiter or candidate configures a fictional opportunity and practice
-   session.
-2. The candidate answers a planned question in text.
+1. An engineering manager or recruiter configures a fictional opportunity and
+   session parameters (or selects a preset seed), generating a shareable
+   candidate practice link without requiring login.
+2. The candidate opens the shareable practice link (no login required) and
+   answers planned questions in text.
 3. The system evaluates the answer using the opportunity, question intent, and
    transcript history.
 4. Deterministic application code applies either `FOLLOW_UP` or `MOVE_ON`.
 5. The loop continues until the configured questions are complete.
 6. The candidate receives a report grounded in exact transcript excerpts.
-7. The candidate may retry with varied questions and compare with the previous
-   attempt.
+7. The manager and candidate can view completed reports and comparison retries
+   via the session link.
 
 ## Required behavior
 
-### Session configuration
+### Session configuration (Manager / Recruiter)
 
+- Zero login required: open access to session configuration / presets.
 - Candidate identifier/display name, using fictional data only.
 - Opportunity role, seniority, target skills, and interview type.
-- A seeded/demo session may stand in for production link sharing.
+- Generates a shareable candidate session route (e.g. `/practice/[sessionId]`)
+  or provides a direct "Launch Practice" button for demo convenience.
 
 ### Adaptive interview
 
@@ -125,8 +129,11 @@ verification. See `SYSTEM.md` for ownership, context, and evidence rules.
 - The build must remain achievable within hackathon hours.
 - Typed answers are the only required input mode.
 - Audio recording/transcription is optional and deferred.
-- Production authentication, email delivery, Postgres, ORM/migrations, live
-  Howdy integrations/data, and whiteboarding are deferred.
+- Authentication and login are intentionally dismissed for this phase; engineering
+  focus remains entirely on validating core feature capabilities (adaptive
+  questioning, back pressure, and transcript-grounded coaching) without auth friction.
+- Email delivery, Postgres, ORM/migrations, live Howdy integrations/data, and
+  whiteboarding are deferred.
 - No live model call may run in `pnpm run verify` or CI.
 - This is interview-performance coaching, not production candidate vetting.
 
@@ -161,4 +168,6 @@ the user journey uses browser tests.
       evidence from development.
 - [ ] The application is deployed and the three-minute demo story is rehearsable.
 
-Audio is not part of the definition of done.
+Audio and user authentication/login are explicitly dismissed from the definition
+of done. Access is open and link-driven to prioritize verifying core interview and
+coaching features.

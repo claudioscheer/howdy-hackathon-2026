@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-04T01:32:49.778Z",
+  "timestamp": "2026-09-04T01:48:07.743Z",
   "layer0": {
     "schema": true,
     "grounding": true,
@@ -21,23 +21,9 @@
   "review": {
     "findings": [],
     "changedFiles": [
-      ".editorconfig",
-      ".gitattributes",
-      ".github/workflows/verify.yml",
-      ".prettierignore",
-      ".prettierrc.json",
-      "AGENTS.md",
-      "README.md",
-      "docs/HARNESS.md",
+      "DESIGN.md",
       "docs/SPEC.md",
-      "docs/SYSTEM.md",
-      "evals/traces/latest-eval.json",
-      "lib/ui/copy.ts",
-      "package-lock.json",
-      "package.json",
-      "pnpm-lock.yaml",
-      "pnpm-workspace.yaml",
-      "scripts/verify.sh"
+      "evals/traces/latest-eval.json"
     ],
     "mappedCriteria": [
       "ACC-HARNESS-BEHAVIOR"
