@@ -124,6 +124,7 @@ describe("buildLayer0Proofs", () => {
     const proofs = buildLayer0Proofs(repoRoot);
     expect(proofs["ACC-L0-SCHEMA"]?.pass).toBe(true);
     expect(proofs["ACC-UI-LANDING"]?.pass).toBe(true);
+    expect(proofs["ACC-UI-LOGIN"]?.pass).toBe(true);
   });
 });
 

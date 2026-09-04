@@ -7,6 +7,7 @@ import {
   proveStateCapContract,
   type Proof,
 } from "./contracts";
+import { proveLoginContract } from "./login-contract";
 import { DeterministicStubProvider, InterviewEngine } from "./engine";
 import {
   type EvalFixture,
@@ -93,6 +94,7 @@ export function buildLayer0Proofs(rootDir: string): Record<string, Proof> {
     "ACC-L0-EMPTY-ANSWER": proveEmptyAnswerContract(),
     "ACC-L0-RUNTIME-CONTRACTS": proveRuntimeContractSet(),
     "ACC-UI-LANDING": proveLandingContract(rootDir),
+    "ACC-UI-LOGIN": proveLoginContract(rootDir),
   };
 }
 
