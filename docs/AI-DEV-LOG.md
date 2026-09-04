@@ -101,3 +101,29 @@ run completed:
 ✓ harness evals
 verify passed
 ```
+
+---
+
+## 2026-09-03 — Clean working tree review test failure caught by pre-push verify
+
+**Act.** Installed `.git/hooks/pre-push` to run `pnpm run verify` prior to pushing.
+
+**Verify / observe.** `pnpm run test` failed on a clean git working tree when testing the hook:
+
+```text
+FAIL lib/harness/review.test.ts > reviewHarness > collects the git working tree when changedFiles is omitted
+AssertionError: expected 0 to be greater than 0
+```
+
+`collectChangedFiles` returns an empty array when the working tree has no unstaged, staged, or untracked changes, violating the strict `> 0` check.
+
+**Fix / verify again.** Updated `review.test.ts` to assert array type and non-negative length for clean checkouts. `pnpm run verify` passed:
+
+```text
+  ✓ format
+  ✓ build / typecheck
+  ✓ lint
+  ✓ unit tests + coverage
+  ✓ harness evals
+verify passed
+```

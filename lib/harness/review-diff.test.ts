@@ -101,6 +101,8 @@ describe("reviewChangedFiles", () => {
       ),
     );
     fs.writeFileSync(path.join(root, "lib/big.test.ts"), "test");
+    fs.mkdirSync(path.join(root, "docs"), { recursive: true });
+    fs.writeFileSync(path.join(root, "docs/HARNESS.md"), "# Docs\n");
     const findings = reviewChangedFiles(root, [
       ".env.local",
       "lib/missing.ts",

@@ -14,6 +14,7 @@
 
 # testing
 /coverage
+/evals/traces/
 
 # next.js
 /.next/

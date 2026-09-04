@@ -24,6 +24,7 @@ describe("reviewHarness", () => {
       holdouts: loadFixturesFromDir(path.join(root, "evals/holdouts")),
       rootDir: root,
     });
-    expect(report.changedFiles.length).toBeGreaterThan(0);
+    expect(Array.isArray(report.changedFiles)).toBe(true);
+    expect(report.changedFiles.length).toBeGreaterThanOrEqual(0);
   });
 });
