@@ -19,6 +19,8 @@ describe("Home page", () => {
     expect(start).toHaveTextContent(LANDING.startPractice);
     expect(start).toHaveAttribute("href", "/login");
     expect(screen.getByTestId("landing-grid-bg")).toBeInTheDocument();
+    expect(screen.getByTestId("telemetry-signal-meter")).toBeInTheDocument();
+    expect(screen.getByTestId("precision-axis-scale")).toBeInTheDocument();
   });
 
   it("applies DESIGN.md styling classes", () => {
