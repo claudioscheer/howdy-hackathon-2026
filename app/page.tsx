@@ -12,8 +12,6 @@ export default function Home(): React.JSX.Element {
 
         <div className="absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full border border-[#e0e0e8] opacity-60" />
         <div className="absolute -top-16 -right-16 h-[380px] w-[380px] rounded-full border border-[#e0e0e8]/80 opacity-40" />
-        <div className="absolute -bottom-40 -left-40 h-[600px] w-[600px] rounded-full border border-[#e0e0e8] opacity-50" />
-        <div className="absolute -bottom-24 -left-24 h-[440px] w-[440px] rounded-full border border-[#e0e0e8]/80 opacity-30" />
 
         <span className="absolute top-8 left-8 text-xs font-mono text-[#5a5a5f]/40">
           +
