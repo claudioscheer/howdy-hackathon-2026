@@ -24,7 +24,7 @@ describe("layer 0 contracts", () => {
       path.resolve(import.meta.dirname, "../.."),
     );
     expect(proof.pass).toBe(true);
-    expect(REQUIRED_LANDING_TEST_IDS.length).toBe(5);
+    expect(REQUIRED_LANDING_TEST_IDS.length).toBe(4);
   });
 
   it("fails when the landing page is missing or lacks a testid", () => {
@@ -38,5 +38,24 @@ describe("layer 0 contracts", () => {
     );
     expect(proveLandingContract(root).pass).toBe(false);
     expect(proveLandingContract(root).evidence).toMatch(/missing data-testid/);
+  });
+
+  it("fails when the landing page violates DESIGN.md", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "design-fail-"));
+    fs.mkdirSync(path.join(root, "app"));
+    fs.writeFileSync(
+      path.join(root, "app/page.tsx"),
+      `
+      <div className="bg-white">
+        <span data-testid="app-badge">Badge</span>
+        <h1 data-testid="hero-title">Title</h1>
+        <p data-testid="hero-description">Desc</p>
+        <a data-testid="start-practice">Start</a>
+      </div>
+      `,
+    );
+    const proof = proveLandingContract(root);
+    expect(proof.pass).toBe(false);
+    expect(proof.evidence).toMatch(/violates DESIGN.md/);
   });
 });

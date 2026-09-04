@@ -8,6 +8,7 @@ import {
   resolveDecisionWithPolicy,
   validateTranscriptGrounding,
 } from "./schema";
+import { validateLandingDesign } from "./design";
 
 export interface Proof {
   pass: boolean;
@@ -19,7 +20,6 @@ export const REQUIRED_LANDING_TEST_IDS = [
   "hero-title",
   "hero-description",
   "start-practice",
-  "harness-hint",
 ] as const;
 
 export function proveSchemaContract(): Proof {
@@ -144,11 +144,23 @@ export function proveLandingContract(rootDir: string): Proof {
   const missing = REQUIRED_LANDING_TEST_IDS.filter(
     (id) => !source.includes(`data-testid="${id}"`),
   );
+  if (missing.length > 0) {
+    return {
+      pass: false,
+      evidence: `app/page.tsx missing data-testid: ${missing.join(", ")}`,
+    };
+  }
+  const designDocExists = fs.existsSync(path.join(rootDir, "DESIGN.md"));
+  const design = validateLandingDesign(source, designDocExists);
+  if (!design.valid) {
+    return {
+      pass: false,
+      evidence: `app/page.tsx violates DESIGN.md: ${design.reasons.join("; ")}`,
+    };
+  }
   return {
-    pass: missing.length === 0,
+    pass: true,
     evidence:
-      missing.length === 0
-        ? "app/page.tsx data-testid markers"
-        : `app/page.tsx missing data-testid: ${missing.join(", ")}`,
+      "app/page.tsx data-testid markers and DESIGN.md styling compliance",
   };
 }

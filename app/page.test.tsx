@@ -17,13 +17,17 @@ describe("Home page", () => {
     render(<Home />);
     const start = screen.getByTestId("start-practice");
     expect(start).toHaveTextContent(LANDING.startPractice);
-    expect(start).toHaveAttribute("href", "#practice");
+    expect(start).toHaveAttribute("href", "/login");
   });
 
-  it("tells agents how to finish work", () => {
+  it("applies DESIGN.md styling classes", () => {
     render(<Home />);
-    expect(screen.getByTestId("harness-hint")).toHaveTextContent(
-      LANDING.harnessHint,
+    expect(screen.getByTestId("app-badge")).toHaveClass("uppercase");
+    expect(screen.getByTestId("hero-title")).toHaveClass("uppercase");
+    expect(screen.getByTestId("start-practice")).toHaveClass(
+      "rounded-full",
+      "border",
+      "uppercase",
     );
   });
 });

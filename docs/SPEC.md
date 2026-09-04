@@ -16,28 +16,42 @@ verification harness exist; the end-to-end interview experience does not yet.
 
 ## Core user journey
 
-1. An engineering manager or recruiter configures a fictional opportunity and
-   session parameters (or selects a preset seed), generating a shareable
-   candidate practice link without requiring login.
-2. The candidate opens the shareable practice link (no login required) and
-   answers planned questions in text.
-3. The system evaluates the answer using the opportunity, question intent, and
-   transcript history.
-4. Deterministic application code applies either `FOLLOW_UP` or `MOVE_ON`.
+1. An engineering manager (EM) logs in via the manager portal (`/login`) to
+   configure a role opportunity and generate a disposable candidate practice link
+   governed by the expiration rule: exactly two attempts max and a one-week (7 days) TTL.
+2. The candidate opens the shareable practice link (`/practice/[sessionId]`)
+   directly without requiring an account or login.
+3. The candidate completes planned questions in text within the allowed 2-attempt
+   trial window.
+4. The system evaluates the answer using the opportunity, question intent, and
+   transcript history, deterministically triggering `FOLLOW_UP` or `MOVE_ON`.
 5. The loop continues until the configured questions are complete.
-6. The candidate receives a report grounded in exact transcript excerpts.
-7. The manager and candidate can view completed reports and comparison retries
-   via the session link.
+6. The candidate receives a report grounded in exact transcript excerpts and can
+   export their scorecard results.
+7. Candidate link expiration: the practice link automatically expires after two
+   attempts or after one week (7 calendar days), whichever comes first. Once
+   expired, candidate access is permanently revoked. Candidates do not maintain
+   persistent cross-opportunity progress profiles since practice opportunities are
+   role-specific and disposable; session outcomes remain accessible to the
+   engineering manager.
 
 ## Required behavior
 
-### Session configuration (Manager / Recruiter)
+### Session configuration (Engineering Manager)
 
-- Zero login required: open access to session configuration / presets.
-- Candidate identifier/display name, using fictional data only.
-- Opportunity role, seniority, target skills, and interview type.
-- Generates a shareable candidate session route (e.g. `/practice/[sessionId]`)
-  or provides a direct "Launch Practice" button for demo convenience.
+- Manager access (`/login`): Engineering managers enter to configure fictional
+  opportunities, interview rubrics, and candidate access links.
+- Link generation: Produces tokenized, shareable candidate session routes
+  (e.g. `/practice/[sessionId]`) with an explicit expiration policy: exactly two
+  attempts max and a one-week (7 days) TTL, after which the link automatically
+  expires.
+- Candidate zero-auth: Candidates never log in; their access is strictly link-driven
+  and disposable.
+- Exportable candidate reports: Candidates can export their grounded feedback
+  report upon completing the session.
+- Candidate progress scope: Cross-opportunity progress tracking is intentionally
+  dismissed for candidates because practice sessions are disposable preparation for
+  specific roles. Consolidated tracking is reserved for manager review in future phases.
 
 ### Adaptive interview
 
@@ -78,10 +92,10 @@ transcript.
 
 ### Retry and comparison
 
-- At most three attempts are supported.
+- Exactly two attempts are supported per disposable candidate link.
+- Links expire automatically after two attempts or after one week (7 calendar days).
 - Planning receives the questions used in earlier attempts.
-- The first comparison only needs to contrast the current attempt with the
-  immediately previous report.
+- The comparison contrasts the second attempt with the first report.
 
 ## Product runtime architecture
 

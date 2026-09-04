@@ -127,3 +127,54 @@ AssertionError: expected 0 to be greater than 0
   ✓ harness evals
 verify passed
 ```
+
+---
+
+## 2026-09-03 — Design contract cyclomatic complexity caught by lint gate
+
+**Act.** Extended `validateLandingDesign` to support both light and dark canvas surfaces defined in `DESIGN.md`.
+
+**Verify / observe.** `pnpm run verify` failed at the ESLint stage:
+
+```text
+C:\Users\water\Documents\GitHub\howdy-hackathon-2026\lib\harness\design.ts
+  40:8  error  Function 'validateLandingDesign' has a complexity of 16. Maximum allowed is 15  complexity
+```
+
+The branch logic for canvas alternatives pushed function complexity over the repo maximum.
+
+**Fix / verify again.** Extracted `isValidCanvasSurface` and `hasGhostPillStyling` into separate named helper functions. Prettier, TypeScript, ESLint, unit tests at 100% coverage, and harness verification all passed green:
+
+```text
+  ✓ format
+  ✓ build / typecheck
+  ✓ lint
+  ✓ unit tests + coverage
+  ✓ harness evals
+verify passed
+```
+
+---
+
+## 2026-09-03 — Manager dashboard page decomposition and harness limits
+
+**Act.** Implemented placeholder `/dashboard` page for the Engineering Manager to manage interview opportunities and disposable candidate practice links, along with route transition from `/login`.
+
+**Verify / observe.** `pnpm run verify` failed at ESLint and harness gates:
+
+```text
+app/dashboard/page.tsx
+  Function 'DashboardPage' has too many lines (101). Maximum allowed is 80 (max-lines-per-function)
+  File has too many lines (217). Maximum allowed is 200 (max-lines)
+```
+
+**Fix / verify again.** Decomposed `page.tsx` into modular subcomponents: `header.tsx` and `opportunity-card.tsx` with colocated unit tests. Ran `pnpm run verify`:
+
+```text
+  ✓ format
+  ✓ build / typecheck
+  ✓ lint
+  ✓ unit tests + coverage
+  ✓ harness evals
+verify passed
+```
