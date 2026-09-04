@@ -5,9 +5,19 @@
  */
 export const LANDING = {
   badge: "Howdy Dev Day 2026",
-  title: "Howdy Interview Coach",
-  description:
-    "Adaptive mock interviews with real-time feedback and follow-up probing.",
+  product: "Howdy Interview Coach",
+  title: "Walk me through the last outage you caused.",
+  questions: [
+    "Walk me through the last outage you caused.",
+    "When did you ship a review you knew was wrong?",
+    "Name a systems tradeoff you would reverse today.",
+    "What did you break the last time you shipped under pressure?",
+    "Walk me through a bug you shipped that users found first.",
+    "What did you refuse to build, and who did you disappoint?",
+    "Tell me about a time you were wrong in a room of people.",
+    "Walk me through a design you defended, then had to kill.",
+  ],
+  description: "Let your engineers hear the hard questions here first.",
   startPractice: "Login",
 } as const;
 

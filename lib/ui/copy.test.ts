@@ -12,6 +12,18 @@ describe("landing copy", () => {
     expect(LANDING.startPractice).toBe("Login");
   });
 
+  it("sells the interview instead of listing product machinery", () => {
+    expect(LANDING.product).toBe("Howdy Interview Coach");
+    expect(LANDING.title).toBe("Walk me through the last outage you caused.");
+    expect(LANDING.description).toBe(
+      "Let your engineers hear the hard questions here first.",
+    );
+    expect(LANDING.description.toLowerCase()).not.toContain("transcript");
+    expect(LANDING.description.toLowerCase()).not.toContain("trial");
+    expect(LANDING.questions[0]).toBe(LANDING.title);
+    expect(LANDING.questions).toHaveLength(8);
+  });
+
   it("exposes login copy for the split-screen view", () => {
     expect(LOGIN_PAGE.title).toBe("Engineering Manager Login");
     expect(LOGIN_PAGE.submitButton).toBe("Sign In");

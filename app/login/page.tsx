@@ -45,7 +45,7 @@ export default function LoginPage(): React.JSX.Element {
         </p>
       </div>
 
-      <div className="flex w-full items-center justify-center">
+      <div className="flex min-h-full w-full">
         <LoginShowcase />
       </div>
     </div>

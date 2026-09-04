@@ -1,62 +1,55 @@
 import { LOGIN_PAGE } from "./copy";
 
-const SOUNDWAVE_HEIGHTS = [
-  "h-6",
-  "h-12",
-  "h-20",
-  "h-16",
-  "h-28",
-  "h-14",
-  "h-24",
-  "h-8",
-  "h-20",
-  "h-10",
-  "h-16",
-  "h-6",
+const CORNER_CLASS = [
+  "top-0 left-0 border-t border-l",
+  "top-0 right-0 border-t border-r",
+  "bottom-0 left-0 border-b border-l",
+  "bottom-0 right-0 border-b border-r",
 ] as const;
 
-const TELEMETRY_DIMENSIONS = [
-  { label: "RELEVANCE", status: "GROUNDED" },
-  { label: "SPECIFICITY", status: "PROBING" },
-  { label: "STRUCTURE", status: "STAR EVAL" },
-  { label: "FUNDAMENTALS", status: "LOCKED" },
+export const SHOWCASE_CASCADE = [
+  {
+    word: "Help",
+    className:
+      "text-[22px] font-medium uppercase tracking-[0.32em] text-white/70",
+  },
+  {
+    word: "your",
+    className:
+      "max-w-full font-bold uppercase leading-[0.82] tracking-[0.14em] text-[clamp(1.85rem,calc((100cqw-5rem)/11.5),4rem)] text-white",
+  },
+  {
+    word: "engineers",
+    className:
+      "mt-1 max-w-full font-bold uppercase leading-[0.82] tracking-[-0.02em] text-[clamp(2.35rem,calc((100cqw-5rem)/7.2),6.25rem)] text-white",
+  },
+  {
+    word: "succeed.",
+    className:
+      "mt-0.5 max-w-full font-bold uppercase leading-[0.82] tracking-[-0.03em] text-[clamp(2.75rem,calc((100cqw-5rem)/5.6),7.5rem)] text-white",
+  },
 ] as const;
 
-function SoundwaveVisualizer(): React.JSX.Element {
+function ShowcaseAtmosphere(): React.JSX.Element {
   return (
-    <div
-      data-testid="soundwave-container"
-      className="flex h-24 items-center justify-center gap-2"
-    >
-      {SOUNDWAVE_HEIGHTS.map((heightClass, index) => (
-        <span
-          key={index}
-          data-testid="soundwave-bar"
-          className={`w-1.5 rounded-full bg-white transition-all duration-300 animate-pulse ${heightClass}`}
-          style={{ animationDelay: `${(index % 4) * 150}ms` }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function TelemetryGrid(): React.JSX.Element {
-  return (
-    <div className="grid w-full grid-cols-2 gap-2.5 border-t border-zinc-800/80 pt-4">
-      {TELEMETRY_DIMENSIONS.map((dim) => (
-        <div
-          key={dim.label}
-          data-testid="telemetry-node"
-          className="flex flex-col rounded border border-zinc-800 bg-black/60 p-2.5"
-        >
-          <span className="text-[10px] font-bold uppercase tracking-[1px] text-zinc-400">
-            {dim.label}
-          </span>
-          <span className="text-xs font-semibold tracking-wide text-white">
-            {dim.status}
-          </span>
-        </div>
-      ))}
+    <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+      <div
+        data-testid="showcase-grid"
+        className="absolute inset-0 opacity-70"
+        style={{
+          backgroundImage:
+            "linear-gradient(#3a3a3f 1px, transparent 1px), linear-gradient(90deg, #3a3a3f 1px, transparent 1px)",
+          backgroundSize: "52px 52px",
+        }}
+      />
+      <div data-testid="showcase-frame" className="absolute inset-6 sm:inset-8">
+        {CORNER_CLASS.map((corner) => (
+          <span
+            key={corner}
+            className={`absolute h-7 w-7 border-[#8a8a90] ${corner}`}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -65,54 +58,39 @@ export function LoginShowcase(): React.JSX.Element {
   return (
     <div
       data-testid="login-showcase"
-      className="relative flex h-full min-h-[600px] w-full flex-col items-center justify-center overflow-hidden bg-black p-8 text-white select-none lg:min-h-screen lg:p-16"
+      className="@container relative flex h-full min-h-[520px] w-full flex-col overflow-hidden bg-black text-white select-none lg:min-h-full"
     >
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div
-          data-testid="radar-ring"
-          className="absolute h-[320px] w-[320px] rounded-full border border-zinc-800/80 animate-ping"
-          style={{ animationDuration: "4s" }}
-        />
-        <div className="absolute h-[480px] w-[480px] rounded-full border border-zinc-900" />
-        <div className="absolute h-[640px] w-[640px] rounded-full border border-zinc-900/50" />
-      </div>
-
-      <div className="relative z-10 flex w-full max-w-lg flex-col gap-8">
-        <div className="flex flex-col gap-4 text-center lg:text-left">
-          <span
-            data-testid="showcase-badge"
-            className="inline-flex w-fit items-center self-center rounded-full border border-zinc-800 bg-zinc-950 px-3 py-1 text-[11px] font-bold uppercase tracking-[1.6px] text-zinc-400 lg:self-start"
-          >
-            INTERVIEW INTELLIGENCE // 2026
-          </span>
+      <ShowcaseAtmosphere />
+      <div className="relative z-10 flex min-h-[520px] flex-1 flex-col justify-between px-7 py-12 sm:px-10 lg:min-h-full lg:px-12 lg:py-14">
+        <div className="h-7" />
+        <div className="relative">
+          <div
+            data-testid="showcase-scrim"
+            aria-hidden="true"
+            className="pointer-events-none absolute -inset-x-6 -inset-y-8 bg-black/80 blur-2xl"
+          />
           <h2
             data-testid="showcase-headline"
-            className="text-4xl font-bold uppercase leading-[0.95] tracking-[1.6px] text-white sm:text-5xl xl:text-6xl"
+            className="relative flex w-full min-w-0 flex-col items-start"
           >
-            {LOGIN_PAGE.showcaseHeadline}
+            {SHOWCASE_CASCADE.map((item, index) => (
+              <span key={item.word} className={item.className}>
+                {index > 0 ? " " : null}
+                {item.word}
+              </span>
+            ))}
           </h2>
-          <p
-            data-testid="showcase-subline"
-            className="text-sm font-normal uppercase leading-relaxed tracking-[1.2px] text-zinc-400"
-          >
-            {LOGIN_PAGE.showcaseSubline}
-          </p>
         </div>
-
-        <div className="flex w-full flex-col items-center gap-6 rounded-2xl border border-zinc-800 bg-[#0a0a0a]/90 p-6 backdrop-blur-sm">
-          <div className="flex w-full items-center justify-between border-b border-zinc-800/80 pb-3">
-            <span className="text-[11px] font-bold uppercase tracking-[1.6px] text-zinc-400">
-              HOWDY ADAPTIVE ENGINE
-            </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-300">
-              <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-              LIVE PROBING
-            </span>
-          </div>
-
-          <SoundwaveVisualizer />
-          <TelemetryGrid />
-        </div>
+        <p
+          data-testid="showcase-subline"
+          className="relative max-w-[24rem] text-base font-normal leading-[1.65] tracking-[0.32px] text-white/70"
+        >
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -inset-x-4 -inset-y-3 bg-black/80 blur-xl"
+          />
+          <span className="relative">{LOGIN_PAGE.showcaseSubline}</span>
+        </p>
       </div>
     </div>
   );

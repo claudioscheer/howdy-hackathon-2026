@@ -1,0 +1,1409 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login right panel: five type treatments</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Barlow:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #0a0a0b;
+        --paper: #f5f5f3;
+        --mute: #5a5a5f;
+        --hair-dark: #3a3a3f;
+        --hair-light: #e0e0e8;
+        --black: #000;
+        --white: #fff;
+        --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+        --body: "Barlow", Arial, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--ink);
+        color: var(--paper);
+        font-family: var(--body);
+        font-size: 17px;
+        line-height: 1.5;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .site-nav {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 28px;
+        background: #0a0a0b;
+        border-bottom: 1px solid #2a2a2e;
+      }
+
+      .wordmark {
+        font-family: var(--display);
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+
+      .nav-jumps {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 6px;
+        overflow-x: auto;
+        max-width: 100%;
+        scrollbar-width: none;
+      }
+
+      .nav-jumps::-webkit-scrollbar {
+        display: none;
+      }
+
+      .nav-jumps a {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+        min-height: 36px;
+        padding: 0 10px;
+        border: 1px solid #3a3a3f;
+        border-radius: 999px;
+        font-family: var(--display);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-decoration: none;
+        text-transform: uppercase;
+        white-space: nowrap;
+        color: #c8c8cc;
+      }
+
+      .nav-jumps a:hover,
+      .nav-jumps a:focus-visible {
+        border-color: var(--paper);
+        color: var(--paper);
+        outline: none;
+      }
+
+      .hero,
+      .now-wrap,
+      .direction,
+      .close {
+        scroll-margin-top: 72px;
+      }
+
+      .hero {
+        padding: 72px 28px 48px;
+        max-width: 1280px;
+        margin: 0 auto;
+      }
+
+      .hero h1 {
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: clamp(2.6rem, 7vw, 5.4rem);
+        line-height: 0.9;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        max-width: 16ch;
+      }
+
+      .hero-lead {
+        margin-top: 28px;
+        max-width: 42rem;
+        color: #c4c4c8;
+        font-size: 1.15rem;
+        line-height: 1.55;
+      }
+
+      .rules {
+        display: grid;
+        gap: 0;
+        margin-top: 48px;
+        border-top: 1px solid #2e2e32;
+      }
+
+      .rule {
+        padding: 20px 0 22px;
+        border-bottom: 1px solid #2e2e32;
+        display: grid;
+        gap: 8px 28px;
+      }
+
+      @media (min-width: 880px) {
+        .rule {
+          grid-template-columns: 220px 1fr;
+          align-items: baseline;
+        }
+      }
+
+      .rule h2 {
+        font-family: var(--display);
+        font-size: 1.4rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        line-height: 1.05;
+      }
+
+      .rule p {
+        color: #b8b8bc;
+        font-size: 1.02rem;
+        line-height: 1.5;
+        max-width: 42rem;
+      }
+
+      .now-wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 12px 28px 64px;
+      }
+
+      .now-label,
+      .url {
+        font-family: var(--display);
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .now-label {
+        font-size: 13px;
+        color: #9a9aa0;
+        margin-bottom: 12px;
+      }
+
+      .frame {
+        border: 1px solid #3a3a3f;
+        background: #111;
+        overflow: hidden;
+      }
+
+      .chrome {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        background: #1a1a1c;
+        border-bottom: 1px solid #2e2e32;
+      }
+
+      .dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #3a3a3f;
+      }
+
+      .url {
+        margin-left: 8px;
+        font-size: 11px;
+        color: #8a8a90;
+      }
+
+      .mock {
+        display: grid;
+        grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
+        min-height: 640px;
+        background: #fff;
+        color: #000;
+        font-family: var(--display);
+      }
+
+      .login-left {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 48px 40px 56px;
+        background: #fff;
+        color: #000;
+        border-right: 1px solid #e0e0e8;
+      }
+
+      .back {
+        position: absolute;
+        top: 28px;
+        left: 32px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #5a5a5f;
+      }
+
+      .badge {
+        display: inline-flex;
+        width: fit-content;
+        border: 1px solid #e0e0e8;
+        border-radius: 999px;
+        padding: 4px 12px;
+        font-size: 11px;
+        font-weight: 400;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #5a5a5f;
+        margin-bottom: 16px;
+      }
+
+      .login-left h3 {
+        font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+        font-weight: 700;
+        line-height: 0.95;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        max-width: 12ch;
+      }
+
+      .login-left .desc {
+        margin-top: 12px;
+        max-width: 34ch;
+        font-family: var(--body);
+        font-size: 13px;
+        line-height: 1.55;
+        color: #5a5a5f;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 22px;
+      }
+
+      .field label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #5a5a5f;
+      }
+
+      .field input {
+        border: 1px solid #e0e0e8;
+        border-radius: 4px;
+        padding: 12px 16px;
+        font-family: var(--body);
+        font-size: 15px;
+        color: #000;
+        background: #fff;
+      }
+
+      .signin {
+        margin-top: 22px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0 24px;
+        border-radius: 999px;
+        border: 1px solid #000;
+        background: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        cursor: default;
+      }
+
+      .disclaimer {
+        position: absolute;
+        bottom: 20px;
+        left: 40px;
+        right: 24px;
+        font-family: var(--body);
+        font-size: 11px;
+        color: #a1a1aa;
+      }
+
+      .panel {
+        position: relative;
+        overflow: hidden;
+        background: #000;
+        color: #fff;
+        min-height: 640px;
+      }
+
+      .direction {
+        border-top: 1px solid #2a2a2e;
+        padding: 64px 28px 80px;
+      }
+
+      .direction-inner {
+        max-width: 1280px;
+        margin: 0 auto;
+        display: grid;
+        gap: 36px;
+      }
+
+      @media (min-width: 1080px) {
+        .direction-inner {
+          grid-template-columns: minmax(260px, 320px) 1fr;
+          align-items: start;
+        }
+      }
+
+      .meta h2 {
+        font-family: var(--display);
+        font-size: clamp(2.1rem, 4vw, 3.2rem);
+        line-height: 0.92;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+
+      .thesis {
+        margin-top: 16px;
+        font-size: 1.08rem;
+        color: #dedee2;
+        line-height: 1.45;
+      }
+
+      .meta dl {
+        margin-top: 28px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .meta dt {
+        font-family: var(--display);
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #8a8a90;
+        margin-bottom: 6px;
+      }
+
+      .meta dd {
+        color: #c8c8cc;
+        font-size: 0.98rem;
+        line-height: 1.5;
+      }
+
+      .close {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 32px 28px 80px;
+        border-top: 1px solid #2a2a2e;
+      }
+
+      .close p {
+        max-width: 40rem;
+        color: #b8b8bc;
+      }
+
+      /* Shared right-panel type */
+      .kicker-line {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #9a9aa0;
+      }
+
+      .support {
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #c8c8cc;
+        line-height: 1.45;
+      }
+
+      .hair {
+        height: 1px;
+        background: #3a3a3f;
+        border: 0;
+      }
+
+      /* 01 Stacked poster */
+      .opt1 {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 48px 36px 40px;
+        height: 100%;
+      }
+
+      .opt1 .stack {
+        display: flex;
+        flex-direction: column;
+        line-height: 0.78;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .opt1 .w-help {
+        font-size: clamp(4.4rem, 8vw, 7.2rem);
+      }
+
+      .opt1 .w-your {
+        font-size: clamp(1.4rem, 2.4vw, 2rem);
+        letter-spacing: 0.42em;
+        color: #9a9aa0;
+        margin: 8px 0 6px;
+      }
+
+      .opt1 .w-eng {
+        font-size: clamp(3.4rem, 6.2vw, 5.6rem);
+      }
+
+      .opt1 .w-succeed {
+        font-size: clamp(6.2rem, 12vw, 10.5rem);
+        margin-left: -0.06em;
+        letter-spacing: -0.03em;
+        white-space: nowrap;
+      }
+
+      .opt1 .foot {
+        display: grid;
+        gap: 14px;
+        max-width: 28rem;
+      }
+
+      .opt1 .foot p {
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #d4d4d8;
+        line-height: 1.4;
+      }
+
+      .opt1 .pair {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 28px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #8a8a90;
+      }
+
+      /* 02 Rotated spine */
+      .opt2 {
+        height: 100%;
+        min-height: 640px;
+      }
+
+      .opt2 .copy {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        padding: 48px 24px 40px 36px;
+        width: 48%;
+      }
+
+      .opt2 .lead {
+        font-size: clamp(1.8rem, 3vw, 2.6rem);
+        font-weight: 700;
+        line-height: 0.9;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .opt2 .notes {
+        display: grid;
+        gap: 16px;
+      }
+
+      .opt2 .notes p {
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #c8c8cc;
+        line-height: 1.45;
+        max-width: 16ch;
+      }
+
+      .opt2 .spine-slot {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 54%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+      }
+
+      .opt2 .spine {
+        font-size: clamp(7rem, 14vw, 12.5rem);
+        font-weight: 700;
+        letter-spacing: -0.04em;
+        line-height: 0.75;
+        text-transform: uppercase;
+        white-space: nowrap;
+        transform: rotate(-90deg);
+      }
+
+      /* 03 Mixed scale */
+      .opt3 {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 40px 28px 36px 40px;
+        height: 100%;
+      }
+
+      .opt3 .mix {
+        text-transform: uppercase;
+        font-weight: 700;
+        line-height: 0.82;
+      }
+
+      .opt3 .row {
+        display: flex;
+        align-items: baseline;
+        gap: 0.28em;
+        flex-wrap: nowrap;
+      }
+
+      .opt3 .tiny {
+        font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+        letter-spacing: 0.28em;
+        color: #9a9aa0;
+        font-weight: 500;
+      }
+
+      .opt3 .mid {
+        font-size: clamp(2.4rem, 4.4vw, 3.6rem);
+        letter-spacing: 0.04em;
+      }
+
+      .opt3 .huge {
+        font-size: clamp(5.4rem, 10vw, 8.6rem);
+        letter-spacing: -0.03em;
+        display: block;
+        margin-left: -0.04em;
+      }
+
+      .opt3 .outline {
+        font-size: clamp(6rem, 11.5vw, 9.8rem);
+        letter-spacing: -0.04em;
+        color: transparent;
+        -webkit-text-stroke: 1.5px #fff;
+        display: block;
+        margin-top: -0.04em;
+        white-space: nowrap;
+      }
+
+      .opt3 .bottom {
+        margin-top: 48px;
+        display: grid;
+        gap: 10px;
+        max-width: 34rem;
+      }
+
+      .opt3 .pressure {
+        font-size: clamp(1.15rem, 2vw, 1.55rem);
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .opt3 .pressure span {
+        font-size: 1.55em;
+        letter-spacing: 0.04em;
+      }
+
+      .opt3 .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 22px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #8a8a90;
+      }
+
+      /* 04 Tilted title */
+      .opt4 {
+        height: 100%;
+        min-height: 640px;
+      }
+
+      .opt4 .tilt {
+        position: absolute;
+        left: 6%;
+        top: 16%;
+        transform: rotate(-11deg);
+        transform-origin: left center;
+        width: 120%;
+        text-transform: uppercase;
+        font-weight: 700;
+        line-height: 0.78;
+      }
+
+      .opt4 .t-help {
+        font-size: clamp(2.2rem, 4vw, 3.4rem);
+        letter-spacing: 0.28em;
+        color: #9a9aa0;
+        font-weight: 500;
+      }
+
+      .opt4 .t-eng {
+        font-size: clamp(5rem, 9.5vw, 8.2rem);
+        letter-spacing: -0.02em;
+      }
+
+      .opt4 .t-suc {
+        font-size: clamp(6.8rem, 13vw, 11.4rem);
+        letter-spacing: -0.04em;
+        margin-left: -0.03em;
+        white-space: nowrap;
+      }
+
+      .opt4 .anchor {
+        position: absolute;
+        left: 36px;
+        right: 36px;
+        bottom: 36px;
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        align-items: end;
+      }
+
+      .opt4 .anchor p {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #c8c8cc;
+        max-width: 22ch;
+        line-height: 1.45;
+      }
+
+      .opt4 .anchor .side {
+        text-align: right;
+        color: #8a8a90;
+        max-width: 16ch;
+      }
+
+      /* 05 Word cascade */
+      .opt5 {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 36px 24px 36px 40px;
+        height: 100%;
+      }
+
+      .opt5 .ladder {
+        display: flex;
+        flex-direction: column;
+        text-transform: uppercase;
+        font-weight: 700;
+        line-height: 0.8;
+      }
+
+      .opt5 .l-help {
+        font-size: 1.05rem;
+        letter-spacing: 0.46em;
+        color: #8a8a90;
+        font-weight: 500;
+        margin-bottom: 10px;
+      }
+
+      .opt5 .l-your {
+        font-size: clamp(2.6rem, 5vw, 4.2rem);
+        letter-spacing: 0.22em;
+      }
+
+      .opt5 .l-eng {
+        font-size: clamp(4.6rem, 8.6vw, 7.4rem);
+        letter-spacing: -0.02em;
+        margin: 2px 0 4px;
+      }
+
+      .opt5 .l-suc {
+        font-size: clamp(7.2rem, 14vw, 12rem);
+        letter-spacing: -0.045em;
+        margin-left: -0.08em;
+        white-space: nowrap;
+      }
+
+      .opt5 .after {
+        margin-top: 36px;
+        display: grid;
+        gap: 8px;
+      }
+
+      .opt5 .after .prep {
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #9a9aa0;
+      }
+
+      .opt5 .after .real {
+        font-size: clamp(2rem, 3.6vw, 3.1rem);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        line-height: 0.88;
+      }
+
+      .opt5 .after .real em {
+        font-style: italic;
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+
+      .opt5 .after .tail {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 24px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #8a8a90;
+      }
+
+      /* Current (problem) */
+      .now-panel {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 48px 40px;
+        gap: 28px;
+      }
+
+      .now-panel h4 {
+        font-size: clamp(2rem, 4vw, 3.1rem);
+        font-weight: 700;
+        line-height: 0.95;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        max-width: 12ch;
+      }
+
+      .now-panel .sub {
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #9a9aa0;
+        line-height: 1.5;
+        max-width: 42ch;
+      }
+
+      .now-card {
+        border: 1px solid #2a2a2e;
+        border-radius: 16px;
+        background: #0a0a0a;
+        padding: 20px;
+      }
+
+      .now-card header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid #2a2a2e;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #9a9aa0;
+      }
+
+      .now-card .live {
+        border: 1px solid #3a3a3f;
+        border-radius: 999px;
+        padding: 3px 8px;
+        font-size: 10px;
+        color: #d4d4d8;
+      }
+
+      .waves {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 72px;
+      }
+
+      .waves span {
+        width: 6px;
+        border-radius: 999px;
+        background: #fff;
+      }
+
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid #2a2a2e;
+      }
+
+      .node {
+        border: 1px solid #2a2a2e;
+        padding: 10px;
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .node b {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        color: #fff;
+        letter-spacing: 0.08em;
+      }
+
+      .strike {
+        text-decoration: line-through;
+        color: #6a6a70;
+      }
+
+      @media (max-width: 860px) {
+        .mock {
+          grid-template-columns: 1fr;
+        }
+
+        .login-left {
+          min-height: 520px;
+          border-right: 0;
+          border-bottom: 1px solid #e0e0e8;
+        }
+
+        .opt2 .copy {
+          width: 46%;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="site-nav" aria-label="Options">
+      <a class="wordmark" href="#top">Login right / type</a>
+      <div class="nav-jumps">
+        <a href="#now">Now</a>
+        <a href="#opt1">01 Poster</a>
+        <a href="#opt2">02 Spine</a>
+        <a href="#opt3">03 Mix</a>
+        <a href="#opt4">04 Tilt</a>
+        <a href="#opt5">05 Cascade</a>
+      </div>
+    </nav>
+
+    <header class="hero" id="top">
+      <h1>Five ways to say it with type</h1>
+      <p class="hero-lead">
+        Left side of login stays. Right side drops the Adaptive Engine card, the
+        soundwave, and the telemetry tiles. The panel becomes a poster: Help
+        your engineers succeed, plus the three supporting lines, set as type
+        that actually occupies the black field.
+      </p>
+      <div class="rules">
+        <div class="rule">
+          <h2>Keep</h2>
+          <p>
+            Help your engineers succeed. Prepare your team with real interview
+            pressure. Adaptive follow-up. Transcript-grounded coaching.
+          </p>
+        </div>
+        <div class="rule">
+          <h2>Kill</h2>
+          <p>
+            The Howdy Adaptive Engine card, live probing chip, soundwave bars,
+            and the four status tiles. They turn a title wall into a dashboard.
+          </p>
+        </div>
+        <div class="rule">
+          <h2>Move</h2>
+          <p>
+            Size, rotation, outline, and overflow. Some words should be
+            architecture. Others should recede to a caption.
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <section class="now-wrap" id="now">
+      <p class="now-label">Current right panel — too much furniture</p>
+      <div class="frame">
+        <div class="chrome">
+          <span class="dot"></span><span class="dot"></span
+          ><span class="dot"></span>
+          <span class="url">localhost:3000/login</span>
+        </div>
+        <div class="mock">
+          <aside class="login-left">
+            <span class="back">← Back to Overview</span>
+            <span class="badge">Dev Day 2026 // EM Portal</span>
+            <h3>Engineering Manager Login</h3>
+            <p class="desc">
+              Sign in to configure interview templates, set trial limits, and
+              generate disposable candidate invite links.
+            </p>
+            <div class="field">
+              <label>Email</label>
+              <input value="manager@howdy.com" readonly />
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input type="password" value="********" readonly />
+            </div>
+            <span class="signin">Sign In</span>
+            <p class="disclaimer">
+              Manager workspace: candidates access interviews exclusively via
+              generated shareable links.
+            </p>
+          </aside>
+          <div class="panel now-panel">
+            <div>
+              <h4>Help your engineers succeed.</h4>
+              <p class="sub" style="margin-top: 14px">
+                Prepare your team with real interview pressure, adaptive
+                follow-ups, and transcript-grounded coaching.
+              </p>
+            </div>
+            <div class="now-card">
+              <header>
+                <span class="strike">Howdy Adaptive Engine</span>
+                <span class="live strike">Live probing</span>
+              </header>
+              <div class="waves" aria-hidden="true">
+                <span style="height: 18px"></span>
+                <span style="height: 36px"></span>
+                <span style="height: 58px"></span>
+                <span style="height: 42px"></span>
+                <span style="height: 70px"></span>
+                <span style="height: 32px"></span>
+                <span style="height: 54px"></span>
+                <span style="height: 22px"></span>
+                <span style="height: 46px"></span>
+                <span style="height: 28px"></span>
+              </div>
+              <div class="grid2">
+                <div class="node strike">Relevance<b>Grounded</b></div>
+                <div class="node strike">Specificity<b>Probing</b></div>
+                <div class="node strike">Structure<b>Star eval</b></div>
+                <div class="node strike">Fundamentals<b>Locked</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="direction" id="opt1">
+      <div class="direction-inner">
+        <div class="meta">
+          <h2>01 Stacked poster</h2>
+          <p class="thesis">
+            Four lines, four sizes. SUCCEED is the only word that matters at a
+            glance. Supporting copy sits on the floor like a caption, not a
+            card.
+          </p>
+          <dl>
+            <dt>Move</dt>
+            <dd>
+              HELP / YOUR / ENGINEERS / SUCCEED as a Swiss stack. YOUR is
+              tracked out and quiet so the two big nouns hit.
+            </dd>
+            <dt>Keep</dt>
+            <dd>
+              The three supporting lines, hairline-separated, flush left at the
+              bottom.
+            </dd>
+          </dl>
+        </div>
+        <div class="frame">
+          <div class="chrome">
+            <span class="dot"></span><span class="dot"></span
+            ><span class="dot"></span>
+            <span class="url">01 · stacked poster</span>
+          </div>
+          <div class="mock">
+            <aside class="login-left">
+              <span class="back">← Back to Overview</span>
+              <span class="badge">Dev Day 2026 // EM Portal</span>
+              <h3>Engineering Manager Login</h3>
+              <p class="desc">
+                Sign in to configure interview templates, set trial limits, and
+                generate disposable candidate invite links.
+              </p>
+              <div class="field">
+                <label>Email</label>
+                <input value="manager@howdy.com" readonly />
+              </div>
+              <div class="field">
+                <label>Password</label>
+                <input type="password" value="********" readonly />
+              </div>
+              <span class="signin">Sign In</span>
+              <p class="disclaimer">
+                Manager workspace: candidates access interviews exclusively via
+                generated shareable links.
+              </p>
+            </aside>
+            <div class="panel">
+              <div class="opt1">
+                <div class="stack">
+                  <span class="w-help">Help</span>
+                  <span class="w-your">Your</span>
+                  <span class="w-eng">Engineers</span>
+                  <span class="w-succeed">Succeed.</span>
+                </div>
+                <div class="foot">
+                  <hr class="hair" />
+                  <p>Prepare your team with real interview pressure.</p>
+                  <div class="pair">
+                    <span>Adaptive follow-up</span>
+                    <span>Transcript-grounded coaching</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="direction" id="opt2">
+      <div class="direction-inner">
+        <div class="meta">
+          <h2>02 Rotated spine</h2>
+          <p class="thesis">
+            SUCCEED is turned on its side and used as the architecture of the
+            panel. The rest of the copy is a small vertical caption beside it.
+          </p>
+          <dl>
+            <dt>Move</dt>
+            <dd>
+              One word, rotated −90°, large enough to fill the height. It should
+              feel like a book spine or a street poster, not a heading.
+            </dd>
+            <dt>Keep</dt>
+            <dd>
+              Help your engineers as the small lead. Pressure, follow-up, and
+              coaching as three short notes.
+            </dd>
+          </dl>
+        </div>
+        <div class="frame">
+          <div class="chrome">
+            <span class="dot"></span><span class="dot"></span
+            ><span class="dot"></span>
+            <span class="url">02 · rotated spine</span>
+          </div>
+          <div class="mock">
+            <aside class="login-left">
+              <span class="back">← Back to Overview</span>
+              <span class="badge">Dev Day 2026 // EM Portal</span>
+              <h3>Engineering Manager Login</h3>
+              <p class="desc">
+                Sign in to configure interview templates, set trial limits, and
+                generate disposable candidate invite links.
+              </p>
+              <div class="field">
+                <label>Email</label>
+                <input value="manager@howdy.com" readonly />
+              </div>
+              <div class="field">
+                <label>Password</label>
+                <input type="password" value="********" readonly />
+              </div>
+              <span class="signin">Sign In</span>
+              <p class="disclaimer">
+                Manager workspace: candidates access interviews exclusively via
+                generated shareable links.
+              </p>
+            </aside>
+            <div class="panel opt2">
+              <div class="spine-slot" aria-hidden="true">
+                <span class="spine">Succeed</span>
+              </div>
+              <div class="copy">
+                <p class="lead">Help your engineers</p>
+                <div class="notes">
+                  <p>Prepare your team with real interview pressure.</p>
+                  <p>Adaptive follow-up.</p>
+                  <p>Transcript-grounded coaching.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="direction" id="opt3">
+      <div class="direction-inner">
+        <div class="meta">
+          <h2>03 Mixed scale</h2>
+          <p class="thesis">
+            The sentence is still one sentence, but the words refuse to share a
+            size. SUCCEED is an outline so ENGINEERS can stay solid.
+          </p>
+          <dl>
+            <dt>Move</dt>
+            <dd>
+              Tiny HELP, mid YOUR, huge ENGINEERS, outlined SUCCEED. Then
+              PRESSURE as the only amplified word in the supporting line.
+            </dd>
+            <dt>Keep</dt>
+            <dd>
+              Adaptive follow-up and transcript-grounded coaching as a quiet
+              pair under the pressure line.
+            </dd>
+          </dl>
+        </div>
+        <div class="frame">
+          <div class="chrome">
+            <span class="dot"></span><span class="dot"></span
+            ><span class="dot"></span>
+            <span class="url">03 · mixed scale</span>
+          </div>
+          <div class="mock">
+            <aside class="login-left">
+              <span class="back">← Back to Overview</span>
+              <span class="badge">Dev Day 2026 // EM Portal</span>
+              <h3>Engineering Manager Login</h3>
+              <p class="desc">
+                Sign in to configure interview templates, set trial limits, and
+                generate disposable candidate invite links.
+              </p>
+              <div class="field">
+                <label>Email</label>
+                <input value="manager@howdy.com" readonly />
+              </div>
+              <div class="field">
+                <label>Password</label>
+                <input type="password" value="********" readonly />
+              </div>
+              <span class="signin">Sign In</span>
+              <p class="disclaimer">
+                Manager workspace: candidates access interviews exclusively via
+                generated shareable links.
+              </p>
+            </aside>
+            <div class="panel">
+              <div class="opt3">
+                <div class="mix">
+                  <div class="row">
+                    <span class="tiny">Help</span>
+                    <span class="mid">Your</span>
+                  </div>
+                  <span class="huge">Engineers</span>
+                  <span class="outline">Succeed</span>
+                </div>
+                <div class="bottom">
+                  <p class="pressure">
+                    Prepare your team with real interview
+                    <span>pressure</span>
+                  </p>
+                  <div class="chips">
+                    <span>Adaptive follow-up</span>
+                    <span>Transcript-grounded coaching</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="direction" id="opt4">
+      <div class="direction-inner">
+        <div class="meta">
+          <h2>04 Tilted title</h2>
+          <p class="thesis">
+            The whole headline is rotated −11° so it behaves like a film title
+            card, not a UI heading. Captions stay level so the panel still
+            reads.
+          </p>
+          <dl>
+            <dt>Move</dt>
+            <dd>
+              HELP is tracked and grey. ENGINEERS and SUCCEED are the mass,
+              overflowing both edges on purpose.
+            </dd>
+            <dt>Keep</dt>
+            <dd>
+              Pressure line on the left floor. Follow-up and coaching on the
+              right floor. Nothing boxed.
+            </dd>
+          </dl>
+        </div>
+        <div class="frame">
+          <div class="chrome">
+            <span class="dot"></span><span class="dot"></span
+            ><span class="dot"></span>
+            <span class="url">04 · tilted title</span>
+          </div>
+          <div class="mock">
+            <aside class="login-left">
+              <span class="back">← Back to Overview</span>
+              <span class="badge">Dev Day 2026 // EM Portal</span>
+              <h3>Engineering Manager Login</h3>
+              <p class="desc">
+                Sign in to configure interview templates, set trial limits, and
+                generate disposable candidate invite links.
+              </p>
+              <div class="field">
+                <label>Email</label>
+                <input value="manager@howdy.com" readonly />
+              </div>
+              <div class="field">
+                <label>Password</label>
+                <input type="password" value="********" readonly />
+              </div>
+              <span class="signin">Sign In</span>
+              <p class="disclaimer">
+                Manager workspace: candidates access interviews exclusively via
+                generated shareable links.
+              </p>
+            </aside>
+            <div class="panel opt4">
+              <div class="tilt">
+                <div class="t-help">Help your</div>
+                <div class="t-eng">Engineers</div>
+                <div class="t-suc">Succeed.</div>
+              </div>
+              <div class="anchor">
+                <p>Prepare your team with real interview pressure.</p>
+                <p class="side">
+                  Adaptive follow-up<br />
+                  Transcript-grounded coaching
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="direction" id="opt5">
+      <div class="direction-inner">
+        <div class="meta">
+          <h2>05 Word cascade</h2>
+          <p class="thesis">
+            Every word gets its own line and its own size. SUCCEED bleeds off
+            the right. REAL INTERVIEW PRESSURE is the second beat, with PRESSURE
+            in italic.
+          </p>
+          <dl>
+            <dt>Move</dt>
+            <dd>
+              A ladder: help (whisper) → your → ENGINEERS → SUCCEED (shout).
+              Then a second ladder for the pressure line.
+            </dd>
+            <dt>Keep</dt>
+            <dd>
+              Adaptive follow-up and transcript-grounded coaching as the last
+              two quiet labels.
+            </dd>
+          </dl>
+        </div>
+        <div class="frame">
+          <div class="chrome">
+            <span class="dot"></span><span class="dot"></span
+            ><span class="dot"></span>
+            <span class="url">05 · word cascade</span>
+          </div>
+          <div class="mock">
+            <aside class="login-left">
+              <span class="back">← Back to Overview</span>
+              <span class="badge">Dev Day 2026 // EM Portal</span>
+              <h3>Engineering Manager Login</h3>
+              <p class="desc">
+                Sign in to configure interview templates, set trial limits, and
+                generate disposable candidate invite links.
+              </p>
+              <div class="field">
+                <label>Email</label>
+                <input value="manager@howdy.com" readonly />
+              </div>
+              <div class="field">
+                <label>Password</label>
+                <input type="password" value="********" readonly />
+              </div>
+              <span class="signin">Sign In</span>
+              <p class="disclaimer">
+                Manager workspace: candidates access interviews exclusively via
+                generated shareable links.
+              </p>
+            </aside>
+            <div class="panel">
+              <div class="opt5">
+                <div class="ladder">
+                  <span class="l-help">Help</span>
+                  <span class="l-your">Your</span>
+                  <span class="l-eng">Engineers</span>
+                  <span class="l-suc">Succeed.</span>
+                </div>
+                <div class="after">
+                  <span class="prep">Prepare your team with</span>
+                  <span class="real">Real interview <em>pressure</em></span>
+                  <div class="tail">
+                    <span>Adaptive follow-up</span>
+                    <span>Transcript-grounded coaching</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="close">
+      <p>
+        These are composition options for the right panel only. Pick one and we
+        can drop it into <code>lib/ui/login-showcase.tsx</code> without touching
+        the login form.
+      </p>
+    </footer>
+  </body>
+</html>

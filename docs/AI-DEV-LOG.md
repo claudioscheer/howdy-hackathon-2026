@@ -8,6 +8,40 @@ with no new human prompt in the middle of that loop. Keep it short. Add a note o
 
 ---
 
+## 2026-09-04 — Random hero broke the title lock
+
+**Act.** Replaced the landing questions with harder prompts so they match “hard questions here first.”
+
+**Verify / observe.** `pnpm run verify` failed: `app/page.test.tsx` still required `LANDING.title` in the hero, but the opener is random.
+
+**Fix / verify again.** Assert the hero contains one of `LANDING.questions`. `pnpm run verify` next.
+
+---
+
+## 2026-09-04 — Question cycle prerender touched window
+
+**Act.** Added a typed question cycle on the landing hero.
+
+**Verify / observe.** `next build` failed prerendering `/`:
+
+```
+ReferenceError: window is not defined
+```
+
+**Fix / verify again.** Read reduced-motion from `globalThis.matchMedia` so SSR never touches `window`. `pnpm run verify` next.
+
+---
+
+## 2026-09-04 — Homepage copy change tripped layout test gate
+
+**Act.** Replaced the empty title-card landing with a light cold open: question as hero, sell line, Login. Dropped coordinates and telemetry chrome.
+
+**Verify / observe.** `pnpm run verify` failed twice: Prettier on leftover suggestion HTML, then harness `Changed app/layout.tsx is missing colocated test app/layout.test.tsx` after a metadata-only edit.
+
+**Fix / verify again.** Reverted `app/layout.tsx`. Formatted the HTML files. `pnpm run verify` passed.
+
+---
+
 ## 2026-09-03 — Landing control missing, tests named it
 
 **Act.** Landing copy lives in `lib/ui/copy.ts`. The page exposes `data-testid="start-practice"`.
