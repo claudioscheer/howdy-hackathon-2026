@@ -111,11 +111,10 @@ describe("transcript grounding", () => {
 });
 
 describe("session retries", () => {
-  it("allows three attempts and no more", () => {
-    expect(MAX_SESSION_RETRIES).toBe(3);
-    expect(isSessionRetryAllowed(0)).toBe(true);
-    expect(isSessionRetryAllowed(2)).toBe(true);
-    expect(isSessionRetryAllowed(3)).toBe(false);
+  it("allows exactly two attempts and no more", () => {
+    expect(MAX_SESSION_RETRIES).toBe(2);
+    expect(isSessionRetryAllowed(1)).toBe(true);
+    expect(isSessionRetryAllowed(2)).toBe(false);
   });
 });
 

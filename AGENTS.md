@@ -16,7 +16,7 @@ This file is the source of truth for **every** coding tool (Grok, Codex, Antigra
 
 Howdy Interview Coach: a mock interviewer that follows up on weak answers and writes a transcript-grounded report. Built for Dev Day 2026.
 
-**Current state:** landing page, runtime contracts, and harness foundation. The end-to-end product is not implemented. Product intent and the current definition of done are in [`docs/SPEC.md`](docs/SPEC.md). Do not start a new phase or change shared contracts without human/orchestrator direction.
+**Current state:** landing page, seeded manager-entry/dashboard facade, runtime contracts, and harness foundation. The candidate practice route and end-to-end adaptive loop are the current milestone. Product intent and the current definition of done are in [`docs/SPEC.md`](docs/SPEC.md). Do not start a new phase or change shared contracts without human/orchestrator direction.
 
 ## Lock important behavior
 
@@ -38,7 +38,7 @@ Details: [`docs/HARNESS.md`](docs/HARNESS.md).
 pnpm run verify
 ```
 
-Use the Node version in `.nvmrc`. The gate runs Prettier, build/typecheck, lint, unit tests at 100% coverage, goldens, holdouts, mutation sensitivity, and deterministic review. Non-zero means failure. Never claim done if this fails. Never set `acceptance.json` `"passes": true` by hand — only `pnpm run harness` may do that. Never drop a lock to make a new feature pass.
+Use the Node version in `.nvmrc`. The gate runs Prettier, build/typecheck, lint, the complete unit suite with coverage, goldens, holdouts, mutation sensitivity, deterministic review, and the repository-owned Playwright journey. Non-zero means failure. Never claim done if this fails. Never set `acceptance.json` `"passes": true` by hand — only `pnpm run harness` may do that. Never drop a lock to make a new feature pass.
 
 On failure: read the error, change the smallest thing that fixes it, run `verify` again. If you closed a full fail → fix → pass loop, add a short note to `docs/AI-DEV-LOG.md` (Dev Day evidence). Otherwise do not pad that file.
 
@@ -53,7 +53,7 @@ These are enforced by `pnpm run verify` (Prettier, ESLint, 100% unit coverage). 
 - Zod at the LLM/IO boundary. Do not “usually return JSON.”
 - Server Components by default. `"use client"` only for state, effects, or browser APIs.
 - Interactive elements need `data-testid`.
-- Colocate tests: `foo.ts` → `foo.test.ts`. Cover every new branch. Coverage must stay at 100% on `app/page.tsx` and `lib/`.
+- Colocate tests: `foo.ts` → `foo.test.ts`. Cover every new branch. Coverage reporting includes product route code under `app/` (excluding the framework-only root layout) and `lib/`.
 - Tailwind only. No new CSS framework.
 - Do not call a live LLM from tests or from `pnpm run verify`.
 - Run `pnpm run format` if Prettier fails; do not hand-format around the tool.
@@ -83,3 +83,5 @@ If verify fails, the owner of the failing files fixes it. Integration runs `veri
 - Live LLM calls in CI
 - Feedback quotes that are not substrings of the transcript
 - Extra named agents with no file-ownership reason
+
+`/login` is a seeded demo entry, not production authentication. Candidate access uses the fictional `/practice/[sessionId]` route. The hackathon policy is exactly two attempts; this milestone does not persist or enforce link security or TTL.

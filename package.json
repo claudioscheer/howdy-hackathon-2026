@@ -13,12 +13,14 @@
     "lint": "eslint app lib scripts eslint.config.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "tsx scripts/run-tests.ts",
+    "test": "tsx scripts/run-tests.ts --all",
+    "test:affected": "tsx scripts/run-tests.ts",
     "test:all": "tsx scripts/run-tests.ts --all",
+    "test:e2e": "playwright test",
     "test:watch": "vitest",
     "harness": "tsx scripts/verify-harness.ts",
     "verify": "bash scripts/verify.sh",
-    "prepush": "bash scripts/verify.sh --all"
+    "prepush": "bash scripts/verify.sh"
   },
   "dependencies": {
     "next": "16.3.4",
@@ -27,6 +29,7 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^7.0.1",
