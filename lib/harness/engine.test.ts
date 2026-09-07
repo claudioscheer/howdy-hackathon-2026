@@ -1,124 +1,104 @@
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { DeterministicStubProvider, InterviewEngine } from "./engine";
-import { fixtureState, loadFixturesFromDir, matchesExpected } from "./fixtures";
-import { type QuestionState } from "./schema";
+import { type AnswerEvaluator } from "../interview/contracts";
+import { ScriptedAnswerEvaluator } from "../interview/evaluator";
+import { runScenario, stepMatchesExpected } from "./engine";
+import {
+  EvalScenarioSchema,
+  loadScenariosFromDir,
+  type StepObservation,
+} from "./fixtures";
 
-const idleState: QuestionState = {
-  questionId: "q1",
-  followUpCount: 0,
-  isComplete: false,
-};
+const repoRoot = path.resolve(import.meta.dirname, "../..");
 
-function input(answer: string, question = "Tell me about a recent project.") {
-  return {
-    opportunity: {
-      id: "fictional-role",
-      role: "Engineer",
-      seniority: "Senior",
-      targetTechStack: ["TypeScript"],
-      interviewType: "technical" as const,
-    },
-    question: {
-      id: "q1",
-      prompt: question,
-      primaryDimension: "specificity" as const,
-    },
-    answer,
-    history: [],
-  };
-}
-
-describe("golden and holdout fixtures", () => {
-  const engine = new InterviewEngine(new DeterministicStubProvider());
-  const evalsDir = path.resolve(import.meta.dirname, "../../evals");
-  const goldens = loadFixturesFromDir(path.join(evalsDir, "goldens"));
-  const holdouts = loadFixturesFromDir(path.join(evalsDir, "holdouts"));
-
-  it("has a regression set and independent holdouts", () => {
-    expect(goldens.length).toBeGreaterThanOrEqual(7);
-    expect(holdouts.length).toBeGreaterThanOrEqual(3);
-  });
-
-  for (const fixture of [...goldens, ...holdouts]) {
-    it(`fixture [${fixture.id}]: ${fixture.description}`, async () => {
-      const result = await engine.evaluateTurn(
-        fixture.input,
-        fixtureState(fixture),
-      );
-      expect(matchesExpected(fixture, result)).toBe(true);
+describe("public product runtime scenarios", () => {
+  for (const scenario of [
+    ...loadScenariosFromDir(path.join(repoRoot, "evals/goldens")),
+    ...loadScenariosFromDir(path.join(repoRoot, "evals/holdouts")),
+  ].filter((candidate) => candidate.evaluator === "SCRIPTED")) {
+    it(`[${scenario.id}] ${scenario.description}`, async () => {
+      const run = await runScenario(scenario, new ScriptedAnswerEvaluator());
+      expect(run.pass).toBe(true);
     });
   }
-});
 
-describe("DeterministicStubProvider", () => {
-  it("ignores stubs that do not appear in the answer", async () => {
-    const provider = new DeterministicStubProvider();
-    provider.registerStub("zzz-no-match", {
-      decision: "FOLLOW_UP",
-      reason: "Should not match this answer at all.",
-      dimension: "specificity",
-      followUp: "Unused follow-up question.",
-    });
-    const engine = new InterviewEngine(provider);
-    const result = await engine.evaluateTurn(
-      input("We cut p99 from 800ms to 80ms with pooling."),
-      idleState,
-    );
-    expect(result.decision.decision).toBe("MOVE_ON");
-  });
-
-  it("uses a registered stub before heuristics", async () => {
-    const provider = new DeterministicStubProvider();
-    provider.registerStub("custom marker phrase", {
-      decision: "FOLLOW_UP",
-      reason: "Registered stub matched the answer text.",
-      dimension: "specificity",
-      followUp: "Give one concrete example.",
-    });
-    const engine = new InterviewEngine(provider);
-    const result = await engine.evaluateTurn(
-      input("This uses a custom marker phrase on purpose."),
-      idleState,
-    );
-    expect(result.decision.decision).toBe("FOLLOW_UP");
-    expect(result.decision.reason).toMatch(/registered stub/i);
-  });
-});
-
-describe("InterviewEngine", () => {
-  it("throws when the provider returns invalid JSON", async () => {
-    const engine = new InterviewEngine({
+  it("records a rejected, unchanged turn for invalid evaluator output", async () => {
+    const scenario = loadScenariosFromDir(
+      path.join(repoRoot, "evals/goldens"),
+    ).find((candidate) => candidate.evaluator === "MALFORMED");
+    expect(scenario).toBeDefined();
+    if (scenario === undefined) return;
+    const evaluator: AnswerEvaluator = {
       evaluate: async () => ({ decision: "FOLLOW_UP" }),
-    });
-    await expect(
-      engine.evaluateTurn(input("anything"), idleState),
-    ).rejects.toThrow(/Layer 0 Contract Violation/);
+    };
+    const run = await runScenario(scenario, evaluator);
+    expect(run.pass).toBe(true);
+    expect(run.steps[0]?.stateUnchanged).toBe(true);
+  });
+});
+
+describe("step matching", () => {
+  const observation: StepObservation = {
+    outcome: "APPLIED",
+    recommendedDecision: "FOLLOW_UP",
+    dimension: "specificity",
+    questionIndex: 0,
+    followUpCount: 1,
+    historyLength: 3,
+    status: "AWAITING_ANSWER",
+    stateUnchanged: false,
+  };
+  const scenario = EvalScenarioSchema.parse({
+    id: "matching",
+    description: "Matcher branch coverage.",
+    steps: [
+      {
+        answer: "Weak answer here.",
+        expected: { ...observation },
+      },
+    ],
   });
 
-  it("does not call the provider for a blank answer", async () => {
-    const engine = new InterviewEngine({
-      evaluate: async () => {
-        throw new Error("provider should not run");
-      },
-    });
-    const result = await engine.evaluateTurn(input("   "), idleState);
-    expect(result.decision.decision).toBe("FOLLOW_UP");
-    expect(result.decision.dimension).toBe("specificity");
+  it("checks optional and required observation fields", () => {
+    const step = scenario.steps[0];
+    expect(step).toBeDefined();
+    if (step === undefined) return;
+    expect(stepMatchesExpected(step, observation)).toBe(true);
+    expect(
+      stepMatchesExpected(step, { ...observation, followUpCount: 2 }),
+    ).toBe(false);
+    const withoutOptional = EvalScenarioSchema.parse({
+      ...scenario,
+      steps: [
+        {
+          answer: "Weak answer here.",
+          expected: {
+            outcome: "APPLIED",
+            questionIndex: 0,
+            followUpCount: 1,
+            historyLength: 3,
+            status: "AWAITING_ANSWER",
+          },
+        },
+      ],
+    }).steps[0];
+    expect(withoutOptional).toBeDefined();
+    if (withoutOptional === undefined) return;
+    expect(stepMatchesExpected(withoutOptional, observation)).toBe(true);
   });
 
-  it("still applies the follow-up cap to a blank answer", async () => {
-    const engine = new InterviewEngine({
-      evaluate: async () => {
-        throw new Error("provider should not run");
-      },
+  it("marks a scenario failed when an expected transition differs", async () => {
+    const mismatched = EvalScenarioSchema.parse({
+      ...scenario,
+      steps: [
+        {
+          ...scenario.steps[0],
+          expected: { ...observation, questionIndex: 2 },
+        },
+      ],
     });
-    const result = await engine.evaluateTurn(input(""), {
-      questionId: "q1",
-      followUpCount: 2,
-      isComplete: false,
-    });
-    expect(result.finalDecision).toBe("MOVE_ON");
-    expect(result.isCapped).toBe(true);
+    expect(
+      (await runScenario(mismatched, new ScriptedAnswerEvaluator())).pass,
+    ).toBe(false);
   });
 });

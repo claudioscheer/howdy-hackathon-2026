@@ -20,8 +20,8 @@
       "id": "ACC-PRODUCT-ADAPTIVE-INTERVIEW",
       "layer": 1,
       "description": "A typed answer drives a deterministic FOLLOW_UP or MOVE_ON transition in the product",
-      "passes": false,
-      "evidence": "not proven this run"
+      "passes": true,
+      "evidence": "evals/traces/latest-eval.json#layer1 real lib/interview multi-turn transitions"
     },
     {
       "id": "ACC-PRODUCT-GROUNDED-REPORT",

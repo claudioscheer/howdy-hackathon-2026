@@ -11,13 +11,13 @@ function DashboardStats(): React.JSX.Element {
         testId="stat-opportunities"
       />
       <StatCard
-        label="Disposable Links"
-        value="2 Valid / 1 Expired"
+        label="Seeded Practice"
+        value="1 Available"
         testId="stat-links"
       />
       <StatCard
-        label="Candidate Expiration Policy"
-        value="2 Attempts / 1 Week"
+        label="Hackathon Policy"
+        value="2 Attempts"
         testId="stat-limits"
       />
     </div>
@@ -45,7 +45,7 @@ export default function DashboardPage(): React.JSX.Element {
         <section className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold uppercase tracking-[0.96px] text-black">
-              Managed Opportunities & Disposable Links
+              Managed Opportunities & Practice Sessions
             </h2>
             <button
               type="button"

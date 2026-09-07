@@ -31,6 +31,7 @@ an optional future scaffold and should not be started for the current build.
 
 ```bash
 pnpm install
+pnpm exec playwright install chromium
 pnpm dev
 ```
 

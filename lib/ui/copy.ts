@@ -43,7 +43,7 @@ export const DASHBOARD_PAGE = {
   createButton: "Create Opportunity",
   generateLinkButton: "Generate Link",
   disclaimer:
-    "Candidate access is disposable. Practice links expire after two attempts or after one week.",
+    "This seeded demo shows the two-attempt product policy. Persistence, link security, and expiration enforcement are not included yet.",
 } as const;
 
 export function practiceButtonLabel(): string {

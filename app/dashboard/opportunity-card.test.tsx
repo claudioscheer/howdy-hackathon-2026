@@ -10,7 +10,7 @@ describe("Dashboard Opportunity and Stat cards", () => {
     expect(card).toHaveTextContent("3");
   });
 
-  it("renders active OpportunityCard with enabled button", () => {
+  it("renders the seeded active opportunity as a practice link", () => {
     render(
       <OpportunityCard
         item={{
@@ -21,6 +21,7 @@ describe("Dashboard Opportunity and Stat cards", () => {
           attemptsUsed: 0,
           status: "Active",
           token: "test-token",
+          practiceSessionId: "test-session",
         }}
       />,
     );
@@ -31,9 +32,12 @@ describe("Dashboard Opportunity and Stat cards", () => {
       "Active",
     );
     expect(screen.getByTestId("action-link-test-active")).toHaveTextContent(
-      "Copy Practice Link",
+      "Open Practice Interview",
     );
-    expect(screen.getByTestId("action-link-test-active")).not.toBeDisabled();
+    expect(screen.getByTestId("action-link-test-active")).toHaveAttribute(
+      "href",
+      "/practice/test-session",
+    );
   });
 
   it("renders expired OpportunityCard with disabled button", () => {
@@ -57,5 +61,25 @@ describe("Dashboard Opportunity and Stat cards", () => {
       "Link Expired",
     );
     expect(screen.getByTestId("action-link-test-expired")).toBeDisabled();
+  });
+
+  it("does not offer a practice action without a seeded session", () => {
+    render(
+      <OpportunityCard
+        item={{
+          id: "test-unavailable",
+          role: "Test Engineer",
+          track: "Backend",
+          attemptsLimit: 2,
+          attemptsUsed: 0,
+          status: "Active",
+          token: "test-token",
+        }}
+      />,
+    );
+    expect(
+      screen.getByTestId("action-link-test-unavailable"),
+    ).toHaveTextContent("Practice Unavailable");
+    expect(screen.getByTestId("action-link-test-unavailable")).toBeDisabled();
   });
 });

@@ -1,58 +1,56 @@
-import { type EvalFixture } from "./fixtures";
-import { type RubricDimension } from "./schema";
+import { type EvalScenario } from "./fixtures";
 import { jaccardSimilarity, significantTokens } from "./tokens";
 
 export const MAX_HOLDOUT_JACCARD = 0.4;
 
-const RUBRIC_DIMENSIONS: RubricDimension[] = [
-  "relevance",
-  "specificity",
-  "fundamentals",
-  "structure",
-];
+function answers(scenario: EvalScenario): string[] {
+  return scenario.steps.map((step) => step.answer);
+}
 
-export function duplicateIdFailures(suites: EvalFixture[][]): string[] {
+export function duplicateIdFailures(suites: EvalScenario[][]): string[] {
   const seen = new Map<string, number>();
   for (const suite of suites) {
-    for (const fixture of suite) {
-      seen.set(fixture.id, (seen.get(fixture.id) ?? 0) + 1);
+    for (const scenario of suite) {
+      seen.set(scenario.id, (seen.get(scenario.id) ?? 0) + 1);
     }
   }
-  const failures: string[] = [];
-  for (const [id, count] of seen.entries()) {
-    if (count > 1) {
-      failures.push(`Duplicate fixture id [${id}] appears ${count} times`);
-    }
-  }
-  return failures;
+  return [...seen.entries()]
+    .filter(([, count]) => count > 1)
+    .map(
+      ([id, count]) => `Duplicate scenario id [${id}] appears ${count} times`,
+    );
 }
 
 export function answerSimilarityFailure(
-  left: EvalFixture,
-  right: EvalFixture,
+  left: EvalScenario,
+  right: EvalScenario,
   maxJaccard: number,
 ): string | null {
-  const leftAnswer = left.input.answer.toLowerCase();
-  const rightAnswer = right.input.answer.toLowerCase();
-  if (leftAnswer.length > 0 && rightAnswer.includes(leftAnswer)) {
-    return `[${right.id}] contains the answer from [${left.id}]`;
-  }
-  if (rightAnswer.length > 0 && leftAnswer.includes(rightAnswer)) {
-    return `[${left.id}] contains the answer from [${right.id}]`;
-  }
-  const score = jaccardSimilarity(
-    significantTokens(left.input.answer),
-    significantTokens(right.input.answer),
-  );
-  if (score > maxJaccard) {
-    return `[${left.id}] too similar to [${right.id}] (jaccard ${score.toFixed(2)})`;
+  for (const leftAnswer of answers(left)) {
+    for (const rightAnswer of answers(right)) {
+      const leftText = leftAnswer.toLowerCase();
+      const rightText = rightAnswer.toLowerCase();
+      if (leftText.length > 0 && rightText.includes(leftText)) {
+        return `[${right.id}] contains an answer from [${left.id}]`;
+      }
+      if (rightText.length > 0 && leftText.includes(rightText)) {
+        return `[${left.id}] contains an answer from [${right.id}]`;
+      }
+      const score = jaccardSimilarity(
+        significantTokens(leftAnswer),
+        significantTokens(rightAnswer),
+      );
+      if (score > maxJaccard) {
+        return `[${left.id}] too similar to [${right.id}] (jaccard ${score.toFixed(2)})`;
+      }
+    }
   }
   return null;
 }
 
 export function independenceFailures(
-  references: EvalFixture[],
-  candidates: EvalFixture[],
+  references: EvalScenario[],
+  candidates: EvalScenario[],
   label: string,
   maxJaccard = MAX_HOLDOUT_JACCARD,
 ): string[] {
@@ -68,43 +66,46 @@ export function independenceFailures(
   return failures;
 }
 
-export function dimensionCoverageFailures(goldens: EvalFixture[]): string[] {
-  const present = new Set(
-    goldens
-      .map((fixture) => fixture.expected.dimension)
-      .filter(
-        (dimension): dimension is RubricDimension => dimension !== undefined,
-      ),
+export function behaviorCoverageFailures(goldens: EvalScenario[]): string[] {
+  const expectedSteps = goldens.flatMap((scenario) => scenario.steps);
+  const hasFollowUp = expectedSteps.some(
+    (step) => step.expected.recommendedDecision === "FOLLOW_UP",
   );
-  const missing = RUBRIC_DIMENSIONS.filter(
-    (dimension) => !present.has(dimension),
+  const hasMoveOn = expectedSteps.some(
+    (step) => step.expected.recommendedDecision === "MOVE_ON",
   );
-  const hasMoveOn = goldens.some(
-    (fixture) =>
-      fixture.expected.decision === "MOVE_ON" ||
-      fixture.expected.finalDecision === "MOVE_ON",
+  const hasSecondFollowUp = expectedSteps.some(
+    (step) => step.expected.followUpCount === 2,
   );
-  const hasCap = goldens.some((fixture) => fixture.expected.isCapped === true);
-  const failures: string[] = [];
-  if (missing.length > 0) {
-    failures.push(`Goldens missing rubric dimensions: ${missing.join(", ")}`);
-  }
-  if (!hasMoveOn) {
-    failures.push("Goldens missing a MOVE_ON case");
-  }
-  if (!hasCap) {
-    failures.push("Goldens missing a follow-up cap case");
-  }
-  return failures;
+  const hasCap = expectedSteps.some(
+    (step) =>
+      step.expected.recommendedDecision === "FOLLOW_UP" &&
+      step.expected.questionIndex > 0,
+  );
+  const hasMalformed = goldens.some(
+    (scenario) => scenario.evaluator === "MALFORMED",
+  );
+  const missing = [
+    [hasFollowUp, "FOLLOW_UP"],
+    [hasMoveOn, "MOVE_ON"],
+    [hasSecondFollowUp, "a second follow-up"],
+    [hasCap, "the deterministic follow-up cap"],
+    [hasMalformed, "malformed evaluator output"],
+  ]
+    .filter(([present]) => !present)
+    .map(([, label]) => label);
+  return missing.length === 0
+    ? []
+    : [`Goldens missing coverage for ${missing.join(", ")}`];
 }
 
 export function reviewEvalSuite(input: {
-  goldens: EvalFixture[];
-  holdouts: EvalFixture[];
+  goldens: EvalScenario[];
+  holdouts: EvalScenario[];
 }): string[] {
   return [
     ...duplicateIdFailures([input.goldens, input.holdouts]),
-    ...dimensionCoverageFailures(input.goldens),
+    ...behaviorCoverageFailures(input.goldens),
     ...independenceFailures(input.goldens, input.holdouts, "Holdout"),
   ];
 }

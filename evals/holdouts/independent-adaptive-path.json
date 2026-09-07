@@ -1,0 +1,30 @@
+{
+  "id": "independent-adaptive-path",
+  "description": "Independent wording exercises the seeded runtime without copying the golden candidate answers",
+  "evaluator": "SCRIPTED",
+  "steps": [
+    {
+      "answer": "We usually get along and solve things as a group.",
+      "expected": {
+        "outcome": "APPLIED",
+        "recommendedDecision": "FOLLOW_UP",
+        "dimension": "specificity",
+        "questionIndex": 0,
+        "followUpCount": 1,
+        "historyLength": 3,
+        "status": "AWAITING_ANSWER"
+      }
+    },
+    {
+      "answer": "I owned the rollout for five services, traced a Node.js timeout, and cut failed requests from 18 percent to 2 percent.",
+      "expected": {
+        "outcome": "APPLIED",
+        "recommendedDecision": "MOVE_ON",
+        "questionIndex": 1,
+        "followUpCount": 0,
+        "historyLength": 5,
+        "status": "AWAITING_ANSWER"
+      }
+    }
+  ]
+}

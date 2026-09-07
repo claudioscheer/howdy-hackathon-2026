@@ -1,30 +1,25 @@
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { loadFixturesFromDir } from "./fixtures";
+import { loadScenariosFromDir } from "./fixtures";
 import { reviewHarness } from "./review";
 
 describe("reviewHarness", () => {
-  it("passes the repo suite when change review is skipped", () => {
-    const root = path.resolve(import.meta.dirname, "../..");
-    const report = reviewHarness({
-      goldens: loadFixturesFromDir(path.join(root, "evals/goldens")),
-      holdouts: loadFixturesFromDir(path.join(root, "evals/holdouts")),
-      rootDir: root,
+  const root = path.resolve(import.meta.dirname, "../..");
+  const input = {
+    goldens: loadScenariosFromDir(path.join(root, "evals/goldens")),
+    holdouts: loadScenariosFromDir(path.join(root, "evals/holdouts")),
+    rootDir: root,
+  };
+
+  it("passes the independent repository suites when source review is skipped", () => {
+    expect(reviewHarness({ ...input, changedFiles: [] })).toEqual({
+      findings: [],
       changedFiles: [],
+      mappedCriteria: [],
     });
-    expect(report.findings).toEqual([]);
-    expect(report.changedFiles).toEqual([]);
-    expect(report.mappedCriteria).toEqual([]);
   });
 
-  it("collects the git working tree when changedFiles is omitted", () => {
-    const root = path.resolve(import.meta.dirname, "../..");
-    const report = reviewHarness({
-      goldens: loadFixturesFromDir(path.join(root, "evals/goldens")),
-      holdouts: loadFixturesFromDir(path.join(root, "evals/holdouts")),
-      rootDir: root,
-    });
-    expect(Array.isArray(report.changedFiles)).toBe(true);
-    expect(report.changedFiles.length).toBeGreaterThanOrEqual(0);
+  it("can collect changed files from git", () => {
+    expect(Array.isArray(reviewHarness(input).changedFiles)).toBe(true);
   });
 });

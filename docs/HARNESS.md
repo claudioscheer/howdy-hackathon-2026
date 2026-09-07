@@ -9,28 +9,38 @@ diagnose every failure.
 1. Prettier formatting check.
 2. Next.js production build and TypeScript validation.
 3. ESLint, including unsafe-cast and source-size restrictions.
-4. Colocated Vitest tests with 100% coverage on changed files (running only affected tests; full suite via `pnpm run test:all`).
+4. The complete colocated Vitest suite with coverage across product routes and libraries.
 5. Synthetic golden and independent holdout interview fixtures.
 6. Behavioral sensitivity checks.
 7. Deterministic changed-file review.
 8. Generated `acceptance.json` and `evals/traces/latest-eval.json` evidence.
+9. The Chromium Playwright journey after deterministic stages pass.
 
 The gate is keyless and never calls a live model. A separate live-model eval may
 be added later, but it must not make the merge gate nondeterministic.
 
 ## Behavior fixtures
 
-Fixtures contain an opportunity, structured question, candidate answer,
-transcript history, optional question state, and expected decision fields. The
-current deterministic stub is only a foundation seam; Phase 2 must connect these
-contracts to the product runtime and add multi-turn scenarios.
+Fixtures contain an ordered series of candidate answers and expected public
+session observations: evaluator recommendation, dimension, question index,
+follow-up count, history length, status, and whether rejected output left state
+unchanged. They execute `lib/interview` through `submitAnswer`; the harness does
+not own a second interview state machine.
 
 - `evals/goldens/` locks reviewed behavior.
 - `evals/holdouts/` checks paraphrased cases without copying golden answers.
 - Expected product decisions are never inverted. A wrong `FOLLOW_UP` or
   `MOVE_ON` result is always a failed case.
 
-The suite asserts decision and dimension rather than exact follow-up prose.
+The current slice locks specificity pressure, improvement after follow-up, the
+two-follow-up cap, malformed evaluator output, and transcript/state progression.
+It asserts behavior and state rather than exact follow-up prose.
+
+The earlier single-turn relevance/fundamentals/structure fixtures exercised a
+harness-only heuristic implementation. They were retired in this milestone
+rather than being misrepresented as product evidence. Those dimensions remain in
+the runtime/report contracts and must return as public-runtime scenarios when the
+replaceable evaluator is expanded in a later approved milestone.
 
 ## Sensitivity instead of inverted canaries
 
@@ -47,9 +57,10 @@ general mutation-testing framework.
 ## Deterministic contracts
 
 Zod schemas enforce planner, evaluator, report, session-state, and reducer-event
-shapes. Application policy enforces blank-answer handling, retry limits, and the
-follow-up cap. Report evidence is valid only when every non-empty quote is an
-exact substring of the transcript.
+shapes. `submitAnswer` rejects malformed evaluator output without changing state.
+The reducer enforces the two-attempt contract and two-follow-up cap. Report
+evidence is valid only when every non-empty quote is an exact substring of the
+transcript.
 
 ## Changed-file review
 
@@ -62,8 +73,8 @@ For that set it deterministically checks:
 - `.env` files other than `.env.example` are absent;
 - changed `app/` and `lib/` TypeScript sources have colocated tests;
 - changed source files remain below the configured size limit;
-- fixture IDs are unique and goldens cover all four dimensions, `MOVE_ON`, and
-  the follow-up cap;
+- scenario IDs are unique and goldens cover `FOLLOW_UP`, `MOVE_ON`, continued
+  pressure, the follow-up cap, and malformed evaluator output;
 - holdout answers are independent from goldens by containment and token overlap.
 
 This is not semantic code review. Human judgment still decides whether a change
@@ -73,8 +84,17 @@ matches the product intent.
 
 `acceptance.json` separates proven foundation/harness milestones from unshipped
 product milestones. The harness writes it; agents must not manually set criteria
-to `true`. Session configuration, adaptive UI behavior, grounded reports, and
-retry comparison remain false until their implementations and checks ship.
+to `true`. The adaptive interview criterion is proven by multi-turn execution of
+the public runtime. Session configuration, grounded reports, and retry comparison
+remain false.
+
+## Browser journey
+
+`pnpm test:e2e` starts the application and verifies dashboard → seeded practice
+route → vague answer → visible follow-up → concrete answer → next question. The
+test uses roles and user-facing text, avoids fixed sleeps, and fails on browser
+console warnings/errors. CI installs only the pinned Chromium browser required by
+this journey.
 
 ## Agent recovery loop
 

@@ -1,10 +1,10 @@
 import {
-  type DecisionProvider,
-  InterviewEngine,
-  type EvaluationResult,
-} from "./engine";
-import { type EvalFixture, fixtureState, matchesExpected } from "./fixtures";
-import { type InterviewerDecision } from "./schema";
+  type AnswerEvaluationInput,
+  type AnswerEvaluator,
+  type InterviewerDecision,
+} from "../interview/contracts";
+import { runScenario } from "./engine";
+import { type EvalScenario } from "./fixtures";
 
 const ALWAYS_MOVE_ON: InterviewerDecision = {
   decision: "MOVE_ON",
@@ -18,10 +18,10 @@ const ALWAYS_FOLLOW_UP: InterviewerDecision = {
   followUp: "Mutation asks another question every time.",
 };
 
-class ConstantDecisionProvider implements DecisionProvider {
+class ConstantDecisionEvaluator implements AnswerEvaluator {
   constructor(private readonly decision: InterviewerDecision) {}
 
-  async evaluate(): Promise<unknown> {
+  async evaluate(_input: AnswerEvaluationInput): Promise<unknown> {
     return this.decision;
   }
 }
@@ -31,24 +31,16 @@ export interface SensitivityResult {
   alwaysFollowUpRejected: boolean;
 }
 
-async function fixtureMatches(
-  fixture: EvalFixture,
-  engine: InterviewEngine,
-): Promise<boolean> {
-  const result: EvaluationResult = await engine.evaluateTurn(
-    fixture.input,
-    fixtureState(fixture),
-  );
-  return matchesExpected(fixture, result);
-}
-
 async function mutationIsRejected(
-  fixtures: EvalFixture[],
+  scenarios: EvalScenario[],
   decision: InterviewerDecision,
 ): Promise<boolean> {
-  const engine = new InterviewEngine(new ConstantDecisionProvider(decision));
-  for (const fixture of fixtures) {
-    if (!(await fixtureMatches(fixture, engine))) {
+  const evaluator = new ConstantDecisionEvaluator(decision);
+  for (const scenario of scenarios.filter(
+    (candidate) => candidate.evaluator === "SCRIPTED",
+  )) {
+    const result = await runScenario(scenario, evaluator);
+    if (!result.pass) {
       return true;
     }
   }
@@ -56,12 +48,12 @@ async function mutationIsRejected(
 }
 
 export async function runSensitivityChecks(
-  fixtures: EvalFixture[],
+  scenarios: EvalScenario[],
 ): Promise<SensitivityResult> {
   return {
-    alwaysMoveOnRejected: await mutationIsRejected(fixtures, ALWAYS_MOVE_ON),
+    alwaysMoveOnRejected: await mutationIsRejected(scenarios, ALWAYS_MOVE_ON),
     alwaysFollowUpRejected: await mutationIsRejected(
-      fixtures,
+      scenarios,
       ALWAYS_FOLLOW_UP,
     ),
   };

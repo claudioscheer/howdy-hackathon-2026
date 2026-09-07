@@ -52,26 +52,39 @@ orchestrator.
 
 ## Current parallelization evidence
 
-No parallel workers were used for the foundation phase. Node alignment, runtime
-contracts, acceptance semantics, fixture shape, and documentation were tightly
-coupled; parallel edits would have created avoidable conflicts. This is an
-intentional orchestration decision, not evidence of completed parallel work.
+The seeded adaptive-loop milestone used the first real three-way split. Phase 0
+was serial: the orchestrator standardized two attempts, the practice route,
+seeded-login semantics, full local tests, Playwright configuration, and the
+shared state/event boundary in commit `91f698c`. Only then were three independent
+contexts started against frozen contracts.
 
-The first real Engine/UI/Evaluation split should be recorded here as a compact
-timeline after it occurs, including task boundaries and integration results.
+| Sequence | Context            | Owned paths                                      | Handoff                                                                                             |
+| -------- | ------------------ | ------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| 1        | Interview Engine   | `lib/interview/**`                               | Reducer, seeded session, replaceable evaluator, turn coordinator; 24 focused tests at 100% coverage |
+| 1        | Product UI         | `app/**`, `lib/ui/**`                            | Dashboard link and practice experience; 49 UI tests at 100% scoped coverage                         |
+| 1        | Evaluation/Harness | `evals/**`, `lib/harness/**`, browser/gate files | Public-runtime scenarios, mutations, and Playwright journey                                         |
+| 2        | Integration        | Shared acceptance/docs and combined tree         | Engine API → UI → harness → full gate → browser inspection                                          |
+
+The workstreams began concurrently and wrote non-overlapping product paths. The
+Evaluation context's deterministic review found that the UI's new
+`practice-view.tsx` lacked a colocated test; that precise finding was returned to
+the UI owner, which added the test and reran its suite. The Evaluation context
+later exhausted its workspace credit before its final handoff, so the
+orchestrator reviewed and completed that bounded integration rather than
+inventing a successful worker result. No frozen contract changed after dispatch.
 
 ## Deterministic controls
 
-| Guarantee                                 | Control                                                                   |
-| ----------------------------------------- | ------------------------------------------------------------------------- |
-| Model output has the required shape       | Zod schemas in `lib/interview/contracts.ts`                               |
-| Session ownership is explicit             | State and event schemas in `lib/interview/session.ts`                     |
-| Follow-ups cannot continue forever        | Application policy cap of two                                             |
-| Feedback cannot quote invented text       | Exact transcript-substring validation                                     |
-| Trivial constant interviewers cannot pass | Always-`MOVE_ON` and always-`FOLLOW_UP` sensitivity checks                |
-| Holdouts are not copies of goldens        | Containment and token-similarity review                                   |
-| Changed source remains test-backed        | Local diff plus CI base-to-head deterministic review                      |
-| Build quality stays observable            | Format, build/typecheck, lint, coverage, and harness in `pnpm run verify` |
+| Guarantee                                 | Control                                                                                    |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Model output has the required shape       | Zod schemas in `lib/interview/contracts.ts`                                                |
+| Session ownership is explicit             | State and event schemas in `lib/interview/session.ts`                                      |
+| Follow-ups cannot continue forever        | Application policy cap of two                                                              |
+| Feedback cannot quote invented text       | Exact transcript-substring validation                                                      |
+| Trivial constant interviewers cannot pass | Always-`MOVE_ON` and always-`FOLLOW_UP` sensitivity checks                                 |
+| Holdouts are not copies of goldens        | Containment and token-similarity review                                                    |
+| Changed source remains test-backed        | Local diff plus CI base-to-head deterministic review                                       |
+| Build quality stays observable            | Format, build/typecheck, lint, full coverage, harness, and Playwright in `pnpm run verify` |
 
 Model judgment chooses question wording and evaluates answer quality. It does not
 control question counts, state transitions, retry limits, persistence, schema

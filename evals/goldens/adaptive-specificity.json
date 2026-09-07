@@ -1,0 +1,30 @@
+{
+  "id": "adaptive-specificity",
+  "description": "A vague answer receives a specificity follow-up, then a concrete answer advances to the next seeded question",
+  "evaluator": "SCRIPTED",
+  "steps": [
+    {
+      "answer": "I communicate well and keep everyone aligned.",
+      "expected": {
+        "outcome": "APPLIED",
+        "recommendedDecision": "FOLLOW_UP",
+        "dimension": "specificity",
+        "questionIndex": 0,
+        "followUpCount": 1,
+        "historyLength": 3,
+        "status": "AWAITING_ANSWER"
+      }
+    },
+    {
+      "answer": "I led three engineers through an API migration, added contract tests in TypeScript, and reduced partner errors by 42 percent.",
+      "expected": {
+        "outcome": "APPLIED",
+        "recommendedDecision": "MOVE_ON",
+        "questionIndex": 1,
+        "followUpCount": 0,
+        "historyLength": 5,
+        "status": "AWAITING_ANSWER"
+      }
+    }
+  ]
+}

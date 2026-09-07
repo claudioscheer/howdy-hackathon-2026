@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { SEEDED_SESSION_ID } from "@/lib/interview/seed";
+
 export interface OpportunityItem {
   id: string;
   role: string;
@@ -6,6 +9,7 @@ export interface OpportunityItem {
   attemptsUsed: number;
   status: "Active" | "Expired" | "Draft";
   token: string;
+  practiceSessionId?: string;
 }
 
 export const OPPORTUNITIES: OpportunityItem[] = [
@@ -26,6 +30,7 @@ export const OPPORTUNITIES: OpportunityItem[] = [
     attemptsUsed: 0,
     status: "Active",
     token: "fs-3b17c",
+    practiceSessionId: SEEDED_SESSION_ID,
   },
   {
     id: "opp-3",
@@ -68,6 +73,9 @@ export function OpportunityCard({
   item: OpportunityItem;
 }): React.JSX.Element {
   const isExpired = item.status === "Expired";
+  const practiceHref = item.practiceSessionId
+    ? `/practice/${item.practiceSessionId}`
+    : undefined;
   return (
     <div
       data-testid={`opportunity-card-${item.id}`}
@@ -94,26 +102,30 @@ export function OpportunityCard({
           </span>
           <span>•</span>
           <span className="font-mono text-[11px] text-black">
-            /practice?token={item.token}
+            {practiceHref ?? `Seed: ${item.token}`}
           </span>
-          <span>•</span>
-          <span>1-week TTL</span>
         </div>
       </div>
 
       <div className="flex items-center gap-3">
-        <button
-          type="button"
-          data-testid={`action-link-${item.id}`}
-          disabled={isExpired}
-          className={`inline-flex items-center justify-center rounded-full border border-black px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
-            isExpired
-              ? "cursor-not-allowed border-[#e0e0e8] text-[#5a5a5f] opacity-50"
-              : "bg-white text-black hover:bg-black hover:text-white cursor-pointer"
-          }`}
-        >
-          {isExpired ? "Link Expired" : "Copy Practice Link"}
-        </button>
+        {practiceHref ? (
+          <Link
+            href={practiceHref}
+            data-testid={`action-link-${item.id}`}
+            className="inline-flex cursor-pointer items-center justify-center rounded-full border border-black bg-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-black transition-colors hover:bg-black hover:text-white"
+          >
+            Open Practice Interview
+          </Link>
+        ) : (
+          <button
+            type="button"
+            data-testid={`action-link-${item.id}`}
+            disabled
+            className="inline-flex cursor-not-allowed items-center justify-center rounded-full border border-[#e0e0e8] px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#5a5a5f] opacity-50"
+          >
+            {isExpired ? "Link Expired" : "Practice Unavailable"}
+          </button>
+        )}
       </div>
     </div>
   );

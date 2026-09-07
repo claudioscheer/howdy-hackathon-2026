@@ -1,0 +1,18 @@
+{
+  "id": "malformed-evaluator-output",
+  "description": "Invalid evaluator output fails closed and leaves the public session state unchanged",
+  "evaluator": "MALFORMED",
+  "steps": [
+    {
+      "answer": "I can describe an example if needed.",
+      "expected": {
+        "outcome": "REJECTED",
+        "questionIndex": 0,
+        "followUpCount": 0,
+        "historyLength": 1,
+        "status": "AWAITING_ANSWER",
+        "stateUnchanged": true
+      }
+    }
+  ]
+}

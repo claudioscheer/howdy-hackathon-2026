@@ -23,6 +23,10 @@ jobs:
             command: pnpm run test:all
           - name: harness evals
             command: pnpm run harness
+            browser: false
+          - name: browser journey
+            command: pnpm run test:e2e
+            browser: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,6 +37,8 @@ jobs:
           node-version-file: ".nvmrc"
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - if: matrix.browser
+        run: pnpm exec playwright install --with-deps chromium
       - run: ${{ matrix.command }}
         env:
           REVIEW_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}

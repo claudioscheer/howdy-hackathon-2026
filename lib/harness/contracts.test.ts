@@ -3,59 +3,37 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
-  proveEmptyAnswerContract,
   proveGroundingContract,
   proveLandingContract,
   proveSchemaContract,
-  proveStateCapContract,
   REQUIRED_LANDING_TEST_IDS,
 } from "./contracts";
 
 describe("layer 0 contracts", () => {
-  it("proves schema, grounding, cap, and empty-answer with negatives", () => {
+  it("proves shared schema and transcript grounding", () => {
     expect(proveSchemaContract().pass).toBe(true);
     expect(proveGroundingContract().pass).toBe(true);
-    expect(proveStateCapContract().pass).toBe(true);
-    expect(proveEmptyAnswerContract().pass).toBe(true);
   });
 
-  it("proves landing testids on the real page", () => {
+  it("proves landing markers on the real page", () => {
     const proof = proveLandingContract(
       path.resolve(import.meta.dirname, "../.."),
     );
     expect(proof.pass).toBe(true);
-    expect(REQUIRED_LANDING_TEST_IDS.length).toBe(4);
+    expect(REQUIRED_LANDING_TEST_IDS).toHaveLength(4);
   });
 
-  it("fails when the landing page is missing or lacks a testid", () => {
-    const missingRoot = fs.mkdtempSync(path.join(os.tmpdir(), "no-page-"));
-    expect(proveLandingContract(missingRoot).pass).toBe(false);
+  it("reports missing pages, markers, and design violations", () => {
+    const missing = fs.mkdtempSync(path.join(os.tmpdir(), "missing-page-"));
+    expect(proveLandingContract(missing).evidence).toMatch(/missing/);
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "landing-"));
     fs.mkdirSync(path.join(root, "app"));
-    fs.writeFileSync(
-      path.join(root, "app/page.tsx"),
-      "export default function Page() { return null }",
-    );
-    expect(proveLandingContract(root).pass).toBe(false);
+    fs.writeFileSync(path.join(root, "app/page.tsx"), "export default null");
     expect(proveLandingContract(root).evidence).toMatch(/missing data-testid/);
-  });
-
-  it("fails when the landing page violates DESIGN.md", () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "design-fail-"));
-    fs.mkdirSync(path.join(root, "app"));
     fs.writeFileSync(
       path.join(root, "app/page.tsx"),
-      `
-      <div className="bg-white">
-        <span data-testid="app-badge">Badge</span>
-        <h1 data-testid="hero-title">Title</h1>
-        <p data-testid="hero-description">Desc</p>
-        <a data-testid="start-practice">Start</a>
-      </div>
-      `,
+      '<div className="bg-white" data-testid="app-badge"><i data-testid="hero-title"/><i data-testid="hero-description"/><i data-testid="start-practice"/></div>',
     );
-    const proof = proveLandingContract(root);
-    expect(proof.pass).toBe(false);
-    expect(proof.evidence).toMatch(/violates DESIGN.md/);
+    expect(proveLandingContract(root).evidence).toMatch(/violates DESIGN/);
   });
 });
