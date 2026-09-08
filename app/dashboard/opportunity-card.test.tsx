@@ -1,6 +1,24 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
+import type { OpportunityItem } from "@/lib/db/opportunity-item";
 import { OpportunityCard, StatCard } from "./opportunity-card";
+
+function item(overrides: Partial<OpportunityItem> = {}): OpportunityItem {
+  return {
+    id: "test-active",
+    role: "backend",
+    seniority: "senior",
+    track: "Backend",
+    attemptsLimit: 2,
+    attemptsUsed: 0,
+    status: "Active",
+    token: "test-token",
+    hasBriefing: false,
+    questionCount: 0,
+    questionPrepStatus: "idle",
+    ...overrides,
+  };
+}
 
 describe("Dashboard Opportunity and Stat cards", () => {
   it("renders StatCard with label and value", () => {
@@ -10,20 +28,9 @@ describe("Dashboard Opportunity and Stat cards", () => {
     expect(card).toHaveTextContent("3");
   });
 
-  it("renders the seeded active opportunity as a practice link", () => {
+  it("renders manager actions instead of a practice interview link", () => {
     render(
-      <OpportunityCard
-        item={{
-          id: "test-active",
-          role: "Test Engineer",
-          track: "Backend",
-          attemptsLimit: 2,
-          attemptsUsed: 0,
-          status: "Active",
-          token: "test-token",
-          practiceSessionId: "test-session",
-        }}
-      />,
+      <OpportunityCard item={item({ practiceSessionId: "test-session" })} />,
     );
     expect(
       screen.getByTestId("opportunity-card-test-active"),
@@ -31,55 +38,77 @@ describe("Dashboard Opportunity and Stat cards", () => {
     expect(screen.getByTestId("status-badge-test-active")).toHaveTextContent(
       "Active",
     );
-    expect(screen.getByTestId("action-link-test-active")).toHaveTextContent(
-      "Open Practice Interview",
-    );
-    expect(screen.getByTestId("action-link-test-active")).toHaveAttribute(
+    expect(screen.getByTestId("edit-opportunity-test-active")).toHaveAttribute(
       "href",
-      "/practice/test-session",
+      "/dashboard/test-active/edit",
+    );
+    expect(
+      screen.getByTestId("questions-opportunity-test-active"),
+    ).toHaveTextContent("Generate questions");
+    expect(
+      screen.getByTestId("opportunity-card-test-active"),
+    ).toHaveTextContent("Senior Backend");
+  });
+
+  it("renders the candidate name when present", () => {
+    render(
+      <OpportunityCard
+        item={item({
+          id: "test-candidate",
+          role: "fullstack",
+          seniority: "medium",
+          candidateName: "Alex Rivera",
+          hasBriefing: true,
+          status: "Draft",
+        })}
+      />,
+    );
+    expect(
+      screen.getByTestId("candidate-name-test-candidate"),
+    ).toHaveTextContent("Candidate: Alex Rivera");
+    expect(screen.getByTestId("status-badge-test-candidate")).toHaveTextContent(
+      "Draft",
+    );
+    expect(screen.getByTestId("briefing-test-candidate")).toHaveTextContent(
+      "Job description and curriculum on file",
     );
   });
 
-  it("renders expired OpportunityCard with disabled button", () => {
+  it("renders expired OpportunityCard with review actions", () => {
     render(
       <OpportunityCard
-        item={{
+        item={item({
           id: "test-expired",
-          role: "Test Engineer",
-          track: "Backend",
-          attemptsLimit: 2,
-          attemptsUsed: 2,
+          role: "infrastructure",
+          seniority: "staff",
           status: "Expired",
-          token: "test-expired-token",
-        }}
+          attemptsUsed: 2,
+          questionCount: 3,
+          questionPrepStatus: "ready",
+        })}
       />,
     );
     expect(screen.getByTestId("status-badge-test-expired")).toHaveTextContent(
       "Expired",
     );
-    expect(screen.getByTestId("action-link-test-expired")).toHaveTextContent(
-      "Link Expired",
-    );
-    expect(screen.getByTestId("action-link-test-expired")).toBeDisabled();
+    expect(
+      screen.getByTestId("questions-opportunity-test-expired"),
+    ).toHaveTextContent("Review questions");
   });
 
-  it("does not offer a practice action without a seeded session", () => {
+  it("hides an empty tech-stack line", () => {
     render(
       <OpportunityCard
-        item={{
+        item={item({
           id: "test-unavailable",
-          role: "Test Engineer",
-          track: "Backend",
-          attemptsLimit: 2,
-          attemptsUsed: 0,
-          status: "Active",
-          token: "test-token",
-        }}
+          role: "frontend",
+          seniority: "junior",
+          track: "",
+        })}
       />,
     );
     expect(
-      screen.getByTestId("action-link-test-unavailable"),
-    ).toHaveTextContent("Practice Unavailable");
-    expect(screen.getByTestId("action-link-test-unavailable")).toBeDisabled();
+      screen.getByTestId("opportunity-card-test-unavailable"),
+    ).not.toHaveTextContent("Backend");
   });
 });

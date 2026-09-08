@@ -24,8 +24,9 @@ nvm use
 corepack enable
 ```
 
-Postgres is not required by the application. `docker-compose.yml` is retained as
-an optional future scaffold and should not be started for the current build.
+Postgres 16 is required for the manager dashboard. Start it with
+`docker compose up -d`, copy `.env.example` to `.env`, then run
+`pnpm db:migrate` and `pnpm db:seed`.
 
 ## Install and run
 
@@ -37,8 +38,7 @@ pnpm dev
 
 Open <http://localhost:3000>.
 
-No environment variables are currently required. `.env.example` documents only
-the deferred Postgres scaffold.
+Copy `.env.example` to `.env` for `DATABASE_URL`. Do not commit `.env`.
 
 ## Verification
 
@@ -83,6 +83,8 @@ See [the harness guide](./docs/HARNESS.md) for guarantees and limitations.
 
 ```text
 app/                    Next.js UI
+prisma/                 Postgres schema, migrations, and fictional seed
+lib/db/                 Prisma access for manager opportunity/candidate config
 lib/interview/          Public runtime contracts and session event boundary
 lib/harness/            Deterministic verification implementation
 lib/ui/                 UI copy

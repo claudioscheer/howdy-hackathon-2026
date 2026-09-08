@@ -1,47 +1,9 @@
-import Link from "next/link";
-import { SEEDED_SESSION_ID } from "@/lib/interview/seed";
+import type { OpportunityItem } from "@/lib/db/opportunity-item";
+import { opportunityHeading } from "@/lib/db/opportunity-options";
+import { CREATE_OPPORTUNITY_PAGE } from "@/lib/ui/copy";
+import { OpportunityActions } from "./opportunity-actions";
 
-export interface OpportunityItem {
-  id: string;
-  role: string;
-  track: string;
-  attemptsLimit: number;
-  attemptsUsed: number;
-  status: "Active" | "Expired" | "Draft";
-  token: string;
-  practiceSessionId?: string;
-}
-
-export const OPPORTUNITIES: OpportunityItem[] = [
-  {
-    id: "opp-1",
-    role: "Senior Distributed Systems Engineer",
-    track: "Architecture & Incident Response",
-    attemptsLimit: 2,
-    attemptsUsed: 2,
-    status: "Expired",
-    token: "sys-9f82a",
-  },
-  {
-    id: "opp-2",
-    role: "Fullstack Product Engineer",
-    track: "React, Node.js & API Design",
-    attemptsLimit: 2,
-    attemptsUsed: 0,
-    status: "Active",
-    token: "fs-3b17c",
-    practiceSessionId: SEEDED_SESSION_ID,
-  },
-  {
-    id: "opp-3",
-    role: "Staff Infrastructure Engineer",
-    track: "Kubernetes & High Availability",
-    attemptsLimit: 2,
-    attemptsUsed: 1,
-    status: "Active",
-    token: "infra-48d0e",
-  },
-];
+export type { OpportunityItem };
 
 export function StatCard({
   label,
@@ -73,9 +35,6 @@ export function OpportunityCard({
   item: OpportunityItem;
 }): React.JSX.Element {
   const isExpired = item.status === "Expired";
-  const practiceHref = item.practiceSessionId
-    ? `/practice/${item.practiceSessionId}`
-    : undefined;
   return (
     <div
       data-testid={`opportunity-card-${item.id}`}
@@ -84,7 +43,7 @@ export function OpportunityCard({
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <h3 className="font-bold text-black uppercase tracking-tight">
-            {item.role}
+            {opportunityHeading(item.role, item.seniority)}
           </h3>
           <span
             data-testid={`status-badge-${item.id}`}
@@ -95,38 +54,33 @@ export function OpportunityCard({
             {item.status}
           </span>
         </div>
-        <p className="text-sm text-[#5a5a5f]">{item.track}</p>
+        {item.track ? (
+          <p className="text-sm text-[#5a5a5f]">{item.track}</p>
+        ) : null}
+        {item.candidateName ? (
+          <p
+            data-testid={`candidate-name-${item.id}`}
+            className="text-sm text-[#5a5a5f]"
+          >
+            Candidate: {item.candidateName}
+          </p>
+        ) : null}
+        {item.hasBriefing ? (
+          <p
+            data-testid={`briefing-${item.id}`}
+            className="text-sm text-[#5a5a5f]"
+          >
+            {CREATE_OPPORTUNITY_PAGE.briefingOnFile}
+          </p>
+        ) : null}
         <div className="mt-1 flex items-center gap-3 text-xs text-[#5a5a5f]">
           <span>
             Attempts: {item.attemptsUsed} / {item.attemptsLimit} used
           </span>
-          <span>•</span>
-          <span className="font-mono text-[11px] text-black">
-            {practiceHref ?? `Seed: ${item.token}`}
-          </span>
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        {practiceHref ? (
-          <Link
-            href={practiceHref}
-            data-testid={`action-link-${item.id}`}
-            className="inline-flex cursor-pointer items-center justify-center rounded-full border border-black bg-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-black transition-colors hover:bg-black hover:text-white"
-          >
-            Open Practice Interview
-          </Link>
-        ) : (
-          <button
-            type="button"
-            data-testid={`action-link-${item.id}`}
-            disabled
-            className="inline-flex cursor-not-allowed items-center justify-center rounded-full border border-[#e0e0e8] px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#5a5a5f] opacity-50"
-          >
-            {isExpired ? "Link Expired" : "Practice Unavailable"}
-          </button>
-        )}
-      </div>
+      <OpportunityActions item={item} />
     </div>
   );
 }

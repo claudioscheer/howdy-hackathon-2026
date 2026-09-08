@@ -16,7 +16,7 @@ This file is the source of truth for **every** coding tool (Grok, Codex, Antigra
 
 Howdy Interview Coach: a mock interviewer that follows up on weak answers and writes a transcript-grounded report. Built for Dev Day 2026.
 
-**Current state:** landing page, seeded manager-entry/dashboard facade, runtime contracts, and harness foundation. The candidate practice route and end-to-end adaptive loop are the current milestone. Product intent and the current definition of done are in [`docs/SPEC.md`](docs/SPEC.md). Do not start a new phase or change shared contracts without human/orchestrator direction.
+**Current state:** landing page, manager dashboard backed by Prisma/Postgres, runtime contracts, and harness foundation. The candidate practice route and end-to-end adaptive loop remain the current milestone. Product intent and the current definition of done are in [`docs/SPEC.md`](docs/SPEC.md). Do not start a new phase or change shared contracts without human/orchestrator direction.
 
 ## Lock important behavior
 
@@ -58,9 +58,12 @@ These are enforced by `pnpm run verify` (Prettier, ESLint, 100% unit coverage). 
 - Do not call a live LLM from tests or from `pnpm run verify`.
 - Run `pnpm run format` if Prettier fails; do not hand-format around the tool.
 
-## Postgres (later)
+## Postgres
 
-`docker compose up -d` starts Postgres 16. Credentials are in `.env.example`. **The app does not read the database yet.** Do not add an ORM, migrations, or queries until a human asks. When we do: one `DATABASE_URL`, parameterized queries, no secrets in git.
+`docker compose up -d` starts Postgres 16. Credentials are in `.env.example`.
+The manager dashboard reads and writes opportunity/candidate rows through Prisma.
+Use one `DATABASE_URL`, commit migrations, and keep secrets out of git.
+Do not persist interview transcripts or change `lib/interview` contracts here.
 
 ## Who may edit what
 

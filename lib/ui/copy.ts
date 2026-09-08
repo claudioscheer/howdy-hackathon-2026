@@ -42,8 +42,57 @@ export const DASHBOARD_PAGE = {
   badge: "DEV DAY 2026 // EM PORTAL",
   createButton: "Create Opportunity",
   generateLinkButton: "Generate Link",
+  editButton: "Edit",
+  copyLinkButton: "Copy link",
+  copiedLinkButton: "Copied",
+  generateQuestionsButton: "Generate questions",
+  reviewQuestionsButton: "Review questions",
+  preparingQuestionsButton: "Preparing questions",
+  emptyState:
+    "No opportunities yet. Create a role and candidate to list them here.",
   disclaimer:
-    "This seeded demo shows the two-attempt product policy. Persistence, link security, and expiration enforcement are not included yet.",
+    "Opportunity and candidate configuration is stored. This demo shows the two-attempt product policy; link security and expiration enforcement are not included yet.",
+} as const;
+
+export const QUESTIONS_PAGE = {
+  title: "Review questions",
+  generateTitle: "Prepare questions",
+  generateDescription:
+    "We will draft practice questions from the job description and candidate curriculum.",
+  generating: "Preparing the questions…",
+  generatingHint: "This takes a moment. You can review and edit them next.",
+  reviewDescription:
+    "Edit these prompts or add more so the candidate practices the right pressure.",
+  addQuestion: "Add question",
+  saveQuestions: "Save questions",
+  savingQuestions: "Saving",
+  generateButton: "Generate questions",
+  emptyPrompt: "Enter a question the interviewer should ask.",
+} as const;
+
+export const CREATE_OPPORTUNITY_PAGE = {
+  title: "Create Opportunity",
+  description:
+    "Paste the job description and the candidate curriculum for this role. We use both to prepare the practice interview.",
+  candidateLabel: "Candidate name",
+  roleLabel: "Role",
+  roleHint: "The practice track, for example Full stack.",
+  seniorityLabel: "Seniority",
+  techStackLabel: "Target tech stack",
+  techStackHint:
+    "Optional. The job description can cover this. Comma-separated, for example React, Node.js, PostgreSQL",
+  interviewTypeLabel: "Interview type",
+  jobDescriptionLabel: "Job description",
+  jobDescriptionHint: "Paste the role posting as text. No file upload.",
+  curriculumLabel: "Candidate curriculum",
+  curriculumHint:
+    "Paste this candidate's resume for this opportunity as text. No file upload.",
+  briefingOnFile: "Job description and curriculum on file",
+  submitButton: "Save Opportunity",
+  saveEditsButton: "Save changes",
+  pendingButton: "Saving",
+  backToDashboard: "Back to dashboard",
+  editTitle: "Edit Opportunity",
 } as const;
 
 export function practiceButtonLabel(): string {

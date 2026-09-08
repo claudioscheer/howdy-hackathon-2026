@@ -1,8 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
+  CREATE_OPPORTUNITY_PAGE,
   DASHBOARD_PAGE,
   LANDING,
   LOGIN_PAGE,
+  QUESTIONS_PAGE,
   practiceButtonLabel,
 } from "@/lib/ui/copy";
 
@@ -34,10 +36,25 @@ describe("landing copy", () => {
   it("exposes dashboard copy for manager workspace", () => {
     expect(DASHBOARD_PAGE.createButton).toBe("Create Opportunity");
     expect(DASHBOARD_PAGE.generateLinkButton).toBe("Generate Link");
+    expect(DASHBOARD_PAGE.editButton).toBe("Edit");
+    expect(DASHBOARD_PAGE.copyLinkButton).toBe("Copy link");
+    expect(DASHBOARD_PAGE.generateQuestionsButton).toBe("Generate questions");
+    expect(DASHBOARD_PAGE.reviewQuestionsButton).toBe("Review questions");
+    expect(QUESTIONS_PAGE.generating).toContain("Preparing");
+    expect(CREATE_OPPORTUNITY_PAGE.editTitle).toBe("Edit Opportunity");
     expect(DASHBOARD_PAGE.badge).toBe("DEV DAY 2026 // EM PORTAL");
     expect(DASHBOARD_PAGE.disclaimer).toContain("two-attempt product policy");
     expect(DASHBOARD_PAGE.disclaimer).toContain(
-      "expiration enforcement are not included yet",
+      "Opportunity and candidate configuration is stored",
+    );
+    expect(DASHBOARD_PAGE.emptyState).toContain("No opportunities yet");
+    expect(CREATE_OPPORTUNITY_PAGE.title).toBe("Create Opportunity");
+    expect(CREATE_OPPORTUNITY_PAGE.submitButton).toBe("Save Opportunity");
+    expect(CREATE_OPPORTUNITY_PAGE.roleHint).toContain("Full stack");
+    expect(CREATE_OPPORTUNITY_PAGE.techStackHint).toContain("Optional");
+    expect(CREATE_OPPORTUNITY_PAGE.jobDescriptionLabel).toBe("Job description");
+    expect(CREATE_OPPORTUNITY_PAGE.curriculumLabel).toBe(
+      "Candidate curriculum",
     );
   });
 });

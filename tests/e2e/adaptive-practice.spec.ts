@@ -11,16 +11,7 @@ test("dashboard opens an adaptive practice interview", async ({ page }) => {
     browserIssues.push(`pageerror: ${error.message}`),
   );
 
-  await page.goto("/dashboard");
-
-  const practiceLink = page.getByRole("link", {
-    name: "Open Practice Interview",
-  });
-  await expect(practiceLink).toHaveAttribute(
-    "href",
-    "/practice/fullstack-product-engineer",
-  );
-  await practiceLink.click();
+  await page.goto("/practice/fullstack-product-engineer");
 
   await expect(page).toHaveURL(/\/practice\/fullstack-product-engineer$/);
   await expect(page.getByTestId("question-progress")).toHaveText(

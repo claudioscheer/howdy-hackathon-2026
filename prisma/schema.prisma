@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum InterviewType {
+  behavioral
+  technical
+  system_design
+}
+
+enum OpportunityStatus {
+  Active
+  Expired
+  Draft
+}
+
+enum QuestionPrepStatus {
+  idle
+  generating
+  ready
+}
+
+model Opportunity {
+  id                  String             @id
+  role                String
+  seniority           String
+  targetTechStack     String[]
+  interviewType       InterviewType
+  jobDescription      String
+  status              OpportunityStatus  @default(Draft)
+  questionPrepStatus  QuestionPrepStatus @default(idle)
+  attemptsLimit       Int                @default(2)
+  attemptsUsed        Int                @default(0)
+  token               String             @unique
+  practiceSessionId   String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  candidate           Candidate?
+  questions           PlannedQuestion[]
+}
+
+model PlannedQuestion {
+  id            String      @id
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  prompt        String
+  sortOrder     Int
+  createdAt     DateTime    @default(now())
+}
+
+model Candidate {
+  id            String      @id
+  displayName   String
+  curriculum    String
+  opportunityId String      @unique
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+}

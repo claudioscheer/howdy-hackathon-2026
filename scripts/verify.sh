@@ -69,6 +69,27 @@ if [ "$failed" -ne 0 ]; then
   exit 2
 fi
 
+if [ -z "${DATABASE_URL:-}" ] && [ -f "$ROOT/.env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  . "$ROOT/.env"
+  set +a
+fi
+
+if [ -z "${DATABASE_URL:-}" ]; then
+  printf "  ✗ browser journey\n"
+  echo "DATABASE_URL is required for the browser journey. Copy .env.example to .env and start Postgres with docker compose up -d."
+  echo "verify failed"
+  exit 2
+fi
+
+if ! pnpm prisma migrate deploy && pnpm prisma db seed; then
+  printf "  ✗ browser journey\n"
+  echo "Prisma migrate/seed failed. Is Postgres running?"
+  echo "verify failed"
+  exit 2
+fi
+
 if pnpm run test:e2e >"$tmp_dir/e2e.log" 2>&1; then
   printf "  ✓ browser journey\n"
 else

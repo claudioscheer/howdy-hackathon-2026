@@ -9,6 +9,22 @@ jobs:
   stage:
     name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://howdy:howdy@localhost:5432/interview_coach
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: howdy
+          POSTGRES_PASSWORD: howdy
+          POSTGRES_DB: interview_coach
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U howdy -d interview_coach"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     strategy:
       fail-fast: false
       matrix:
@@ -39,10 +55,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - if: matrix.browser
         run: pnpm exec playwright install --with-deps chromium
+      - if: matrix.browser
+        run: pnpm prisma migrate deploy && pnpm prisma db seed
       - run: ${{ matrix.command }}
         env:
           REVIEW_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           TEST_ALL: "1"
+          DATABASE_URL: postgresql://howdy:howdy@localhost:5432/interview_coach
 
   verify:
     name: verify

@@ -19,7 +19,7 @@ end-to-end adaptive loop are the current milestone.
 
 1. An engineering manager enters the seeded demo portal (`/login`) and selects a
    fictional opportunity with a candidate practice link. This is not production
-   authentication or persisted opportunity configuration.
+   authentication. Opportunity and candidate configuration is stored in Postgres.
 2. The candidate opens the shareable practice link (`/practice/[sessionId]`)
    directly without requiring an account or login.
 3. The candidate completes planned questions in text within the allowed 2-attempt
@@ -140,8 +140,10 @@ verification. See `SYSTEM.md` for ownership, context, and evidence rules.
 - Audio recording/transcription is optional and deferred.
 - Production authentication is deferred. `/login` is only a seeded demo entry for
   the manager-side story; candidates do not authenticate.
-- Email delivery, Postgres, ORM/migrations, live Howdy integrations/data, and
-  whiteboarding are deferred.
+- Email delivery, live Howdy integrations/data, and whiteboarding are deferred.
+  Manager opportunity/candidate configuration is stored in Postgres via Prisma.
+  Interview transcripts, attempt enforcement, and production authentication stay
+  deferred.
 - No live model call may run in `pnpm run verify` or CI.
 - This is interview-performance coaching, not production candidate vetting.
 

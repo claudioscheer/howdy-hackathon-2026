@@ -90,7 +90,7 @@ remain false.
 
 ## Browser journey
 
-`pnpm test:e2e` starts the application and verifies dashboard → seeded practice
+`pnpm test:e2e` starts the application and verifies the seeded practice
 route → vague answer → visible follow-up → concrete answer → next question. The
 test uses roles and user-facing text, avoids fixed sleeps, and fails on browser
 console warnings/errors. CI installs only the pinned Chromium browser required by

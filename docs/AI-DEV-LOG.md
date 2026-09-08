@@ -8,6 +8,23 @@ with no new human prompt in the middle of that loop. Keep it short. Add a note o
 
 ---
 
+## 2026-09-08 — Dashboard Prisma wiring failed the gate twice, then passed
+
+**Act.** Connected `/dashboard` to Postgres through Prisma and added `/dashboard/new`
+to insert an opportunity and candidate.
+
+**Verify / observe.** `pnpm run verify` failed typecheck on Zod 4's missing
+`SafeParseReturnType`, then harness review because `lib/db/opportunity-item.ts`
+had no colocated test. The next build prerendered `/dashboard/new` and crashed:
+the create form imported initial state from a `"use server"` file, so `errors`
+was undefined.
+
+**Fix / verify again.** Switched the parse return type to `z.ZodSafeParseResult`,
+added `opportunity-item.test.ts`, and moved `INITIAL_CREATE_OPPORTUNITY_STATE`
+into `lib/db/opportunity-input.ts`. `pnpm run verify` then passed.
+
+---
+
 ## 2026-09-07 — Two-attempt preflight exposed a stale harness assumption
 
 **Act.** Standardized the shared runtime constant on the approved two-attempt
