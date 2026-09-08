@@ -2,8 +2,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { InterviewEngine } from "./engine";
-import { EvalFixtureSchema } from "./fixtures";
+import { inspectBehavior } from "./behavior";
+import { EvalScenarioSchema } from "./fixtures";
 import {
   buildLayer0Proofs,
   collectFailedProofs,
@@ -11,154 +11,151 @@ import {
   evaluateSuite,
   loadSuites,
   runHarness,
+  scenarioFailure,
 } from "./run";
 
 const repoRoot = path.resolve(import.meta.dirname, "../..");
 
-describe("loadSuites", () => {
-  it("records a load failure for invalid JSON", () => {
+describe("harness runner", () => {
+  it("loads suites and records invalid JSON", () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "suites-"));
     fs.mkdirSync(path.join(root, "evals/goldens"), { recursive: true });
     fs.writeFileSync(path.join(root, "evals/goldens/bad.json"), "{");
-    const loaded = loadSuites(root);
-    expect(loaded.failures.length).toBeGreaterThan(0);
-    expect(loaded.goldens).toEqual([]);
-  });
-});
-
-describe("evaluateSuite", () => {
-  it("records a failure when the expected decision does not match", async () => {
-    const fixture = EvalFixtureSchema.parse({
-      id: "mismatch",
-      description: "Expects MOVE_ON on a vague answer",
-      input: {
-        opportunity: {
-          id: "fictional-role",
-          role: "Engineer",
-          seniority: "Senior",
-          targetTechStack: ["Go"],
-          interviewType: "technical",
-        },
-        question: {
-          id: "q1",
-          prompt: "Tell me about a recent project.",
-          primaryDimension: "specificity",
-        },
-        answer: "I always communicate well with stakeholders.",
-        history: [],
-      },
-      expected: { decision: "MOVE_ON" },
-    });
-    const result = await evaluateSuite(
-      "golden",
-      [fixture],
-      new InterviewEngine({
-        evaluate: async () => ({
-          decision: "FOLLOW_UP",
-          dimension: "specificity",
-          followUp: "Give one example.",
-          reason: "Too generic to move on.",
-        }),
-      }),
-    );
-    expect(result.failures).toHaveLength(1);
-    expect(result.cases[0]?.pass).toBe(false);
+    expect(loadSuites(root).failures[0]).toMatch(/Failed to load/);
   });
 
-  it("omits dimension in the failure text when the decision has none", async () => {
-    const fixture = EvalFixtureSchema.parse({
-      id: "no-dimension",
-      description: "Expects FOLLOW_UP, provider returns MOVE_ON",
-      input: {
-        opportunity: {
-          id: "fictional-role",
-          role: "Engineer",
-          seniority: "Senior",
-          targetTechStack: ["Go"],
-          interviewType: "technical",
-        },
-        question: {
-          id: "q1",
-          prompt: "Tell me about a recent project.",
-          primaryDimension: "specificity",
-        },
-        answer: "We cut p99 from 800ms to 80ms.",
-        history: [],
-      },
-      expected: { decision: "FOLLOW_UP", dimension: "specificity" },
-    });
-    const result = await evaluateSuite(
-      "golden",
-      [fixture],
-      new InterviewEngine({
-        evaluate: async () => ({
-          decision: "MOVE_ON",
-          reason: "Concrete enough to move on.",
-        }),
-      }),
-    );
-    expect(result.failures[0]).toMatch(/dimension= final=/);
-  });
-});
-
-describe("errorMessage", () => {
-  it("uses Error.message or a fallback", () => {
+  it("formats errors and failed proofs", () => {
     expect(errorMessage(new Error("boom"))).toBe("boom");
     expect(errorMessage("nope")).toBe("unknown error");
-  });
-});
-
-describe("collectFailedProofs", () => {
-  it("lists only failing proofs", () => {
     expect(
       collectFailedProofs({
-        ok: { pass: true, evidence: "ok" },
-        bad: { pass: false, evidence: "nope" },
+        good: { pass: true, evidence: "yes" },
+        bad: { pass: false, evidence: "no" },
       }),
-    ).toEqual(["bad failed: nope"]);
+    ).toEqual(["bad failed: no"]);
   });
-});
 
-describe("buildLayer0Proofs", () => {
-  it("proves layer 0 on the real repo", () => {
-    const proofs = buildLayer0Proofs(repoRoot);
-    expect(proofs["ACC-L0-SCHEMA"]?.pass).toBe(true);
-    expect(proofs["ACC-UI-LANDING"]?.pass).toBe(true);
-    expect(proofs["ACC-UI-LOGIN"]?.pass).toBe(true);
+  it("records a mismatched scenario failure", async () => {
+    const mismatch = EvalScenarioSchema.parse({
+      id: "mismatch",
+      description: "Impossible expected transition.",
+      steps: [
+        {
+          answer: "I led a TypeScript migration that cut errors by 30 percent.",
+          expected: {
+            outcome: "APPLIED",
+            recommendedDecision: "FOLLOW_UP",
+            questionIndex: 0,
+            followUpCount: 1,
+            historyLength: 3,
+            status: "AWAITING_ANSWER",
+          },
+        },
+      ],
+    });
+    const result = await evaluateSuite("golden", [mismatch]);
+    expect(result.cases[0]?.pass).toBe(false);
+    expect(result.failures[0]).toMatch(/mismatch/);
+    expect(
+      scenarioFailure("golden", {
+        scenario: mismatch,
+        steps: [],
+        pass: false,
+      }),
+    ).toMatch(/transitions/);
   });
-});
 
-describe("runHarness", () => {
-  it("passes the repo evals when change review is skipped", async () => {
+  it("detects each runtime behavior only in passed traces", () => {
+    const behavior = inspectBehavior([
+      {
+        id: "all",
+        suite: "golden",
+        description: "all",
+        evaluator: "SCRIPTED",
+        pass: true,
+        steps: [
+          {
+            outcome: "APPLIED",
+            recommendedDecision: "FOLLOW_UP",
+            dimension: "specificity",
+            questionIndex: 0,
+            followUpCount: 1,
+            historyLength: 3,
+            status: "AWAITING_ANSWER",
+            stateUnchanged: false,
+          },
+          {
+            outcome: "APPLIED",
+            recommendedDecision: "FOLLOW_UP",
+            dimension: "specificity",
+            questionIndex: 0,
+            followUpCount: 2,
+            historyLength: 5,
+            status: "AWAITING_ANSWER",
+            stateUnchanged: false,
+          },
+          {
+            outcome: "APPLIED",
+            recommendedDecision: "FOLLOW_UP",
+            dimension: "specificity",
+            questionIndex: 1,
+            followUpCount: 0,
+            historyLength: 7,
+            status: "AWAITING_ANSWER",
+            stateUnchanged: false,
+          },
+          {
+            outcome: "APPLIED",
+            recommendedDecision: "MOVE_ON",
+            questionIndex: 1,
+            followUpCount: 0,
+            historyLength: 5,
+            status: "AWAITING_ANSWER",
+            stateUnchanged: false,
+          },
+          {
+            outcome: "REJECTED",
+            questionIndex: 0,
+            followUpCount: 0,
+            historyLength: 1,
+            status: "AWAITING_ANSWER",
+            stateUnchanged: true,
+          },
+        ],
+      },
+    ]);
+    expect(Object.values(behavior).every(Boolean)).toBe(true);
+    expect(inspectBehavior([]).adaptivePath).toBe(false);
+  });
+
+  it("runs the real repository harness and keeps deferred criteria false", async () => {
+    expect(buildLayer0Proofs(repoRoot)["ACC-L0-RUNTIME-CONTRACTS"]?.pass).toBe(
+      true,
+    );
     const result = await runHarness({
       rootDir: repoRoot,
       changedFiles: [],
-      now: () => new Date("2026-09-03T00:00:00.000Z"),
+      now: () => new Date("2026-09-07T00:00:00.000Z"),
     });
     expect(result.ok).toBe(true);
-    expect(result.trace.timestamp).toBe("2026-09-03T00:00:00.000Z");
-    expect(result.trace.layer1.totalGoldens).toBeGreaterThanOrEqual(7);
-    expect(result.trace.layer1.totalHoldouts).toBeGreaterThanOrEqual(3);
-    expect(result.trace.sensitivity.alwaysMoveOnRejected).toBe(true);
-    expect(result.trace.sensitivity.alwaysFollowUpRejected).toBe(true);
+    expect(result.trace.runtime).toBe("lib/interview");
+    expect(result.trace.layer1).toMatchObject({
+      passedGoldens: 3,
+      totalGoldens: 3,
+      holdoutsPassed: 1,
+      totalHoldouts: 1,
+      adaptivePath: true,
+      secondFollowUp: true,
+      deterministicCap: true,
+      malformedOutputSafe: true,
+    });
+    expect(result.proofs["ACC-PRODUCT-ADAPTIVE-INTERVIEW"]?.pass).toBe(true);
   });
 
-  it("uses the system clock when now is omitted", async () => {
-    const result = await runHarness({
-      rootDir: repoRoot,
-      changedFiles: [],
-    });
-    expect(result.trace.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
-  });
-
-  it("fails when evals are missing", async () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "harness-"));
-    fs.mkdirSync(path.join(root, "evals/goldens"), { recursive: true });
-    const result = await runHarness({
-      rootDir: root,
-      changedFiles: [],
-    });
+  it("fails when suites are absent and uses the system clock", async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "missing-suites-"));
+    const result = await runHarness({ rootDir: root, changedFiles: [] });
     expect(result.ok).toBe(false);
-    expect(result.failures.length).toBeGreaterThan(0);
+    expect(result.trace.timestamp).toMatch(/^\d{4}-/);
   });
 });

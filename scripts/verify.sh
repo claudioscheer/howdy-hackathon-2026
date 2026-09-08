@@ -69,6 +69,14 @@ if [ "$failed" -ne 0 ]; then
   exit 2
 fi
 
+if pnpm run test:e2e >"$tmp_dir/e2e.log" 2>&1; then
+  printf "  ✓ browser journey\n"
+else
+  printf "  ✗ browser journey\n"
+  cat "$tmp_dir/e2e.log"
+  echo "verify failed"
+  exit 2
+fi
+
 echo "verify passed"
 exit 0
-

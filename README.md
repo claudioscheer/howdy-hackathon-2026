@@ -5,9 +5,10 @@ should notice vague, irrelevant, weak, or poorly structured answers, follow up
 under pressure, and produce transcript-grounded feedback.
 
 Built for Howdy Dev Day 2026. The repository currently contains the landing page,
-stable runtime contracts, and verification foundation. The end-to-end interview
-product is the next milestone and is not represented as complete in
-`acceptance.json`.
+a seeded manager-entry/dashboard facade, stable runtime contracts, and the
+verification foundation. The candidate practice route and adaptive loop are the
+current milestone and are not represented as complete in `acceptance.json` until
+the product runtime and browser journey prove them.
 
 ## Requirements
 
@@ -30,6 +31,7 @@ an optional future scaffold and should not be started for the current build.
 
 ```bash
 pnpm install
+pnpm exec playwright install chromium
 pnpm dev
 ```
 
@@ -42,13 +44,17 @@ the deferred Postgres scaffold.
 
 ```bash
 pnpm test
+pnpm test:affected
+pnpm test:e2e
 pnpm run verify
 ```
 
-`pnpm run verify` is the only completion gate. It runs formatting, production
-build/typecheck, lint, 100% unit coverage, synthetic behavioral fixtures,
-sensitivity checks, and deterministic changed-file review. It exits nonzero and
-prints the failing stage when work is not ready.
+`pnpm test` always runs the complete unit suite. `pnpm test:affected` is an
+optional fast local loop. `pnpm run verify` is the only completion gate. It runs
+formatting, production build/typecheck, lint, the complete unit suite with
+coverage, synthetic behavioral fixtures, sensitivity checks, deterministic
+changed-file review, and the repository-owned Playwright journey. It exits
+nonzero and prints the failing stage when work is not ready.
 
 Behavioral verification uses reviewed goldens plus independently worded holdouts.
 It also proves that trivial always-`MOVE_ON` and always-`FOLLOW_UP` providers

@@ -10,7 +10,7 @@ import {
 } from "./contracts";
 
 export const MAX_FOLLOW_UPS_PER_QUESTION = 2;
-export const MAX_SESSION_ATTEMPTS = 3;
+export const MAX_SESSION_ATTEMPTS = 2;
 
 export const SessionStatusSchema = z.enum([
   "PLANNED",

@@ -1,30 +1,31 @@
 import fs from "node:fs";
 import path from "node:path";
+import { type ScenarioRun } from "./engine";
 import { type Proof } from "./contracts";
-import { type EvalFixture } from "./fixtures";
-import { type EvaluationResult } from "./engine";
 import { type ReviewReport } from "./review";
 
 export interface CaseTrace {
   id: string;
   suite: "golden" | "holdout";
-  input: EvalFixture["input"];
-  expected: EvalFixture["expected"];
-  decision: string;
-  dimension: string | null;
-  finalDecision: string;
-  isCapped: boolean;
+  description: string;
+  evaluator: "SCRIPTED" | "MALFORMED";
+  steps: ScenarioRun["steps"];
   pass: boolean;
 }
 
 export interface EvalTrace {
   timestamp: string;
+  runtime: "lib/interview";
   layer0: Record<string, boolean>;
   layer1: {
     passedGoldens: number;
     totalGoldens: number;
     holdoutsPassed: number;
     totalHoldouts: number;
+    adaptivePath: boolean;
+    secondFollowUp: boolean;
+    deterministicCap: boolean;
+    malformedOutputSafe: boolean;
   };
   sensitivity: {
     alwaysMoveOnRejected: boolean;
@@ -98,23 +99,15 @@ export const ACCEPTANCE_SPECS: Array<
 
 export function buildCaseTrace(
   suite: CaseTrace["suite"],
-  fixture: EvalFixture,
-  result: EvaluationResult,
-  pass: boolean,
+  run: ScenarioRun,
 ): CaseTrace {
   return {
-    id: fixture.id,
+    id: run.scenario.id,
     suite,
-    input: fixture.input,
-    expected: fixture.expected,
-    decision: result.decision.decision,
-    dimension:
-      result.decision.decision === "FOLLOW_UP"
-        ? result.decision.dimension
-        : null,
-    finalDecision: result.finalDecision,
-    isCapped: result.isCapped,
-    pass,
+    description: run.scenario.description,
+    evaluator: run.scenario.evaluator,
+    steps: run.steps,
+    pass: run.pass,
   };
 }
 

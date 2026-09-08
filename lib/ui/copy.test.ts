@@ -35,8 +35,9 @@ describe("landing copy", () => {
     expect(DASHBOARD_PAGE.createButton).toBe("Create Opportunity");
     expect(DASHBOARD_PAGE.generateLinkButton).toBe("Generate Link");
     expect(DASHBOARD_PAGE.badge).toBe("DEV DAY 2026 // EM PORTAL");
+    expect(DASHBOARD_PAGE.disclaimer).toContain("two-attempt product policy");
     expect(DASHBOARD_PAGE.disclaimer).toContain(
-      "Practice links expire after two attempts or after one week.",
+      "expiration enforcement are not included yet",
     );
   });
 });

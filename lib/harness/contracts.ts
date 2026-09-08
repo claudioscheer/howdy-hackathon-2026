@@ -1,11 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import {
-  blankAnswerDecision,
   InterviewerDecisionSchema,
-  isBlankAnswer,
-  MAX_FOLLOW_UPS_PER_QUESTION,
-  resolveDecisionWithPolicy,
   validateTranscriptGrounding,
 } from "./schema";
 import { validateLandingDesign } from "./design";
@@ -86,52 +82,6 @@ export function proveGroundingContract(): Proof {
     pass: grounded.valid && !fabricated.valid && !emptyQuote.valid,
     evidence:
       "lib/harness/schema.ts#validateTranscriptGrounding (substring pass, fabricated fail, empty fail)",
-  };
-}
-
-export function proveStateCapContract(): Proof {
-  const capped = resolveDecisionWithPolicy(
-    {
-      decision: "FOLLOW_UP",
-      dimension: "specificity",
-      followUp: "Can you be more concrete?",
-      reason: "Candidate was vague.",
-    },
-    {
-      questionId: "q1",
-      followUpCount: MAX_FOLLOW_UPS_PER_QUESTION,
-      isComplete: false,
-    },
-  );
-  const underCap = resolveDecisionWithPolicy(
-    {
-      decision: "FOLLOW_UP",
-      dimension: "specificity",
-      followUp: "Can you be more concrete?",
-      reason: "Candidate was vague.",
-    },
-    { questionId: "q1", followUpCount: 0, isComplete: false },
-  );
-  return {
-    pass:
-      capped.finalDecision === "MOVE_ON" &&
-      capped.isCapped &&
-      underCap.finalDecision === "FOLLOW_UP" &&
-      !underCap.isCapped,
-    evidence: "lib/harness/schema.ts#resolveDecisionWithPolicy",
-  };
-}
-
-export function proveEmptyAnswerContract(): Proof {
-  const decision = blankAnswerDecision();
-  return {
-    pass:
-      isBlankAnswer("") &&
-      isBlankAnswer("   ") &&
-      !isBlankAnswer("I shipped it.") &&
-      decision.decision === "FOLLOW_UP" &&
-      decision.dimension === "specificity",
-    evidence: "lib/harness/schema.ts#blankAnswerDecision",
   };
 }
 

@@ -39,6 +39,9 @@ describe("DashboardPage", () => {
     expect(screen.getByTestId("status-badge-opp-2")).toHaveTextContent(
       "Active",
     );
-    expect(screen.getByTestId("action-link-opp-2")).not.toBeDisabled();
+    expect(screen.getByTestId("action-link-opp-2")).toHaveAttribute(
+      "href",
+      "/practice/fullstack-product-engineer",
+    );
   });
 });

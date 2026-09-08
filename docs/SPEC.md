@@ -11,14 +11,15 @@ The memorable behavior is:
 > It does not just ask interview questions. It notices when you are getting away
 > with a bad answer.
 
-The product is currently in its foundation phase. Runtime contracts and the
-verification harness exist; the end-to-end interview experience does not yet.
+The product currently has a landing page, seeded manager-entry/dashboard facade,
+runtime contracts, and a verification harness. The candidate practice route and
+end-to-end adaptive loop are the current milestone.
 
 ## Core user journey
 
-1. An engineering manager (EM) logs in via the manager portal (`/login`) to
-   configure a role opportunity and generate a disposable candidate practice link
-   governed by the expiration rule: exactly two attempts max and a one-week (7 days) TTL.
+1. An engineering manager enters the seeded demo portal (`/login`) and selects a
+   fictional opportunity with a candidate practice link. This is not production
+   authentication or persisted opportunity configuration.
 2. The candidate opens the shareable practice link (`/practice/[sessionId]`)
    directly without requiring an account or login.
 3. The candidate completes planned questions in text within the allowed 2-attempt
@@ -28,23 +29,17 @@ verification harness exist; the end-to-end interview experience does not yet.
 5. The loop continues until the configured questions are complete.
 6. The candidate receives a report grounded in exact transcript excerpts and can
    export their scorecard results.
-7. Candidate link expiration: the practice link automatically expires after two
-   attempts or after one week (7 calendar days), whichever comes first. Once
-   expired, candidate access is permanently revoked. Candidates do not maintain
-   persistent cross-opportunity progress profiles since practice opportunities are
-   role-specific and disposable; session outcomes remain accessible to the
-   engineering manager.
+7. The canonical hackathon policy is exactly two attempts. Persistence, link
+   security, and TTL enforcement are deferred; seeded UI copy may preview that
+   future policy but must not claim it is enforced in this milestone.
 
 ## Required behavior
 
 ### Session configuration (Engineering Manager)
 
-- Manager access (`/login`): Engineering managers enter to configure fictional
-  opportunities, interview rubrics, and candidate access links.
-- Link generation: Produces tokenized, shareable candidate session routes
-  (e.g. `/practice/[sessionId]`) with an explicit expiration policy: exactly two
-  attempts max and a one-week (7 days) TTL, after which the link automatically
-  expires.
+- Manager access (`/login`): a seeded demo entry into fictional opportunities;
+  it is explicitly not production authentication.
+- Candidate route: active seeded opportunities open `/practice/[sessionId]`.
 - Candidate zero-auth: Candidates never log in; their access is strictly link-driven
   and disposable.
 - Exportable candidate reports: Candidates can export their grounded feedback
@@ -93,7 +88,7 @@ transcript.
 ### Retry and comparison
 
 - Exactly two attempts are supported per disposable candidate link.
-- Links expire automatically after two attempts or after one week (7 calendar days).
+- Persistence and automatic link expiration are deferred from the current milestone.
 - Planning receives the questions used in earlier attempts.
 - The comparison contrasts the second attempt with the first report.
 
@@ -143,9 +138,8 @@ verification. See `SYSTEM.md` for ownership, context, and evidence rules.
 - The build must remain achievable within hackathon hours.
 - Typed answers are the only required input mode.
 - Audio recording/transcription is optional and deferred.
-- Authentication and login are intentionally dismissed for this phase; engineering
-  focus remains entirely on validating core feature capabilities (adaptive
-  questioning, back pressure, and transcript-grounded coaching) without auth friction.
+- Production authentication is deferred. `/login` is only a seeded demo entry for
+  the manager-side story; candidates do not authenticate.
 - Email delivery, Postgres, ORM/migrations, live Howdy integrations/data, and
   whiteboarding are deferred.
 - No live model call may run in `pnpm run verify` or CI.
@@ -182,6 +176,6 @@ the user journey uses browser tests.
       evidence from development.
 - [ ] The application is deployed and the three-minute demo story is rehearsable.
 
-Audio and user authentication/login are explicitly dismissed from the definition
-of done. Access is open and link-driven to prioritize verifying core interview and
+Audio and production authentication are explicitly dismissed from the definition
+of done. Access is seeded and link-driven to prioritize the core interview and
 coaching features.

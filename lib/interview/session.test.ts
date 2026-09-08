@@ -34,7 +34,7 @@ describe("session state contract", () => {
       SessionStateSchema.safeParse({ ...state, followUpCount: 3 }).success,
     ).toBe(false);
     expect(
-      SessionStateSchema.safeParse({ ...state, attemptNumber: 4 }).success,
+      SessionStateSchema.safeParse({ ...state, attemptNumber: 3 }).success,
     ).toBe(false);
   });
 

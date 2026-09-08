@@ -8,6 +8,39 @@ with no new human prompt in the middle of that loop. Keep it short. Add a note o
 
 ---
 
+## 2026-09-07 — Two-attempt preflight exposed a stale harness assumption
+
+**Act.** Standardized the shared runtime constant on the approved two-attempt
+hackathon policy and changed the canonical local test command to run the full
+suite.
+
+**Verify / observe.** `pnpm run verify` ran all tests and failed because
+`lib/harness/schema.test.ts` still asserted three attempts.
+
+**Fix / verify again.** Updated the stale test to assert attempt 1 is retryable
+and attempt 2 is final. The next complete deterministic gate passed before the
+contracts were frozen and parallel work began. No human prompt occurred inside
+the loop.
+
+---
+
+## 2026-09-07 — Cross-workstream review returned a missing product lock
+
+**Act.** Engine, UI, and Evaluation contexts implemented independent paths against
+the frozen session API. Evaluation ran the changed-file review on the combined
+tree.
+
+**Verify / observe.** The review rejected the UI handoff because
+`app/practice/[sessionId]/practice-view.tsx` lacked its required colocated test.
+
+**Fix / verify again.** The finding was routed to the UI owner with only the
+failing path and contract. It added `practice-view.test.tsx`; the first focused
+run also surfaced a jsdom `requestSubmit` warning, which the owner corrected.
+The rerun passed 49 UI tests with 100% scoped coverage, and the combined harness
+review returned no findings. No human prompt occurred inside the recovery loop.
+
+---
+
 ## 2026-09-04 — Barlow lead font broke unit tests
 
 **Act.** Set the landing sell line in italic Barlow so it sits apart from the uppercase question.

@@ -1,74 +1,79 @@
-import { decideStub } from "./heuristics";
+import { type AnswerEvaluator } from "../interview/contracts";
+import { sessionReducer } from "../interview/reducer";
+import { createSeededSession } from "../interview/seed";
+import { type SessionState } from "../interview/session";
+import { submitAnswer } from "../interview/turn";
 import {
-  blankAnswerDecision,
-  type EvaluationInput,
-  type InterviewerDecision,
-  InterviewerDecisionSchema,
-  isBlankAnswer,
-  type QuestionState,
-  resolveDecisionWithPolicy,
-} from "./schema";
+  type EvalScenario,
+  type ScenarioStep,
+  type StepObservation,
+} from "./fixtures";
 
-export type { EvaluationInput };
-
-export interface EvaluationResult {
-  decision: InterviewerDecision;
-  finalDecision: "FOLLOW_UP" | "MOVE_ON";
-  isCapped: boolean;
-  rawOutput?: unknown;
+export interface ScenarioRun {
+  scenario: EvalScenario;
+  steps: StepObservation[];
+  pass: boolean;
 }
 
-export interface DecisionProvider {
-  evaluate(input: EvaluationInput): Promise<unknown>;
+function unchangedState(left: SessionState, right: SessionState): boolean {
+  return JSON.stringify(left) === JSON.stringify(right);
 }
 
-export class DeterministicStubProvider implements DecisionProvider {
-  private readonly stubMap = new Map<string, InterviewerDecision>();
-
-  registerStub(answerSubstring: string, decision: InterviewerDecision): void {
-    this.stubMap.set(answerSubstring.toLowerCase(), decision);
-  }
-
-  async evaluate(input: EvaluationInput): Promise<unknown> {
-    const answer = input.answer.toLowerCase();
-
-    for (const [key, decision] of this.stubMap.entries()) {
-      if (answer.includes(key)) {
-        return decision;
-      }
-    }
-
-    return decideStub(input);
-  }
+export function stepMatchesExpected(
+  step: ScenarioStep,
+  observation: StepObservation,
+): boolean {
+  const expected = step.expected;
+  return (
+    observation.outcome === expected.outcome &&
+    (expected.recommendedDecision === undefined ||
+      observation.recommendedDecision === expected.recommendedDecision) &&
+    (expected.dimension === undefined ||
+      observation.dimension === expected.dimension) &&
+    observation.questionIndex === expected.questionIndex &&
+    observation.followUpCount === expected.followUpCount &&
+    observation.historyLength === expected.historyLength &&
+    observation.status === expected.status &&
+    (expected.stateUnchanged === undefined ||
+      observation.stateUnchanged === expected.stateUnchanged)
+  );
 }
 
-export class InterviewEngine {
-  constructor(private readonly provider: DecisionProvider) {}
+export async function runScenario(
+  scenario: EvalScenario,
+  evaluator: AnswerEvaluator,
+): Promise<ScenarioRun> {
+  let state = sessionReducer(createSeededSession(), { type: "START_SESSION" });
+  const observations: StepObservation[] = [];
 
-  async evaluateTurn(
-    input: EvaluationInput,
-    currentState: QuestionState,
-  ): Promise<EvaluationResult> {
-    const rawResult = isBlankAnswer(input.answer)
-      ? blankAnswerDecision()
-      : await this.provider.evaluate(input);
-    const parsed = InterviewerDecisionSchema.safeParse(rawResult);
-    if (!parsed.success) {
-      throw new Error(
-        `Layer 0 Contract Violation: Invalid decision schema from provider: ${JSON.stringify(
-          parsed.error.format(),
-        )}`,
-      );
-    }
-
-    const decision = parsed.data;
-    const policyResult = resolveDecisionWithPolicy(decision, currentState);
-
-    return {
-      decision,
-      finalDecision: policyResult.finalDecision,
-      isCapped: policyResult.isCapped,
-      rawOutput: rawResult,
+  for (const step of scenario.steps) {
+    const before = state;
+    const result = await submitAnswer(state, step.answer, evaluator);
+    state = result.state;
+    const observation: StepObservation = {
+      outcome: result.ok ? "APPLIED" : "REJECTED",
+      recommendedDecision: result.ok ? result.decision.decision : undefined,
+      dimension:
+        result.ok && result.decision.decision === "FOLLOW_UP"
+          ? result.decision.dimension
+          : undefined,
+      questionIndex: state.questionIndex,
+      followUpCount: state.followUpCount,
+      historyLength: state.history.length,
+      status: state.status,
+      stateUnchanged: unchangedState(before, state),
     };
+    observations.push(observation);
   }
+
+  return {
+    scenario,
+    steps: observations,
+    pass: scenario.steps.every((step, index) => {
+      const observation = observations[index];
+      return (
+        observation !== undefined && stepMatchesExpected(step, observation)
+      );
+    }),
+  };
 }

@@ -1,0 +1,43 @@
+{
+  "id": "follow-up-cap",
+  "description": "Two weak answers receive continued pressure and a third FOLLOW_UP recommendation cannot override the deterministic cap",
+  "evaluator": "SCRIPTED",
+  "steps": [
+    {
+      "answer": "I am a strong collaborator on projects.",
+      "expected": {
+        "outcome": "APPLIED",
+        "recommendedDecision": "FOLLOW_UP",
+        "dimension": "specificity",
+        "questionIndex": 0,
+        "followUpCount": 1,
+        "historyLength": 3,
+        "status": "AWAITING_ANSWER"
+      }
+    },
+    {
+      "answer": "I make sure the whole team works together.",
+      "expected": {
+        "outcome": "APPLIED",
+        "recommendedDecision": "FOLLOW_UP",
+        "dimension": "specificity",
+        "questionIndex": 0,
+        "followUpCount": 2,
+        "historyLength": 5,
+        "status": "AWAITING_ANSWER"
+      }
+    },
+    {
+      "answer": "I generally help people reach the right outcome.",
+      "expected": {
+        "outcome": "APPLIED",
+        "recommendedDecision": "FOLLOW_UP",
+        "dimension": "specificity",
+        "questionIndex": 1,
+        "followUpCount": 0,
+        "historyLength": 7,
+        "status": "AWAITING_ANSWER"
+      }
+    }
+  ]
+}

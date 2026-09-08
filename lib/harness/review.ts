@@ -1,4 +1,4 @@
-import { type EvalFixture } from "./fixtures";
+import { type EvalScenario } from "./fixtures";
 import {
   collectChangedFiles,
   mapFilesToCriteria,
@@ -7,8 +7,8 @@ import {
 import { reviewEvalSuite } from "./review-suite";
 
 export interface ReviewInput {
-  goldens: EvalFixture[];
-  holdouts: EvalFixture[];
+  goldens: EvalScenario[];
+  holdouts: EvalScenario[];
   rootDir: string;
   changedFiles?: string[];
 }
@@ -45,7 +45,7 @@ export {
 } from "./review-diff";
 export {
   answerSimilarityFailure,
-  dimensionCoverageFailures,
+  behaviorCoverageFailures,
   duplicateIdFailures,
   independenceFailures,
   MAX_HOLDOUT_JACCARD,

@@ -2,132 +2,103 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { type EvalFixture, EvalFixtureSchema } from "./fixtures";
+import { EvalScenarioSchema } from "./fixtures";
 import {
   ACCEPTANCE_SPECS,
   buildAcceptanceDocument,
   buildCaseTrace,
   countSuite,
   persistHarnessOutputs,
+  type EvalTrace,
 } from "./report";
 
-const fixture: EvalFixture = EvalFixtureSchema.parse({
+const scenario = EvalScenarioSchema.parse({
   id: "sample",
-  description: "Report fixture",
-  input: {
-    opportunity: {
-      id: "fictional-role",
-      role: "Engineer",
-      seniority: "Senior",
-      targetTechStack: ["Go"],
-      interviewType: "technical",
-    },
-    question: {
-      id: "q1",
-      prompt: "Tell me about a recent project.",
-      primaryDimension: "specificity",
-    },
-    answer: "We cut p99 from 800ms to 80ms.",
-    history: [],
-  },
-  expected: { decision: "MOVE_ON" },
-});
-
-describe("buildCaseTrace", () => {
-  it("records a null dimension when the decision has none", () => {
-    const trace = buildCaseTrace(
-      "golden",
-      fixture,
-      {
-        decision: { decision: "MOVE_ON", reason: "Concrete enough." },
-        finalDecision: "MOVE_ON",
-        isCapped: false,
+  description: "Sample trace.",
+  steps: [
+    {
+      answer: "An answer.",
+      expected: {
+        outcome: "APPLIED",
+        questionIndex: 1,
+        followUpCount: 0,
+        historyLength: 3,
+        status: "AWAITING_ANSWER",
       },
-      true,
-    );
-    expect(trace.dimension).toBeNull();
-    expect(trace.pass).toBe(true);
-  });
+    },
+  ],
 });
 
-describe("acceptance document", () => {
-  it("defaults unproven criteria to false", () => {
-    const doc = buildAcceptanceDocument({
+const caseTrace = buildCaseTrace("golden", {
+  scenario,
+  steps: [
+    {
+      outcome: "APPLIED",
+      questionIndex: 1,
+      followUpCount: 0,
+      historyLength: 3,
+      status: "AWAITING_ANSWER",
+      stateUnchanged: false,
+    },
+  ],
+  pass: true,
+});
+
+describe("harness report", () => {
+  it("builds traces and suite counts", () => {
+    expect(caseTrace.id).toBe("sample");
+    expect(countSuite([caseTrace], "golden")).toEqual({ passed: 1, total: 1 });
+    expect(countSuite([caseTrace], "holdout")).toEqual({ passed: 0, total: 0 });
+  });
+
+  it("defaults unproven acceptance criteria to false", () => {
+    const document = buildAcceptanceDocument({
       "ACC-RUNTIME-CONTRACTS": { pass: true, evidence: "contracts" },
     });
-    expect(doc.project).toBe("Howdy Interview Coach");
-    expect(doc.criteria).toHaveLength(ACCEPTANCE_SPECS.length);
-    expect(doc.criteria[0]?.passes).toBe(true);
-    expect(doc.criteria.some((item) => item.passes === false)).toBe(true);
-    expect(
-      doc.criteria.find((item) => item.id === "ACC-HARNESS-REVIEW")?.evidence,
-    ).toBe("not proven this run");
+    expect(document.criteria).toHaveLength(ACCEPTANCE_SPECS.length);
+    expect(document.criteria[0]?.passes).toBe(true);
+    expect(document.criteria[1]?.passes).toBe(false);
   });
-});
 
-describe("persistHarnessOutputs", () => {
-  it("writes trace and acceptance files", () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), "report-"));
-    persistHarnessOutputs(
-      root,
-      {
-        timestamp: "2026-09-03T00:00:00.000Z",
-        layer0: { schema: true },
-        layer1: {
-          passedGoldens: 1,
-          totalGoldens: 1,
-          holdoutsPassed: 0,
-          totalHoldouts: 0,
-        },
-        sensitivity: {
-          alwaysMoveOnRejected: true,
-          alwaysFollowUpRejected: true,
-        },
-        review: { findings: [], changedFiles: [], mappedCriteria: [] },
-        cases: [],
-        failures: [],
+  it("persists generated trace and acceptance evidence", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "harness-report-"));
+    const trace: EvalTrace = {
+      timestamp: "2026-09-07T00:00:00.000Z",
+      runtime: "lib/interview",
+      layer0: { schema: true },
+      layer1: {
+        passedGoldens: 1,
+        totalGoldens: 1,
+        holdoutsPassed: 0,
+        totalHoldouts: 0,
+        adaptivePath: true,
+        secondFollowUp: true,
+        deterministicCap: true,
+        malformedOutputSafe: true,
       },
-      {
-        "ACC-RUNTIME-CONTRACTS": { pass: true, evidence: "contracts" },
+      sensitivity: {
+        alwaysMoveOnRejected: true,
+        alwaysFollowUpRejected: true,
       },
-    );
+      review: { findings: [], changedFiles: [], mappedCriteria: [] },
+      cases: [caseTrace],
+      failures: [],
+    };
+    persistHarnessOutputs(root, trace, {
+      "ACC-PRODUCT-ADAPTIVE-INTERVIEW": {
+        pass: true,
+        evidence: "runtime trace",
+      },
+    });
     expect(
       fs.existsSync(path.join(root, "evals/traces/latest-eval.json")),
     ).toBe(true);
-    expect(fs.existsSync(path.join(root, "acceptance.json"))).toBe(true);
-  });
-});
-
-describe("countSuite", () => {
-  it("counts passes per suite", () => {
-    const cases = [
-      buildCaseTrace(
-        "golden",
-        fixture,
-        {
-          decision: { decision: "MOVE_ON", reason: "Concrete enough." },
-          finalDecision: "MOVE_ON",
-          isCapped: false,
-        },
-        true,
-      ),
-      buildCaseTrace(
-        "holdout",
-        fixture,
-        {
-          decision: {
-            decision: "FOLLOW_UP",
-            reason: "Too vague here.",
-            dimension: "specificity",
-            followUp: "Give one example.",
-          },
-          finalDecision: "FOLLOW_UP",
-          isCapped: false,
-        },
-        false,
-      ),
-    ];
-    expect(countSuite(cases, "golden")).toEqual({ passed: 1, total: 1 });
-    expect(countSuite(cases, "holdout")).toEqual({ passed: 0, total: 1 });
+    expect(
+      JSON.parse(
+        fs.readFileSync(path.join(root, "acceptance.json"), "utf8"),
+      ).criteria.find(
+        (item: { id: string }) => item.id === "ACC-PRODUCT-ADAPTIVE-INTERVIEW",
+      ).passes,
+    ).toBe(true);
   });
 });
