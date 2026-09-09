@@ -8,6 +8,19 @@ with no new human prompt in the middle of that loop. Keep it short. Add a note o
 
 ---
 
+## 2026-09-08 — OpenCode planner lint failed, then passed
+
+**Act.** Replaced placeholder question generation with an OpenCode Zen client
+and planner, keeping live model calls out of unit tests.
+
+**Verify / observe.** `pnpm run verify` failed lint: planner and JSON helper
+imports were values used only as types.
+
+**Fix / verify again.** Switched those imports to `import type`. The next
+`pnpm run verify` passed.
+
+---
+
 ## 2026-09-08 — Dashboard Prisma wiring failed the gate twice, then passed
 
 **Act.** Connected `/dashboard` to Postgres through Prisma and added `/dashboard/new`

@@ -1,6 +1,14 @@
 import type { PlannedQuestion, QuestionPrepStatus } from "@prisma/client";
+import {
+  OpportunityProfileSchema,
+  QuestionPlanSchema,
+} from "@/lib/interview/contracts";
+import {
+  createOpenCodeQuestionGenerator,
+  type QuestionBriefing,
+  type QuestionGenerator,
+} from "@/lib/interview/planner";
 import { getPrisma } from "./prisma";
-import { waitForQuestionPrep } from "./question-prep-wait";
 
 export async function listPlannedQuestions(
   opportunityId: string,
@@ -21,38 +29,61 @@ export async function getQuestionPrepStatus(
   return row?.questionPrepStatus ?? null;
 }
 
-function placeholderPrompts(): string[] {
-  // TODO: Call the question planner / LLM with the job description and
-  // candidate curriculum instead of these stand-in prompts.
-  return [
-    "Walk through a recent project that maps to this job description.",
-    "How would you approach the hardest requirement in this posting?",
-    "Tell me about a time your experience would transfer to this opportunity.",
-  ];
-}
-
-export async function generatePlaceholderQuestions(
+export async function generatePlannedQuestions(
   opportunityId: string,
+  generator: QuestionGenerator = createOpenCodeQuestionGenerator(),
 ): Promise<void> {
-  await getPrisma().opportunity.update({
+  const prisma = getPrisma();
+  await prisma.opportunity.update({
     where: { id: opportunityId },
     data: { questionPrepStatus: "generating" },
   });
-  await waitForQuestionPrep();
-  const prompts = placeholderPrompts();
-  await getPrisma().plannedQuestion.deleteMany({ where: { opportunityId } });
-  await getPrisma().plannedQuestion.createMany({
-    data: prompts.map((prompt, sortOrder) => ({
-      id: `question-${crypto.randomUUID()}`,
+  try {
+    const briefing = await loadQuestionBriefing(opportunityId);
+    const parsed = QuestionPlanSchema.safeParse(await generator.plan(briefing));
+    if (!parsed.success) {
+      throw new Error("The question planner returned an invalid plan.");
+    }
+    await savePlannedQuestions(
       opportunityId,
-      prompt,
-      sortOrder,
-    })),
-  });
-  await getPrisma().opportunity.update({
+      parsed.data.questions.map((question) => question.prompt),
+    );
+  } catch (error) {
+    await prisma.opportunity.update({
+      where: { id: opportunityId },
+      data: { questionPrepStatus: "idle" },
+    });
+    throw error;
+  }
+}
+
+export async function loadQuestionBriefing(
+  opportunityId: string,
+): Promise<QuestionBriefing> {
+  const row = await getPrisma().opportunity.findUnique({
     where: { id: opportunityId },
-    data: { questionPrepStatus: "ready" },
+    include: { candidate: true },
   });
+  if (row === null) {
+    throw new Error("Opportunity not found.");
+  }
+  const opportunity = OpportunityProfileSchema.safeParse({
+    id: row.id,
+    role: row.role,
+    seniority: row.seniority,
+    targetTechStack: row.targetTechStack,
+    interviewType: row.interviewType,
+  });
+  if (!opportunity.success) {
+    throw new Error("Opportunity is missing planner fields.");
+  }
+  return {
+    opportunity: opportunity.data,
+    attemptNumber: 1,
+    usedQuestions: [],
+    jobDescription: row.jobDescription,
+    curriculum: row.candidate?.curriculum ?? "",
+  };
 }
 
 export async function savePlannedQuestions(

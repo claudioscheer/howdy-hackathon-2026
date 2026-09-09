@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const generatePlaceholderQuestions = vi.hoisted(() => vi.fn());
+const generatePlannedQuestions = vi.hoisted(() => vi.fn());
 const savePlannedQuestions = vi.hoisted(() => vi.fn());
 const revalidatePath = vi.hoisted(() => vi.fn());
 const redirect = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/db/questions", () => ({
-  generatePlaceholderQuestions,
+  generatePlannedQuestions,
   savePlannedQuestions,
 }));
 
@@ -22,16 +22,16 @@ import { generateQuestionsAction, saveQuestionsAction } from "./actions";
 
 describe("question actions", () => {
   beforeEach(() => {
-    generatePlaceholderQuestions.mockReset();
+    generatePlannedQuestions.mockReset();
     savePlannedQuestions.mockReset();
     revalidatePath.mockReset();
     redirect.mockReset();
   });
 
-  it("generates placeholder questions and returns to review", async () => {
-    generatePlaceholderQuestions.mockResolvedValue(undefined);
+  it("generates planned questions and returns to review", async () => {
+    generatePlannedQuestions.mockResolvedValue(undefined);
     await generateQuestionsAction("opp-2");
-    expect(generatePlaceholderQuestions).toHaveBeenCalledWith("opp-2");
+    expect(generatePlannedQuestions).toHaveBeenCalledWith("opp-2");
     expect(redirect).toHaveBeenCalledWith("/dashboard/opp-2/questions");
   });
 

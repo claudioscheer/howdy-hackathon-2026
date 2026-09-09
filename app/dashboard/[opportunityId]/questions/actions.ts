@@ -3,14 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
-  generatePlaceholderQuestions,
+  generatePlannedQuestions,
   savePlannedQuestions,
 } from "@/lib/db/questions";
 
 export async function generateQuestionsAction(
   opportunityId: string,
 ): Promise<void> {
-  await generatePlaceholderQuestions(opportunityId);
+  await generatePlannedQuestions(opportunityId);
   revalidatePath(`/dashboard/${opportunityId}/questions`);
   revalidatePath("/dashboard");
   redirect(`/dashboard/${opportunityId}/questions`);
