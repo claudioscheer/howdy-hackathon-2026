@@ -53,6 +53,19 @@ describe("completionText", () => {
         ],
       }),
     ).toBe('{"ok":true}');
+    expect(
+      completionText({
+        choices: [
+          {
+            finish_reason: "stop",
+            message: {
+              content: "",
+              reasoning_content: "plain reasoning prose",
+            },
+          },
+        ],
+      }),
+    ).toBe("plain reasoning prose");
   });
 
   it("names the finish reason when both content fields are empty", () => {

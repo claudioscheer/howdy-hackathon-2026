@@ -1,7 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useEffect, useActionState } from "react";
 import { useFormStatus } from "react-dom";
+import { useRouter } from "next/navigation";
+import { QUESTION_POLL_INTERVAL_MS } from "@/lib/db/question-prep-wait";
 import { QUESTIONS_PAGE } from "@/lib/ui/copy";
 import { generateQuestionsAction } from "./actions";
 
@@ -21,10 +23,14 @@ function GenerateSubmit(): React.JSX.Element {
 
 export function GenerateQuestionsPanel({
   opportunityId,
+  initialError,
 }: {
   opportunityId: string;
+  initialError?: string;
 }): React.JSX.Element {
-  const [state, action] = useActionState(generateQuestionsAction, {});
+  const [state, action] = useActionState(generateQuestionsAction, {
+    error: initialError,
+  });
   return (
     <form
       data-testid="generate-questions-form"
@@ -57,7 +63,22 @@ export function GenerateQuestionsPanel({
   );
 }
 
-export function GeneratingQuestionsStatus(): React.JSX.Element {
+export function GeneratingQuestionsStatus({
+  intervalMs = QUESTION_POLL_INTERVAL_MS,
+}: {
+  intervalMs?: number;
+} = {}): React.JSX.Element {
+  const router = useRouter();
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      router.refresh();
+    }, intervalMs);
+    return () => {
+      clearInterval(timer);
+    };
+  }, [router, intervalMs]);
+
   return (
     <div
       data-testid="generating-questions-status"

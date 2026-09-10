@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { parseInterviewerBrief } from "@/lib/interview/brief";
 import { CREATE_OPPORTUNITY_PAGE, QUESTIONS_PAGE } from "@/lib/ui/copy";
 import { practicePath } from "@/lib/db/opportunity-item";
+import { getGenerationError } from "@/lib/db/question-generation";
 import {
   getOpportunityQuestionPrep,
   listPlannedQuestions,
@@ -74,7 +75,10 @@ export default async function QuestionsPage({
         ) : null}
         {prep.status === "generating" ? <GeneratingQuestionsStatus /> : null}
         {showGenerate ? (
-          <GenerateQuestionsPanel opportunityId={opportunityId} />
+          <GenerateQuestionsPanel
+            opportunityId={opportunityId}
+            initialError={getGenerationError(opportunityId)}
+          />
         ) : null}
         {showReview ? (
           <ReviewQuestionsForm

@@ -3,11 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { draftsFromFormData } from "@/lib/db/question-drafts";
+import { startQuestionGeneration } from "@/lib/db/question-generation";
 import { planSettingsFromForm } from "@/lib/db/question-plan";
-import {
-  generatePlannedQuestions,
-  savePlannedQuestions,
-} from "@/lib/db/questions";
+import { savePlannedQuestions } from "@/lib/db/questions";
 
 export type GenerateQuestionsState = {
   error?: string;
@@ -26,7 +24,7 @@ export async function generateQuestionsAction(
     return { error: "Opportunity not found." };
   }
   try {
-    await generatePlannedQuestions(opportunityId);
+    await startQuestionGeneration(opportunityId);
   } catch (error) {
     return {
       error:

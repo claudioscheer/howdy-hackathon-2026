@@ -47,9 +47,6 @@ function firstJsonObject(text: string, start: number): string | undefined {
   let escaped = false;
   for (let index = start; index < text.length; index += 1) {
     const char = text[index];
-    if (char === undefined) {
-      break;
-    }
     if (inString) {
       if (escaped) {
         escaped = false;

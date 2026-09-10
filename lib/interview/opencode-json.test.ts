@@ -11,15 +11,21 @@ describe("parseModelJson", () => {
 
   it("extracts an embedded object or rejects invalid content", () => {
     expect(parseModelJson('prefix {"ok":true} suffix')).toEqual({ ok: true });
-    expect(parseModelJson('intro { "nested": "{x}" } done')).toEqual({
-      nested: "{x}",
-    });
-    expect(parseModelJson('{not json}{"ok":true}')).toEqual({ ok: true });
-    expect(parseModelJson('{"quote":"a \\"b\\"{ end"}')).toEqual({
-      quote: 'a "b"{ end',
+    expect(parseModelJson('prefix {"nested": {"inner": true}} suffix')).toEqual(
+      {
+        nested: { inner: true },
+      },
+    );
+    expect(
+      parseModelJson('prefix {"quote":"a \\"b\\\\\\"{ end"} suffix'),
+    ).toEqual({
+      quote: 'a "b\\"{ end',
     });
     expect(() => parseModelJson("not json")).toThrow(
       "OpenCode returned content that was not valid JSON.",
+    );
+    expect(() => parseModelJson("prefix {not json} suffix")).toThrow(
+      "OpenCode returned incomplete JSON.",
     );
     expect(() => parseModelJson('{ "ok": true')).toThrow(
       "OpenCode returned incomplete JSON.",

@@ -1,12 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const generatePlannedQuestions = vi.hoisted(() => vi.fn());
+const startQuestionGeneration = vi.hoisted(() => vi.fn());
 const savePlannedQuestions = vi.hoisted(() => vi.fn());
 const revalidatePath = vi.hoisted(() => vi.fn());
 const redirect = vi.hoisted(() => vi.fn());
 
+vi.mock("@/lib/db/question-generation", () => ({
+  startQuestionGeneration,
+}));
+
 vi.mock("@/lib/db/questions", () => ({
-  generatePlannedQuestions,
   savePlannedQuestions,
 }));
 
@@ -22,23 +25,23 @@ import { generateQuestionsAction, saveQuestionsAction } from "./actions";
 
 describe("question actions", () => {
   beforeEach(() => {
-    generatePlannedQuestions.mockReset();
+    startQuestionGeneration.mockReset();
     savePlannedQuestions.mockReset();
     revalidatePath.mockReset();
     redirect.mockReset();
   });
 
   it("generates planned questions and returns to review", async () => {
-    generatePlannedQuestions.mockResolvedValue(undefined);
+    startQuestionGeneration.mockResolvedValue(undefined);
     const formData = new FormData();
     formData.append("opportunityId", "opp-2");
     await generateQuestionsAction({}, formData);
-    expect(generatePlannedQuestions).toHaveBeenCalledWith("opp-2");
+    expect(startQuestionGeneration).toHaveBeenCalledWith("opp-2");
     expect(redirect).toHaveBeenCalledWith("/dashboard/opp-2/questions");
   });
 
   it("returns a visible error instead of crashing the page", async () => {
-    generatePlannedQuestions.mockRejectedValue(
+    startQuestionGeneration.mockRejectedValue(
       new Error("OpenCode returned an empty completion."),
     );
     const formData = new FormData();
@@ -50,7 +53,7 @@ describe("question actions", () => {
   });
 
   it("maps unknown generation failures to a generic message", async () => {
-    generatePlannedQuestions.mockRejectedValue("nope");
+    startQuestionGeneration.mockRejectedValue("nope");
     const formData = new FormData();
     formData.append("opportunityId", "opp-2");
     await expect(generateQuestionsAction({}, formData)).resolves.toEqual({

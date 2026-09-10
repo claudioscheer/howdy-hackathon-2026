@@ -8,6 +8,26 @@ with no new human prompt in the middle of that loop. Keep it short. Add a note o
 
 ---
 
+## 2026-09-09 — Background question generation and client polling
+
+**Act.** Switched question generation from a blocking 30s synchronous server action to background dispatch with 3-second client polling (`router.refresh`), tracked background errors, and added `allowedDevOrigins` in `next.config.ts`.
+
+**Verify / observe.** `pnpm run verify` caught an unimported polling interval constant in unit tests.
+
+**Fix / verify again.** Imported `QUESTION_POLL_INTERVAL_MS` in the test, tested interval polling in fake timers, and verified format, typecheck, lint, 100% coverage, harness, and Playwright browser journey. The gate passed cleanly.
+
+---
+
+## 2026-09-09 — OpenCode JSON and reasoning coverage failed the gate, then passed
+
+**Act.** Audited question generation reliability, model JSON extraction, and client reasoning fallbacks.
+
+**Verify / observe.** `pnpm run verify` failed on missing branch coverage in `completion-text.ts` and `opencode-json.ts`, followed by a Prettier formatting failure in the unit test.
+
+**Fix / verify again.** Covered reasoning prose fallbacks, embedded JSON string escapes, and nested object depth in `opencode-json.ts`, formatted with Prettier, and restarted the stale dev server to fix the Playwright hydration race. The next `pnpm run verify` passed cleanly.
+
+---
+
 ## 2026-09-09 — Saved plans and policy bugs failed the gate, then passed
 
 **Act.** Wired saved questions into practice, made relevance brief- and
