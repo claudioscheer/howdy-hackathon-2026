@@ -8,6 +8,28 @@ with no new human prompt in the middle of that loop. Keep it short. Add a note o
 
 ---
 
+## 2026-09-10 — Main-branch reconciliation exposed an untested proof fallback
+
+**Act.** Rebased the persisted-practice work after `main` independently added a
+richer saved-plan runtime, discarded the duplicate adapter/session factory, and
+adapted the configuration proof to the product's newer practice-session
+constructor.
+
+**Verify / observe.** The complete unit suite passed 353 tests, but the gate
+rejected an unnecessary optional opening-turn fallback at 99.88% branch
+coverage.
+
+**Fix / verify again.** Recorded the complete opening-turn list instead of a
+fallback value and reran the suite without another human prompt. All 353 tests
+passed with 100% statements, branches, functions, and lines. The subsequent
+repository gate exposed a stale generated Prisma client and a harness source-size
+violation; regenerating the client and moving acceptance assembly into the report
+module cleared both. A fresh local database then proved all five `main`
+migrations, seed execution, and the Playwright journeys in the final passing
+`pnpm run verify`.
+
+---
+
 ## 2026-09-09 — Background question generation and client polling
 
 **Act.** Switched question generation from a blocking 30s synchronous server action to background dispatch with 3-second client polling (`router.refresh`), tracked background errors, and added `allowedDevOrigins` in `next.config.ts`.
