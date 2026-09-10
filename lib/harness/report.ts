@@ -3,6 +3,7 @@ import path from "node:path";
 import { type ScenarioRun } from "./engine";
 import { type Proof } from "./contracts";
 import { type ReviewReport } from "./review";
+import type { SessionConfigurationProof } from "./session-configuration-proof";
 
 export interface CaseTrace {
   id: string;
@@ -18,6 +19,7 @@ export interface EvalTrace {
   runtime: "lib/interview";
   layer0: Record<string, boolean>;
   layer1: {
+    sessionConfiguration: SessionConfigurationProof;
     passedGoldens: number;
     totalGoldens: number;
     holdoutsPassed: number;
@@ -48,6 +50,41 @@ export interface AcceptanceDocument {
   project: string;
   version: string;
   criteria: AcceptanceCriterion[];
+}
+
+export interface AcceptanceProofInputs {
+  runtimeContractsPass: boolean;
+  sessionConfiguration: SessionConfigurationProof;
+  adaptiveRuntimePass: boolean;
+  suitesPass: boolean;
+  sensitivityPass: boolean;
+  reviewPass: boolean;
+}
+
+export function buildAcceptanceProofs(
+  input: AcceptanceProofInputs,
+): Record<string, Proof> {
+  return {
+    "ACC-RUNTIME-CONTRACTS": {
+      pass: input.runtimeContractsPass,
+      evidence:
+        "lib/interview contracts plus Layer 0 positive and negative proofs",
+    },
+    "ACC-PRODUCT-SESSION-CONFIG": input.sessionConfiguration,
+    "ACC-PRODUCT-ADAPTIVE-INTERVIEW": {
+      pass: input.adaptiveRuntimePass,
+      evidence:
+        "evals/traces/latest-eval.json#layer1 real lib/interview multi-turn transitions",
+    },
+    "ACC-HARNESS-BEHAVIOR": {
+      pass: input.suitesPass && input.sensitivityPass,
+      evidence: "evals/traces/latest-eval.json#layer1 and #sensitivity",
+    },
+    "ACC-HARNESS-REVIEW": {
+      pass: input.reviewPass,
+      evidence: "evals/traces/latest-eval.json#review",
+    },
+  };
 }
 
 export const ACCEPTANCE_SPECS: Array<

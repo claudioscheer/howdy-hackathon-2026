@@ -52,6 +52,25 @@ orchestrator.
 
 ## Current parallelization evidence
 
+The persisted-practice work began with a contract freeze and three independent
+contexts owning a persistence adapter, product UI, and harness/browser proof.
+Before integration, `main` gained a richer saved-plan runtime, OpenCode planner,
+interviewer briefs, and background generation. The orchestrator therefore
+discarded the now-duplicate adapter and session factory instead of preserving two
+implementations. It rebased onto the newer architecture, retained the independent
+UI and public-runtime proof outcomes, repaired the canonical migrate/seed gate,
+and integrated serially. No OpenCode, brief, relevance, or session-policy work
+from `main` was replaced.
+
+| Context                | Original owned paths                  | Reconciled result                                                     |
+| ---------------------- | ------------------------------------- | --------------------------------------------------------------------- |
+| Persisted runtime/data | `lib/db/practice-session*`            | Superseded by `lib/interview/practice-session`; duplicate was dropped |
+| Product UI             | Dashboard actions and practice route  | Dashboard entry retained; newer practice route/state wiring kept      |
+| Evaluation/Harness     | Harness proof, acceptance, Playwright | Adapted to the newer product constructor and stored-plan browser path |
+| Serial integration     | Shared docs and verification scripts  | Main architecture preserved; one canonical gate remains               |
+
+### Seeded adaptive-loop milestone
+
 The seeded adaptive-loop milestone used the first real three-way split. Phase 0
 was serial: the orchestrator standardized two attempts, the practice route,
 seeded-login semantics, full local tests, Playwright configuration, and the

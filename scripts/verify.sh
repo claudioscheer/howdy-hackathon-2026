@@ -83,9 +83,16 @@ if [ -z "${DATABASE_URL:-}" ]; then
   exit 2
 fi
 
-if ! pnpm prisma migrate deploy && pnpm prisma db seed; then
+if ! pnpm prisma migrate deploy; then
   printf "  ✗ browser journey\n"
-  echo "Prisma migrate/seed failed. Is Postgres running?"
+  echo "Prisma migrate failed. Is Postgres running?"
+  echo "verify failed"
+  exit 2
+fi
+
+if ! pnpm prisma db seed; then
+  printf "  ✗ browser journey\n"
+  echo "Prisma seed failed. Is Postgres running?"
   echo "verify failed"
   exit 2
 fi

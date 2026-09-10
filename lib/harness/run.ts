@@ -16,6 +16,7 @@ import { type EvalScenario, loadScenariosFromDir } from "./fixtures";
 import { proveLoginContract } from "./login-contract";
 import {
   buildCaseTrace,
+  buildAcceptanceProofs,
   countSuite,
   type CaseTrace,
   type EvalTrace,
@@ -23,6 +24,7 @@ import {
 } from "./report";
 import { reviewHarness } from "./review";
 import { proveRuntimeContractSet } from "./runtime-contract-proof";
+import { proveSessionConfiguration } from "./session-configuration-proof";
 import { runSensitivityChecks } from "./sensitivity";
 
 class MalformedEvaluator implements AnswerEvaluator {
@@ -117,6 +119,12 @@ export async function runHarness(
   const failures: string[] = [];
   const layer0 = buildLayer0Proofs(options.rootDir);
   failures.push(...collectFailedProofs(layer0));
+  const sessionConfiguration = proveSessionConfiguration();
+  failures.push(
+    ...collectFailedProofs({
+      "ACC-PRODUCT-SESSION-CONFIG": sessionConfiguration,
+    }),
+  );
 
   const suites = loadSuites(options.rootDir);
   failures.push(...suites.failures);
@@ -154,26 +162,14 @@ export async function runHarness(
   const runtimeContractsPass = Object.entries(layer0).every(
     ([id, proof]) => id === "ACC-UI-LANDING" || proof.pass,
   );
-  const proofs: Record<string, Proof> = {
-    "ACC-RUNTIME-CONTRACTS": {
-      pass: runtimeContractsPass,
-      evidence:
-        "lib/interview contracts plus Layer 0 positive and negative proofs",
-    },
-    "ACC-PRODUCT-ADAPTIVE-INTERVIEW": {
-      pass: adaptiveRuntimePass,
-      evidence:
-        "evals/traces/latest-eval.json#layer1 real lib/interview multi-turn transitions",
-    },
-    "ACC-HARNESS-BEHAVIOR": {
-      pass: suitesPass && sensitivityPass,
-      evidence: "evals/traces/latest-eval.json#layer1 and #sensitivity",
-    },
-    "ACC-HARNESS-REVIEW": {
-      pass: review.findings.length === 0,
-      evidence: "evals/traces/latest-eval.json#review",
-    },
-  };
+  const proofs = buildAcceptanceProofs({
+    runtimeContractsPass,
+    sessionConfiguration,
+    adaptiveRuntimePass,
+    suitesPass,
+    sensitivityPass,
+    reviewPass: review.findings.length === 0,
+  });
 
   const trace: EvalTrace = {
     timestamp: (options.now?.() ?? new Date()).toISOString(),
@@ -182,6 +178,7 @@ export async function runHarness(
       Object.entries(layer0).map(([id, proof]) => [id, proof.pass]),
     ),
     layer1: {
+      sessionConfiguration,
       passedGoldens: goldens.passed,
       totalGoldens: goldens.total,
       holdoutsPassed: holdouts.passed,

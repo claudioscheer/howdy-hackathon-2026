@@ -13,8 +13,8 @@
       "id": "ACC-PRODUCT-SESSION-CONFIG",
       "layer": 1,
       "description": "A fictional candidate and opportunity can be configured and opened as a practice session",
-      "passes": false,
-      "evidence": "not proven this run"
+      "passes": true,
+      "evidence": "evals/traces/latest-eval.json#layer1.sessionConfiguration uses lib/interview/practice-session and the product reducer"
     },
     {
       "id": "ACC-PRODUCT-ADAPTIVE-INTERVIEW",

@@ -89,16 +89,18 @@ matches the product intent.
 `acceptance.json` separates proven foundation/harness milestones from unshipped
 product milestones. The harness writes it; agents must not manually set criteria
 to `true`. The adaptive interview criterion is proven by multi-turn execution of
-the public runtime. Session configuration, grounded reports, and retry comparison
-remain false.
+the public runtime. Session configuration is proven through the product's stored
+opportunity-to-session constructor and reducer, with the Postgres-backed browser
+journey as an additional gate. Grounded reports and retry comparison remain false.
 
 ## Browser journey
 
-`pnpm test:e2e` starts the application and verifies the seeded practice
-route → vague answer → visible follow-up → concrete answer → next question. The
-test uses roles and user-facing text, avoids fixed sleeps, and fails on browser
-console warnings/errors. CI installs only the pinned Chromium browser required by
-this journey.
+`pnpm test:e2e` starts the application and verifies dashboard → stored practice
+plan → vague answer → visible follow-up → concrete answer → next question. A
+second journey creates a fictional opportunity and proves a distinctive saved
+manager question reaches the candidate session. Tests use roles and user-facing
+text, avoid fixed sleeps, and fail on browser console warnings/errors. CI installs
+only the pinned Chromium browser required by these journeys.
 
 ## Agent recovery loop
 

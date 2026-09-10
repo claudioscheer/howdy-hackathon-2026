@@ -11,9 +11,10 @@ The memorable behavior is:
 > It does not just ask interview questions. It notices when you are getting away
 > with a bad answer.
 
-The product currently has a landing page, seeded manager-entry/dashboard facade,
-runtime contracts, and a verification harness. The candidate practice route and
-end-to-end adaptive loop are the current milestone.
+The product currently has a landing page, a Prisma/Postgres manager flow, saved
+and generated interview plans, a candidate practice route, the adaptive loop,
+and a verification harness. Grounded feedback and retry comparison remain the
+next unshipped product milestones.
 
 ## Core user journey
 

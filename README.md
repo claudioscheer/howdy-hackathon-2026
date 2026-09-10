@@ -5,10 +5,9 @@ should notice vague, irrelevant, weak, or poorly structured answers, follow up
 under pressure, and produce transcript-grounded feedback.
 
 Built for Howdy Dev Day 2026. The repository currently contains the landing page,
-a seeded manager-entry/dashboard facade, stable runtime contracts, and the
-verification foundation. The candidate practice route and adaptive loop are the
-current milestone and are not represented as complete in `acceptance.json` until
-the product runtime and browser journey prove them.
+a Prisma/Postgres manager flow, saved and generated interview plans, the candidate
+practice route, the adaptive loop, and the repository-owned verification harness.
+Grounded feedback and retry comparison remain intentionally unshipped.
 
 ## Requirements
 

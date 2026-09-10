@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { OpportunityItem } from "@/lib/db/opportunity-item";
 import { practicePath } from "@/lib/db/opportunity-item";
+import { MAX_SESSION_ATTEMPTS } from "@/lib/interview/session";
 import { DASHBOARD_PAGE } from "@/lib/ui/copy";
 
 const ACTION_CLASS =
@@ -17,6 +18,15 @@ function questionsLabel(item: OpportunityItem): string {
     return DASHBOARD_PAGE.reviewQuestionsButton;
   }
   return DASHBOARD_PAGE.generateQuestionsButton;
+}
+
+export function canOpenPractice(item: OpportunityItem): boolean {
+  return (
+    item.status === "Active" &&
+    item.questionPrepStatus === "ready" &&
+    item.questionCount > 0 &&
+    item.attemptsUsed < MAX_SESSION_ATTEMPTS
+  );
 }
 
 export function CopyPracticeLinkButton({
@@ -60,7 +70,18 @@ export function OpportunityActions({
       >
         {DASHBOARD_PAGE.editButton}
       </Link>
-      <CopyPracticeLinkButton item={item} />
+      {canOpenPractice(item) ? (
+        <>
+          <CopyPracticeLinkButton item={item} />
+          <Link
+            href={practicePath(item)}
+            data-testid={`open-practice-${item.id}`}
+            className={ACTION_CLASS}
+          >
+            Open practice
+          </Link>
+        </>
+      ) : null}
       <Link
         href={`/dashboard/${item.id}/questions`}
         data-testid={`questions-opportunity-${item.id}`}

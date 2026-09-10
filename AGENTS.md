@@ -16,7 +16,7 @@ This file is the source of truth for **every** coding tool (Grok, Codex, Antigra
 
 Howdy Interview Coach: a mock interviewer that follows up on weak answers and writes a transcript-grounded report. Built for Dev Day 2026.
 
-**Current state:** landing page, manager dashboard backed by Prisma/Postgres, runtime contracts, and harness foundation. The candidate practice route and end-to-end adaptive loop remain the current milestone. Product intent and the current definition of done are in [`docs/SPEC.md`](docs/SPEC.md). Do not start a new phase or change shared contracts without human/orchestrator direction.
+**Current state:** landing page, Prisma/Postgres manager flow, saved and generated interview plans, candidate practice route, adaptive interview loop, and repository-owned harness. Grounded feedback and retry comparison remain unshipped. Product intent and the current definition of done are in [`docs/SPEC.md`](docs/SPEC.md). Do not start a new phase or change shared contracts without human/orchestrator direction.
 
 ## Lock important behavior
 

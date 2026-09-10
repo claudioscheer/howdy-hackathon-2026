@@ -2,7 +2,9 @@ import { expect, test } from "@playwright/test";
 
 test.describe.configure({ mode: "serial" });
 
-test("dashboard opens an adaptive practice interview", async ({ page }) => {
+test("dashboard opens a persisted adaptive practice interview", async ({
+  page,
+}) => {
   const browserIssues: string[] = [];
   page.on("console", (message) => {
     if (["error", "warning"].includes(message.type())) {
@@ -13,7 +15,10 @@ test("dashboard opens an adaptive practice interview", async ({ page }) => {
     browserIssues.push(`pageerror: ${error.message}`),
   );
 
-  await page.goto("/practice/fullstack-product-engineer");
+  await page.goto("/dashboard");
+  const opportunity = page.getByTestId("opportunity-card-opp-2");
+  await expect(opportunity).toContainText("Alex Rivera");
+  await opportunity.getByRole("link", { name: "Open practice" }).click();
 
   await expect(page).toHaveURL(/\/practice\/fullstack-product-engineer$/);
   await expect(page.getByTestId("question-progress")).toHaveText(
