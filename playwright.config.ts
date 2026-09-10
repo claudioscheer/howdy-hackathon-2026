@@ -18,8 +18,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm next start --hostname 127.0.0.1 --port 3010",
+    command:
+      "bash -c 'if [ ! -f .next/BUILD_ID ]; then pnpm next build; fi; exec pnpm next start --hostname 127.0.0.1 --port 3010'",
     url: "http://127.0.0.1:3010",
+    timeout: 120_000,
     reuseExistingServer: false,
     env: {
       ...process.env,

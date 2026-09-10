@@ -8,6 +8,16 @@ with no new human prompt in the middle of that loop. Keep it short. Add a note o
 
 ---
 
+## 2026-09-10 — CI browser journey had no production build
+
+**Act.** Playwright started `next start` on port 3010 so the gate would not reuse a live `next dev`.
+
+**Verify / observe.** GitHub Actions `browser journey` failed: CI runs `pnpm test:e2e` in a job with no `.next` directory.
+
+**Fix / verify again.** The Playwright webServer now runs `next build` when `.next/BUILD_ID` is missing, then starts. `pnpm run verify` passed.
+
+---
+
 ## 2026-09-10 — Main-branch reconciliation exposed an untested proof fallback
 
 **Act.** Rebased the persisted-practice work after `main` independently added a
