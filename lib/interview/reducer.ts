@@ -1,4 +1,5 @@
 import type { InterviewQuestion } from "./contracts";
+import { endSessionEarly } from "./session-end";
 import {
   applyDecision,
   appendTurn,
@@ -51,5 +52,8 @@ export const sessionReducer: SessionReducer = (
         return state;
       }
       return { ...state, status: "COMPLETE", report: event.report };
+
+    case "END_SESSION":
+      return endSessionEarly(state);
   }
 };

@@ -5,6 +5,7 @@ import {
   createOpenCodeQuestionGenerator,
   openCodeSessionId,
   planQuestionsWithOpenCode,
+  questionPlanSessionId,
   type QuestionBriefing,
 } from "./planner";
 
@@ -79,8 +80,11 @@ describe("OpenCode question planner", () => {
   });
 
   it("names reusable session ids for planning and interview turns", () => {
-    expect(openCodeSessionId("question-plan", "opp-2:attempt:1")).toBe(
+    expect(questionPlanSessionId("opp-2", 1)).toBe(
       "question-plan:opp-2:attempt:1",
+    );
+    expect(openCodeSessionId("question-plan", "opp-2:attempt:1")).toBe(
+      questionPlanSessionId("opp-2", 1),
     );
     expect(openCodeSessionId("interview", "practice-1")).toBe(
       "interview:practice-1",

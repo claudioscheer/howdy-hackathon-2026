@@ -160,7 +160,7 @@ describe("sessionReducer", () => {
       decision: moveOn,
     });
 
-    expect(complete.status).toBe("COMPLETE");
+    expect(complete.status).toBe("GENERATING_REPORT");
     expect(complete.questionIndex).toBe(2);
     expect(complete.completedQuestionIds).toEqual([finalQuestion.id]);
     expect(complete.usedQuestions).toHaveLength(1);
@@ -223,5 +223,41 @@ describe("sessionReducer", () => {
     expect(
       sessionReducer({ ...state, status: "GENERATING_REPORT" }, event),
     ).toMatchObject({ status: "COMPLETE", report });
+  });
+
+  it("ends early from an awaiting answer without treating remaining cores as skipped", () => {
+    const started = startedState();
+    const ended = sessionReducer(started, {
+      type: "END_SESSION",
+      reason: "candidate_ended",
+    });
+
+    expect(ended.status).toBe("GENERATING_REPORT");
+    expect(ended.questionOutcomes).toEqual([
+      {
+        questionId: "question-collaboration",
+        appliedStopReason: "candidate_ended_early",
+      },
+      {
+        questionId: "question-api-design",
+        appliedStopReason: "candidate_ended_early",
+      },
+      {
+        questionId: "question-delivery",
+        appliedStopReason: "candidate_ended_early",
+      },
+    ]);
+    expect(ended.usedQuestions).toEqual([
+      {
+        id: "question-collaboration",
+        prompt: started.questions[0]?.prompt,
+      },
+    ]);
+    expect(
+      sessionReducer(createSeededSession(), {
+        type: "END_SESSION",
+        reason: "candidate_ended",
+      }).status,
+    ).toBe("PLANNED");
   });
 });

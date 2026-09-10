@@ -62,11 +62,32 @@ describe("submitAnswer", () => {
             content: "I traced API latency and reduced it by 30%.",
           }),
         ]),
+        clock: expect.objectContaining({ elapsedSeconds: 0 }),
+        push: expect.objectContaining({
+          remainingFollowUps: 2,
+          followUpCap: 2,
+        }),
       }),
     );
     if (result.ok) {
       expect(result.state.questionIndex).toBe(1);
     }
+
+    evaluate.mockClear();
+    await submitAnswer(
+      startedState(),
+      "I traced API latency and reduced it by 30%.",
+      { evaluate },
+      { elapsedSeconds: 75, submittedAt: "2026-09-10T12:01:15.000Z" },
+    );
+    expect(evaluate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        clock: {
+          submittedAt: "2026-09-10T12:01:15.000Z",
+          elapsedSeconds: 75,
+        },
+      }),
+    );
   });
 
   it("rejects blank answers and answers submitted in the wrong state", async () => {

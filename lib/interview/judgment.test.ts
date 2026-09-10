@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   InterviewerDecisionSchema,
+  QuestionOutcomeSchema,
   judgmentEvidenceIsGrounded,
 } from "./judgment";
 
@@ -78,6 +79,28 @@ describe("evaluator judgment contract", () => {
         decision: "MOVE_ON",
         reason: "Time ran out on the topic.",
         recommendedStopReason: "follow_up_cap",
+        evidence: [
+          {
+            quote: "I owned the rollback",
+            supports: "The candidate claimed personal ownership.",
+          },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
+  it("records candidate-ended-early as an applied stop, not a model recommendation", () => {
+    expect(
+      QuestionOutcomeSchema.safeParse({
+        questionId: "q-1",
+        appliedStopReason: "candidate_ended_early",
+      }).success,
+    ).toBe(true);
+    expect(
+      InterviewerDecisionSchema.safeParse({
+        decision: "MOVE_ON",
+        reason: "The candidate chose to stop the interview.",
+        recommendedStopReason: "candidate_ended_early",
         evidence: [
           {
             quote: "I owned the rollback",

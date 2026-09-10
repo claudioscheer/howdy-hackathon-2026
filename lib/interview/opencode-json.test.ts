@@ -51,6 +51,20 @@ describe("completeJson", () => {
     });
   });
 
+  it("repairs parsed JSON before schema validation", async () => {
+    const client: OpenCodeClient = {
+      complete: async () => '{"ok":false}',
+    };
+    await expect(
+      completeJson(
+        client,
+        { sessionId: "s1", messages: [] },
+        z.object({ ok: z.literal(true) }),
+        () => ({ ok: true }),
+      ),
+    ).resolves.toEqual({ ok: true });
+  });
+
   it("rejects JSON that does not match the schema", async () => {
     const client: OpenCodeClient = {
       complete: async () => '{"ok":false}',

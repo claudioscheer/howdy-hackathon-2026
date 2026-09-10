@@ -60,6 +60,10 @@ export const SessionEventSchema = z.discriminatedUnion("type", [
     type: z.literal("REPORT_GENERATED"),
     report: SessionReportSchema,
   }),
+  z.object({
+    type: z.literal("END_SESSION"),
+    reason: z.literal("candidate_ended"),
+  }),
 ]);
 export type SessionEvent = z.infer<typeof SessionEventSchema>;
 

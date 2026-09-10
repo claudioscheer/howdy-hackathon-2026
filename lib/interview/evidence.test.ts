@@ -3,6 +3,7 @@ import {
   candidateTranscript,
   decisionEvidenceIsValid,
   distinctCandidateTurnCount,
+  reportQuotesAreGrounded,
 } from "./evidence";
 import type { TranscriptTurn } from "./contracts";
 
@@ -24,6 +25,22 @@ const candidateUnknown: TranscriptTurn = {
 };
 
 describe("decision evidence provenance", () => {
+  it("grounds report quotes in candidate turns only", () => {
+    expect(
+      reportQuotesAreGrounded(
+        ["I do not know"],
+        [interviewerQuestion, candidateUnknown],
+      ),
+    ).toBe(true);
+    expect(
+      reportQuotesAreGrounded(
+        [interviewerQuestion.content],
+        [interviewerQuestion, candidateUnknown],
+      ),
+    ).toBe(false);
+    expect(reportQuotesAreGrounded([""], [candidateUnknown])).toBe(false);
+  });
+
   it("builds a candidate-only transcript", () => {
     expect(candidateTranscript([interviewerQuestion, candidateUnknown])).toBe(
       "I do not know",

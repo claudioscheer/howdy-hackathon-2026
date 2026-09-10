@@ -21,6 +21,8 @@ test("dashboard opens a persisted adaptive practice interview", async ({
   await opportunity.getByRole("link", { name: "Open practice" }).click();
 
   await expect(page).toHaveURL(/\/practice\/fullstack-product-engineer$/);
+  await page.getByTestId("start-interview-button").click();
+
   await expect(page.getByTestId("question-progress")).toHaveText(
     "Question 1 of 3",
   );
@@ -102,5 +104,41 @@ test("saved manager questions reach the candidate session", async ({
   await page.getByTestId("open-practice-link").click();
   await expect(page).toHaveURL(/\/practice\/opp-/);
 
+  await page.getByTestId("start-interview-button").click();
   await expect(page.getByTestId("current-question")).toContainText(distinctive);
+});
+
+test("unknown practice links 404 and early end produces a scorecard", async ({
+  page,
+}) => {
+  await page.goto("/practice/does-not-exist");
+  await expect(
+    page.getByRole("heading", {
+      name: "This seeded session is not available.",
+    }),
+  ).toBeVisible();
+
+  await page.goto("/practice/fullstack-product-engineer");
+  await expect(page.getByTestId("start-interview-button")).toBeVisible();
+  await expect(page.getByTestId("practice-timer")).toHaveCount(0);
+  await page.getByTestId("start-interview-button").click();
+  await expect(page.getByTestId("practice-timer")).toContainText("/ 40:00");
+
+  await page.getByRole("button", { name: "Submit answer" }).click();
+  await expect(
+    page.getByText("Enter an answer before continuing."),
+  ).toBeVisible();
+
+  await page.getByTestId("end-interview-button").click();
+  await page.getByTestId("end-interview-cancel").click();
+  await expect(page.getByTestId("end-interview-dialog")).toHaveCount(0);
+
+  await page.getByTestId("end-interview-button").click();
+  await page.getByTestId("end-interview-confirm").click();
+  await expect(page.getByTestId("practice-report")).toContainText(
+    "insufficient evidence",
+  );
+  await expect(page.getByTestId("report-dimension-specificity")).toContainText(
+    "Insufficient evidence",
+  );
 });

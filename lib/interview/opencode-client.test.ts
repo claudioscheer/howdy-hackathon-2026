@@ -45,6 +45,8 @@ describe("OpenCode client", () => {
         maxTokens: 64,
       }),
     ).resolves.toBe("hello");
+    const init = fetchImpl.mock.calls[0]?.[1];
+    expect(init?.signal).toBeInstanceOf(AbortSignal);
     expect(fetchImpl).toHaveBeenCalledWith(
       "https://opencode.test/v1/chat/completions",
       expect.objectContaining({

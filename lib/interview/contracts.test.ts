@@ -60,6 +60,20 @@ describe("runtime model-boundary contracts", () => {
         question,
         answer: "I reduced P99 latency after tracing a pool leak.",
         history: [],
+        clock: {
+          submittedAt: "2026-09-10T12:00:00.000Z",
+          elapsedSeconds: 12,
+        },
+        push: {
+          followUpsUsed: 0,
+          followUpCap: 2,
+          remainingFollowUps: 2,
+          answersOnThisQuestion: 1,
+          topicAnswerBudget: 3,
+          sessionAnswersUsed: 1,
+          sessionAnswerBudget: 10,
+          remainingSessionAnswers: 9,
+        },
       }).success,
     ).toBe(true);
     expect(

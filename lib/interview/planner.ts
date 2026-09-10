@@ -33,6 +33,16 @@ export function openCodeSessionId(
   return `${kind}:${id}`;
 }
 
+export function questionPlanSessionId(
+  opportunityId: string,
+  attemptNumber: number,
+): string {
+  return openCodeSessionId(
+    "question-plan",
+    `${opportunityId}:attempt:${attemptNumber}`,
+  );
+}
+
 export async function planQuestionsWithOpenCode(
   client: OpenCodeClient,
   briefing: QuestionBriefing,
@@ -40,9 +50,9 @@ export async function planQuestionsWithOpenCode(
   const plan = await completeJson(
     client,
     {
-      sessionId: openCodeSessionId(
-        "question-plan",
-        `${briefing.opportunity.id}:attempt:${briefing.attemptNumber}`,
+      sessionId: questionPlanSessionId(
+        briefing.opportunity.id,
+        briefing.attemptNumber,
       ),
       maxTokens: DEFAULT_MAX_COMPLETION_TOKENS,
       messages: [

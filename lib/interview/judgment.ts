@@ -37,6 +37,7 @@ export const AppliedStopReasonSchema = z.enum([
   "skipped_optional",
   "skipped_supporting",
   "session_budget_exhausted",
+  "candidate_ended_early",
 ]);
 export type AppliedStopReason = z.infer<typeof AppliedStopReasonSchema>;
 

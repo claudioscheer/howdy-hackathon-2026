@@ -7,7 +7,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: "line",
   use: {
-    baseURL: "http://127.0.0.1:3000",
+    baseURL: "http://127.0.0.1:3010",
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
   },
@@ -18,8 +18,12 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm dev --hostname 127.0.0.1",
-    url: "http://127.0.0.1:3000",
-    reuseExistingServer: !process.env.CI,
+    command: "pnpm next start --hostname 127.0.0.1 --port 3010",
+    url: "http://127.0.0.1:3010",
+    reuseExistingServer: false,
+    env: {
+      ...process.env,
+      PRACTICE_LIVE_EVALUATOR: "0",
+    },
   },
 });

@@ -30,6 +30,36 @@ migrations, seed execution, and the Playwright journeys in the final passing
 
 ---
 
+## 2026-09-10 — Interview turns reuse the question-plan OpenCode session
+
+**Act.** Pointed live answer evaluation and next-question phrasing at the same `completeJson` call and `question-plan:{opportunityId}:attempt:{n}` session the planner uses.
+
+**Verify / observe.** `pnpm run verify` failed coverage on quote repair, then Playwright hid Start because leftover completed attempts were never cleared. `if ! migrate && seed` skipped seed whenever migrate succeeded.
+
+**Fix / verify again.** Covered the remaining repair branches, changed the gate to `if ! migrate || ! seed`, and reran `pnpm run verify`. It passed.
+
+---
+
+## 2026-09-10 — Live interviewer default broke Playwright, then passed
+
+**Act.** Switched practice so every answer hits OpenCode when `OPENCODE_API_KEY` is set, instead of the canned scripted follow-up.
+
+**Verify / observe.** `pnpm run verify` hung or reused a live Next server: leftover completed attempts hid Start, then follow-ups never appeared, then a second `next dev` could not bind.
+
+**Fix / verify again.** Seed now clears stored attempts. Playwright runs `next start` on port 3010 with `PRACTICE_LIVE_EVALUATOR=0`. The gate passed.
+
+---
+
+## 2026-09-09 — Practice chat hung on live OpenCode during Playwright
+
+**Act.** Shipped the practice briefing, chat loop, early-end report, and attempt persistence. `pnpm run verify` got through unit tests, then Playwright.
+
+**Verify / observe.** The browser journey stuck on `Evaluating…`. The reused local server had `OPENCODE_API_KEY` set, so the new practice action called the live interviewer instead of the scripted evaluator.
+
+**Fix / verify again.** Defaulted practice evaluation to scripted unless `PRACTICE_LIVE_EVALUATOR=1`, killed the stale `:3000` process, and reran `pnpm run verify`. The gate passed.
+
+---
+
 ## 2026-09-09 — Background question generation and client polling
 
 **Act.** Switched question generation from a blocking 30s synchronous server action to background dispatch with 3-second client polling (`router.refresh`), tracked background errors, and added `allowedDevOrigins` in `next.config.ts`.

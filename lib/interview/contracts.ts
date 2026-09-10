@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { InterviewerBriefSchema } from "./brief";
+import { InterviewerBriefSchema, QuestionImportanceSchema } from "./brief";
 import { QuestionOutcomeSchema } from "./judgment";
 import { RubricDimensionSchema } from "./rubric";
 
@@ -90,11 +90,34 @@ export const TranscriptTurnSchema = z.object({
 });
 export type TranscriptTurn = z.infer<typeof TranscriptTurnSchema>;
 
+export const EvaluationClockSchema = z.object({
+  submittedAt: z.string().min(1),
+  elapsedSeconds: z.number().int().nonnegative(),
+});
+export type EvaluationClock = z.infer<typeof EvaluationClockSchema>;
+
+export const EvaluationPushSchema = z.object({
+  followUpsUsed: z.number().int().nonnegative(),
+  followUpCap: z.number().int().positive(),
+  remainingFollowUps: z.number().int().nonnegative(),
+  answersOnThisQuestion: z.number().int().nonnegative(),
+  topicAnswerBudget: z.number().int().positive(),
+  sessionAnswersUsed: z.number().int().nonnegative(),
+  sessionAnswerBudget: z.number().int().positive(),
+  remainingSessionAnswers: z.number().int().nonnegative(),
+  importance: QuestionImportanceSchema.optional(),
+  timeBudgetMinutes: z.number().positive().optional(),
+});
+export type EvaluationPush = z.infer<typeof EvaluationPushSchema>;
+
 export const AnswerEvaluationInputSchema = z.object({
   opportunity: OpportunityProfileSchema,
   question: InterviewQuestionSchema,
   answer: z.string(),
   history: z.array(TranscriptTurnSchema),
+  attemptNumber: z.number().int().min(1).optional(),
+  clock: EvaluationClockSchema.optional(),
+  push: EvaluationPushSchema.optional(),
 });
 export type AnswerEvaluationInput = z.infer<typeof AnswerEvaluationInputSchema>;
 
@@ -103,6 +126,7 @@ export const ReportEvidenceSchema = z.object({
   quote: z.string().min(1),
   supports: z.string().min(1).optional(),
 });
+export type ReportEvidence = z.infer<typeof ReportEvidenceSchema>;
 
 const ScoredDimensionSchema = z.object({
   status: z.literal("scored"),
@@ -123,6 +147,7 @@ export const ReportDimensionSchema = z.discriminatedUnion("status", [
   ScoredDimensionSchema,
   InsufficientEvidenceDimensionSchema,
 ]);
+export type ReportDimension = z.infer<typeof ReportDimensionSchema>;
 
 export const SessionReportSchema = z.object({
   attemptNumber: z.number().int().min(1),

@@ -50,6 +50,22 @@ model Opportunity {
   updatedAt           DateTime           @updatedAt
   candidate           Candidate?
   questions           PlannedQuestion[]
+  attempts            InterviewAttempt[]
+}
+
+model InterviewAttempt {
+  id               String      @id
+  opportunityId    String
+  opportunity      Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  attemptNumber    Int
+  elapsedSeconds   Int         @default(0)
+  summary          String
+  dimensions       Json
+  questionOutcomes Json
+  usedQuestions    Json
+  createdAt        DateTime    @default(now())
+
+  @@unique([opportunityId, attemptNumber])
 }
 
 model PlannedQuestion {

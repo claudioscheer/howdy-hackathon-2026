@@ -276,6 +276,14 @@ The model may recommend `evidence_sufficient`, `no_new_information`, or
 the recommendation and the applied outcome. A forced advance is never stored as
 a satisfactory answer.
 
+The candidate may stop from `AWAITING_ANSWER` with
+`{ type: "END_SESSION", reason: "candidate_ended" }`. Remaining questions,
+including the current unanswered or in-progress topic, receive
+`appliedStopReason: "candidate_ended_early"` and the session enters
+`GENERATING_REPORT`. That is not a skip of a core and is never stored as a
+satisfactory answer. Elapsed practice time is a client pacing hint against
+`targetMinutes`; it is not a `FOLLOW_UP` / `MOVE_ON` input.
+
 Skipping: drop `optional` first, then `supporting`. Never skip a `core`. Reserve
 one initial answer for every remaining core (in the basic path, every remaining
 question). An early topic cannot consume another core's first opportunity.
@@ -302,5 +310,10 @@ follow-up are locked with it.
    decision under these timing rules.
 4. Report stop reasons and insufficient-evidence dimensions.
 
-`pnpm run verify` stays keyless. Live-model conversation review stays off the
-merge gate.
+`pnpm run verify` stays keyless. A live OpenCode interviewer may run in the
+product when credentials are present; the merge gate and Playwright journey
+keep using the scripted evaluator. Live-model conversation review stays off
+the merge gate.
+
+Completing the last askable question, or ending early, enters
+`GENERATING_REPORT`. `COMPLETE` happens only after `REPORT_GENERATED`.

@@ -73,6 +73,9 @@ async function seedOpportunity(
   opportunity: (typeof SEEDED_OPPORTUNITIES)[number],
 ): Promise<void> {
   const { candidate, ...data } = opportunity;
+  await prisma.interviewAttempt.deleteMany({
+    where: { opportunityId: data.id },
+  });
   await prisma.opportunity.upsert({
     where: { id: data.id },
     update: data,

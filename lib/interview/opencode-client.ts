@@ -3,6 +3,7 @@ import { completionText } from "./completion-text";
 import type { OpenCodeConfig } from "./opencode-config";
 import {
   DEFAULT_MAX_COMPLETION_TOKENS,
+  OPENCODE_FETCH_TIMEOUT_MS,
   readOpenCodeConfig,
 } from "./opencode-config";
 
@@ -61,6 +62,7 @@ async function completeOpenCodeChat(
     method: "POST",
     headers: requestHeaders(config, input),
     body: JSON.stringify(requestBody(config, input)),
+    signal: AbortSignal.timeout(OPENCODE_FETCH_TIMEOUT_MS),
   });
   const payload = await readJsonBody(response);
   if (!response.ok) {

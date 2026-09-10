@@ -161,7 +161,7 @@ function advanceQuestion(
     ),
   };
   if (nextQuestion === undefined || nextIndex === undefined) {
-    return { ...advanced, status: "COMPLETE" };
+    return { ...advanced, status: "GENERATING_REPORT" };
   }
   return {
     ...advanced,

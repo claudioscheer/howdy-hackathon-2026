@@ -83,9 +83,11 @@ export async function completeJson<T>(
   client: OpenCodeClient,
   input: OpenCodeCompleteInput,
   schema: ZodType<T>,
+  repair?: (raw: unknown) => unknown,
 ): Promise<T> {
   const content = await client.complete({ ...input, json: true });
-  const parsed = schema.safeParse(parseModelJson(content));
+  const raw = parseModelJson(content);
+  const parsed = schema.safeParse(repair === undefined ? raw : repair(raw));
   if (!parsed.success) {
     throw new Error("OpenCode returned JSON that did not match the schema.");
   }

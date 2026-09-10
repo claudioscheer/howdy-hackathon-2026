@@ -34,6 +34,15 @@ export function distinctCandidateTurnCount(
   return indexes.size;
 }
 
+export function reportQuotesAreGrounded(
+  quotes: string[],
+  history: TranscriptTurn[],
+): boolean {
+  return quotes.every(
+    (quote) => quote.length > 0 && quoteFromCandidateTurn(quote, history),
+  );
+}
+
 export function decisionEvidenceIsValid(
   decision: InterviewerDecision,
   history: TranscriptTurn[],

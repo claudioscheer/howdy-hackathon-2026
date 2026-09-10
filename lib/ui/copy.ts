@@ -113,6 +113,62 @@ export const CREATE_OPPORTUNITY_PAGE = {
   editTitle: "Edit Opportunity",
 } as const;
 
+export const PRACTICE_PAGE = {
+  badge: "Practice interview",
+  briefingTitle: "Before you begin",
+  formatLabel: "Format",
+  formatBody:
+    "Typed answers, about {minutes} minutes. This link allows two attempts. Follow-ups exist so you can add concrete evidence — situation, action, and result — when an answer is vague.",
+  dictationHint:
+    "Prefer speaking? Use OS dictation (macOS Fn+Fn, Windows Win+H, or Whisper), then paste into the chat.",
+  startButton: "Start practice interview",
+  composerLabel: "Your answer",
+  composerPlaceholder: "Describe what you did, why, and the measurable result.",
+  submitAnswer: "Submit answer",
+  evaluating: "Evaluating…",
+  emptyAnswer: "Enter an answer before continuing.",
+  evaluateFailed: "Your answer could not be evaluated. Please try again.",
+  endInterview: "End interview",
+  endConfirmTitle: "End this interview now?",
+  endConfirmBody:
+    "Ending now will leave remaining core competencies unassessed and mark them as insufficient evidence on your scorecard. Are you sure you want to finish?",
+  endConfirm: "End interview",
+  endCancel: "Keep practicing",
+  progressComplete: "Interview complete",
+  greeting:
+    "Welcome to your practice interview for the {role} role. I'll be asking questions to explore your technical experience and decision-making. If an answer needs more detail, I'll follow up so you have an opportunity to clarify. Let's begin with our first question:",
+  reportTitle: "Practice scorecard",
+  reportExport: "Export scorecard",
+  tryAgain: "Try again",
+  attemptsUsed: "Both attempts on this link have been used.",
+} as const;
+
 export function practiceButtonLabel(): string {
   return LANDING.startPractice;
+}
+
+export function practiceFormatBody(minutes: number): string {
+  return PRACTICE_PAGE.formatBody.replace("{minutes}", String(minutes));
+}
+
+export function practiceGreeting(role: string): string {
+  return PRACTICE_PAGE.greeting.replace("{role}", role);
+}
+
+export function practiceProgress(
+  questionIndex: number,
+  questionCount: number,
+  isComplete: boolean,
+): string {
+  if (isComplete) {
+    return PRACTICE_PAGE.progressComplete;
+  }
+  return `Question ${questionIndex + 1} of ${questionCount}`;
+}
+
+export function formatElapsed(seconds: number): string {
+  const safe = Math.max(0, seconds);
+  const minutes = Math.floor(safe / 60);
+  const rest = safe % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(rest).padStart(2, "0")}`;
 }

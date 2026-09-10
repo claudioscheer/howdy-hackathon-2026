@@ -4,6 +4,11 @@ import {
   type InterviewerDecision,
 } from "./contracts";
 import { decisionEvidenceIsValid } from "./evidence";
+import {
+  evaluationClock,
+  evaluationPush,
+  type AnswerClockInput,
+} from "./evaluation-context";
 import { sessionReducer } from "./reducer";
 import {
   SessionEventSchema,
@@ -27,6 +32,7 @@ export async function submitAnswer(
   state: SessionState,
   answer: string,
   evaluator: AnswerEvaluator,
+  clock: AnswerClockInput = {},
 ): Promise<SubmitAnswerResult> {
   const submittedEvent = SessionEventSchema.safeParse({
     type: "ANSWER_SUBMITTED",
@@ -63,6 +69,9 @@ export async function submitAnswer(
       question,
       answer: answerEvent.answer,
       history: evaluatingState.history,
+      attemptNumber: state.attemptNumber,
+      clock: evaluationClock(clock),
+      push: evaluationPush(evaluatingState, question),
     });
     const parsedDecision = InterviewerDecisionSchema.safeParse(rawDecision);
     if (

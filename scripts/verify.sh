@@ -97,6 +97,7 @@ if ! pnpm prisma db seed; then
   exit 2
 fi
 
+export PRACTICE_LIVE_EVALUATOR=0
 if pnpm run test:e2e >"$tmp_dir/e2e.log" 2>&1; then
   printf "  ✓ browser journey\n"
 else

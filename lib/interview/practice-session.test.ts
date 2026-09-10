@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const findFirst = vi.hoisted(() => vi.fn());
 const connection = vi.hoisted(() => vi.fn(async () => undefined));
+const loadLatestAttempt = vi.hoisted(() => vi.fn(async () => null));
+const reportFromStored = vi.hoisted(() => vi.fn(() => null));
 
 vi.mock("next/server", () => ({
   connection,
@@ -13,9 +15,15 @@ vi.mock("@/lib/db/prisma", () => ({
   }),
 }));
 
+vi.mock("@/lib/db/practice-attempts", () => ({
+  loadLatestAttempt,
+  reportFromStored,
+}));
+
 import { SEEDED_SESSION_ID, SEEDED_QUESTION_PLAN } from "./seed";
 import {
   interviewQuestionsFromRows,
+  loadPracticePageData,
   loadPracticeSession,
   sessionFromOpportunity,
 } from "./practice-session";
@@ -63,6 +71,10 @@ describe("practice session loading", () => {
   beforeEach(() => {
     findFirst.mockReset();
     connection.mockClear();
+    loadLatestAttempt.mockReset();
+    loadLatestAttempt.mockResolvedValue(null);
+    reportFromStored.mockReset();
+    reportFromStored.mockReturnValue(null);
   });
 
   it("maps stored questions onto the interview plan", () => {
@@ -81,7 +93,14 @@ describe("practice session loading", () => {
     const session = sessionFromOpportunity(opportunity, SEEDED_SESSION_ID);
     expect(session?.questions[0]?.prompt).toContain("maple syrup");
     expect(session?.sessionAnswerBudget).toBe(8);
+    expect(session?.attemptNumber).toBe(1);
     expect(session?.evaluationPath).toBe("basic");
+    expect(
+      sessionFromOpportunity(
+        { ...opportunity, attemptsUsed: 1 },
+        SEEDED_SESSION_ID,
+      )?.attemptNumber,
+    ).toBe(2);
     const briefed = sessionFromOpportunity(
       {
         ...opportunity,
@@ -146,5 +165,66 @@ describe("practice session loading", () => {
 
     const missing = await loadPracticeSession("unknown");
     expect(missing).toBeNull();
+  });
+
+  it("reopens a stored scorecard when both attempts are used", async () => {
+    findFirst.mockResolvedValue({ ...opportunity, attemptsUsed: 2 });
+    loadLatestAttempt.mockResolvedValue({
+      attemptNumber: 2,
+      summary: "Second attempt.",
+      dimensions: {},
+    });
+    const report = {
+      attemptNumber: 2,
+      summary: "Second attempt.",
+      dimensions: {
+        relevance: {
+          status: "scored" as const,
+          score: 4,
+          summary: "On topic.",
+          evidence: [],
+        },
+        specificity: {
+          status: "scored" as const,
+          score: 3,
+          summary: "Some.",
+          evidence: [],
+        },
+        fundamentals: {
+          status: "scored" as const,
+          score: 3,
+          summary: "Some.",
+          evidence: [],
+        },
+        structure: {
+          status: "scored" as const,
+          score: 3,
+          summary: "Some.",
+          evidence: [],
+        },
+      },
+    };
+    reportFromStored.mockReturnValue(report);
+    const loaded = await loadPracticePageData(SEEDED_SESSION_ID);
+    expect(loaded?.session.status).toBe("COMPLETE");
+    expect(loaded?.session.report?.attemptNumber).toBe(2);
+    reportFromStored.mockReturnValue(null);
+    expect(
+      (await loadPracticePageData(SEEDED_SESSION_ID))?.session.status,
+    ).toBe("PLANNED");
+    loadLatestAttempt.mockResolvedValue(null);
+    expect(
+      (await loadPracticePageData(SEEDED_SESSION_ID))?.session.status,
+    ).toBe("PLANNED");
+  });
+
+  it("loads target minutes with the planned session", async () => {
+    findFirst.mockResolvedValue(opportunity);
+    const loaded = await loadPracticePageData(SEEDED_SESSION_ID);
+    expect(loaded?.targetMinutes).toBe(40);
+    findFirst.mockResolvedValue(null);
+    const seeded = await loadPracticePageData(SEEDED_SESSION_ID);
+    expect(seeded?.targetMinutes).toBe(40);
+    expect(await loadPracticePageData("unknown")).toBeNull();
   });
 });

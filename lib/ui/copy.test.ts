@@ -4,8 +4,13 @@ import {
   DASHBOARD_PAGE,
   LANDING,
   LOGIN_PAGE,
+  PRACTICE_PAGE,
   QUESTIONS_PAGE,
+  formatElapsed,
   practiceButtonLabel,
+  practiceFormatBody,
+  practiceGreeting,
+  practiceProgress,
 } from "@/lib/ui/copy";
 
 describe("landing copy", () => {
@@ -59,5 +64,20 @@ describe("landing copy", () => {
     expect(CREATE_OPPORTUNITY_PAGE.curriculumLabel).toBe(
       "Candidate curriculum",
     );
+  });
+
+  it("exposes practice briefing, greeting, and timer copy", () => {
+    expect(PRACTICE_PAGE.startButton).toBe("Start practice interview");
+    expect(practiceFormatBody(40)).toContain("40 minutes");
+    expect(practiceGreeting("Fullstack Product Engineer")).toContain(
+      "Fullstack Product Engineer",
+    );
+    expect(practiceProgress(0, 3, false)).toBe("Question 1 of 3");
+    expect(practiceProgress(2, 3, true)).toBe("Interview complete");
+    expect(formatElapsed(0)).toBe("00:00");
+    expect(formatElapsed(75)).toBe("01:15");
+    expect(formatElapsed(-3)).toBe("00:00");
+    expect(PRACTICE_PAGE.endConfirmBody).toContain("insufficient evidence");
+    expect(PRACTICE_PAGE.dictationHint).toContain("OS dictation");
   });
 });

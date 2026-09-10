@@ -69,5 +69,17 @@ describe("session state contract", () => {
         },
       }).success,
     ).toBe(true);
+    expect(
+      SessionEventSchema.safeParse({
+        type: "END_SESSION",
+        reason: "candidate_ended",
+      }).success,
+    ).toBe(true);
+    expect(
+      SessionEventSchema.safeParse({
+        type: "END_SESSION",
+        reason: "time_up",
+      }).success,
+    ).toBe(false);
   });
 });
