@@ -9,11 +9,26 @@ const followUp: InterviewerDecision = {
   reason: "The answer needs a specific example.",
   dimension: "specificity",
   followUp: "What did you personally do, and what changed?",
+  probePurpose: "clarification",
+  unresolvedGap: "The answer lacks a personal action and result.",
+  evidence: [
+    {
+      quote: "A candidate answer",
+      supports: "The answer stays generic instead of citing work.",
+    },
+  ],
 };
 
 const moveOn: InterviewerDecision = {
   decision: "MOVE_ON",
   reason: "The answer is sufficiently specific.",
+  recommendedStopReason: "evidence_sufficient",
+  evidence: [
+    {
+      quote: "A candidate answer",
+      supports: "The answer is specific enough to leave the topic.",
+    },
+  ],
 };
 
 function startedState(): SessionState {
@@ -121,6 +136,10 @@ describe("sessionReducer", () => {
     expect(
       state.history.filter((turn) => turn.kind === "follow_up"),
     ).toHaveLength(2);
+    expect(state.questionOutcomes[0]).toMatchObject({
+      recommendedDecision: "FOLLOW_UP",
+      appliedStopReason: "follow_up_cap",
+    });
   });
 
   it("completes after the final question and does not duplicate usage", () => {
@@ -154,9 +173,9 @@ describe("sessionReducer", () => {
     const evaluating = evaluatingState(started);
 
     expect(sessionReducer(started, { type: "START_SESSION" })).toBe(started);
-    expect(sessionReducer(missingQuestion, { type: "START_SESSION" })).toBe(
-      missingQuestion,
-    );
+    expect(
+      sessionReducer(missingQuestion, { type: "START_SESSION" }).status,
+    ).toBe("AWAITING_ANSWER");
     expect(
       sessionReducer(planned, { type: "ANSWER_SUBMITTED", answer: "No" }),
     ).toBe(planned);
@@ -182,7 +201,12 @@ describe("sessionReducer", () => {
 
   it("only accepts a report from the report-generation state", () => {
     const state = startedState();
-    const dimension = { score: 4, summary: "Grounded.", evidence: [] };
+    const dimension = {
+      status: "scored" as const,
+      score: 4,
+      summary: "Grounded.",
+      evidence: [],
+    };
     const report: SessionReport = {
       attemptNumber: 1,
       summary: "A grounded attempt.",

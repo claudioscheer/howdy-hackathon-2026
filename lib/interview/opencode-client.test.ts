@@ -93,7 +93,7 @@ describe("OpenCode client", () => {
         body: JSON.stringify({
           model: "glm-5.3-flash",
           messages: [{ role: "system", content: "Be brief." }],
-          max_tokens: 2048,
+          max_tokens: 8192,
         }),
       }),
     );
@@ -160,11 +160,15 @@ describe("OpenCode client", () => {
     ).rejects.toThrow("OpenCode request failed (400).");
 
     const empty = createOpenCodeClient(config, async () =>
-      jsonResponse({ choices: [{ message: { content: null } }] }),
+      jsonResponse({
+        choices: [{ finish_reason: "length", message: { content: null } }],
+      }),
     );
     await expect(
       empty.complete({ sessionId: "s", messages: [] }),
-    ).rejects.toThrow("OpenCode returned an empty completion.");
+    ).rejects.toThrow(
+      "OpenCode returned an empty completion (finish_reason=length).",
+    );
 
     const missing = createOpenCodeClient(config, async () =>
       jsonResponse({ choices: [] }),

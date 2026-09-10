@@ -3,6 +3,7 @@ import {
   type AnswerEvaluator,
   type InterviewerDecision,
 } from "./contracts";
+import { decisionEvidenceIsValid } from "./evidence";
 import { sessionReducer } from "./reducer";
 import {
   SessionEventSchema,
@@ -64,7 +65,10 @@ export async function submitAnswer(
       history: evaluatingState.history,
     });
     const parsedDecision = InterviewerDecisionSchema.safeParse(rawDecision);
-    if (!parsedDecision.success) {
+    if (
+      !parsedDecision.success ||
+      !decisionEvidenceIsValid(parsedDecision.data, evaluatingState.history)
+    ) {
       return {
         ok: false,
         state,

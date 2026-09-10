@@ -14,7 +14,7 @@ describe("submitAnswer", () => {
     const evaluator = new ScriptedAnswerEvaluator();
     const result = await submitAnswer(
       startedState(),
-      "I generally communicate well with teammates.",
+      "I had a disagreement with a teammate but we figured it out.",
       evaluator,
     );
 
@@ -37,6 +37,13 @@ describe("submitAnswer", () => {
     const evaluate = vi.fn<AnswerEvaluator["evaluate"]>().mockResolvedValue({
       decision: "MOVE_ON",
       reason: "The answer contains enough concrete detail.",
+      recommendedStopReason: "evidence_sufficient",
+      evidence: [
+        {
+          quote: "I traced API latency and reduced it by 30%.",
+          supports: "The answer includes a personal investigation and result.",
+        },
+      ],
     });
     const result = await submitAnswer(
       startedState(),
@@ -89,6 +96,61 @@ describe("submitAnswer", () => {
       ok: false,
       state,
       error: "The session does not have a current question.",
+    });
+  });
+
+  it("rejects interviewer wording quoted as candidate evidence", async () => {
+    const state = startedState();
+    const question = state.history[0]?.content;
+    if (question === undefined) {
+      throw new Error("The session must open with an interviewer question.");
+    }
+    const evaluator: AnswerEvaluator = {
+      async evaluate() {
+        return {
+          decision: "MOVE_ON",
+          reason: "The evaluator claimed enough evidence.",
+          recommendedStopReason: "evidence_sufficient",
+          evidence: [
+            {
+              quote: question,
+              supports: "The quoted text is the interviewer question.",
+            },
+          ],
+        };
+      },
+    };
+    const result = await submitAnswer(state, "I do not know", evaluator);
+    expect(result).toEqual({
+      ok: false,
+      state,
+      error: "The evaluator returned an invalid decision.",
+    });
+  });
+
+  it("preserves the original state when evidence is not in the transcript", async () => {
+    const state = startedState();
+    const evaluator: AnswerEvaluator = {
+      async evaluate() {
+        return {
+          decision: "MOVE_ON",
+          reason: "The answer contains enough concrete detail.",
+          recommendedStopReason: "evidence_sufficient",
+          evidence: [
+            {
+              quote: "fabricated ownership claim",
+              supports: "This quote is not in the transcript.",
+            },
+          ],
+        };
+      },
+    };
+    const result = await submitAnswer(state, "A candidate answer", evaluator);
+
+    expect(result).toEqual({
+      ok: false,
+      state,
+      error: "The evaluator returned an invalid decision.",
     });
   });
 

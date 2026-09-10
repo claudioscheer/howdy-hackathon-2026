@@ -17,16 +17,69 @@ function parseJsonText(text: string): unknown {
 }
 
 function parseEmbeddedJson(text: string): unknown {
-  const start = text.indexOf("{");
-  const end = text.lastIndexOf("}");
-  if (start < 0 || end <= start) {
-    throw new Error("OpenCode returned content that was not valid JSON.");
+  let searchFrom = 0;
+  let sawObject = false;
+  while (searchFrom < text.length) {
+    const start = text.indexOf("{", searchFrom);
+    if (start < 0) {
+      break;
+    }
+    sawObject = true;
+    const slice = firstJsonObject(text, start);
+    if (slice === undefined) {
+      throw new Error("OpenCode returned incomplete JSON.");
+    }
+    try {
+      return JSON.parse(slice);
+    } catch {
+      searchFrom = start + 1;
+    }
   }
-  try {
-    return JSON.parse(text.slice(start, end + 1));
-  } catch {
-    throw new Error("OpenCode returned content that was not valid JSON.");
+  if (sawObject) {
+    throw new Error("OpenCode returned incomplete JSON.");
   }
+  throw new Error("OpenCode returned content that was not valid JSON.");
+}
+
+function firstJsonObject(text: string, start: number): string | undefined {
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let index = start; index < text.length; index += 1) {
+    const char = text[index];
+    if (char === undefined) {
+      break;
+    }
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+      if (char === "\\") {
+        escaped = true;
+        continue;
+      }
+      if (char === '"') {
+        inString = false;
+      }
+      continue;
+    }
+    if (char === '"') {
+      inString = true;
+      continue;
+    }
+    if (char === "{") {
+      depth += 1;
+      continue;
+    }
+    if (char === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        return text.slice(start, index + 1);
+      }
+    }
+  }
+  return undefined;
 }
 
 export async function completeJson<T>(

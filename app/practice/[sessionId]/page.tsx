@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { SEEDED_SESSION_ID } from "@/lib/interview/seed";
+import { loadPracticeSession } from "@/lib/interview/practice-session";
+import { sessionReducer } from "@/lib/interview/reducer";
 import { PracticeClient } from "./practice-client";
 
 export default async function PracticePage({
@@ -8,10 +9,14 @@ export default async function PracticePage({
   params: Promise<{ sessionId: string }>;
 }): Promise<React.JSX.Element> {
   const { sessionId } = await params;
-
-  if (sessionId !== SEEDED_SESSION_ID) {
+  const planned = await loadPracticeSession(sessionId);
+  if (planned === null) {
     notFound();
   }
 
-  return <PracticeClient sessionId={sessionId} />;
+  return (
+    <PracticeClient
+      initialState={sessionReducer(planned, { type: "START_SESSION" })}
+    />
+  );
 }

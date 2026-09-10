@@ -4,7 +4,7 @@
   "evaluator": "SCRIPTED",
   "steps": [
     {
-      "answer": "I communicate well and keep everyone aligned.",
+      "answer": "I had a disagreement with a teammate but we figured it out.",
       "expected": {
         "outcome": "APPLIED",
         "recommendedDecision": "FOLLOW_UP",
@@ -16,7 +16,7 @@
       }
     },
     {
-      "answer": "I led three engineers through an API migration, added contract tests in TypeScript, and reduced partner errors by 42 percent.",
+      "answer": "I disagreed with a teammate on an API migration, added contract tests in TypeScript, and reduced partner errors by 42 percent.",
       "expected": {
         "outcome": "APPLIED",
         "recommendedDecision": "MOVE_ON",

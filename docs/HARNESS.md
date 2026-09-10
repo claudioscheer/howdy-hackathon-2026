@@ -33,13 +33,17 @@ not own a second interview state machine.
   `MOVE_ON` result is always a failed case.
 
 The current slice locks specificity pressure, improvement after follow-up, the
-two-follow-up cap, malformed evaluator output, and transcript/state progression.
-It asserts behavior and state rather than exact follow-up prose.
+two-follow-up cap, malformed evaluator output, transcript/state progression, and
+relevance misses plus paraphrased recoveries around teammate-disagreement
+questions. It asserts behavior and state rather than exact follow-up prose.
+Evaluator evidence must be a candidate-turn substring and include a `supports`
+explanation; contradiction follow-ups must cite two distinct candidate
+statements.
 
-The earlier single-turn relevance/fundamentals/structure fixtures exercised a
-harness-only heuristic implementation. They were retired in this milestone
-rather than being misrepresented as product evidence. Those dimensions remain in
-the runtime/report contracts and must return as public-runtime scenarios when the
+The earlier single-turn fundamentals/structure fixtures exercised a harness-only
+heuristic implementation. They were retired in this milestone rather than being
+misrepresented as product evidence. Those dimensions remain in the
+runtime/report contracts and must return as public-runtime scenarios when the
 replaceable evaluator is expanded in a later approved milestone.
 
 ## Sensitivity instead of inverted canaries
@@ -59,8 +63,8 @@ general mutation-testing framework.
 Zod schemas enforce planner, evaluator, report, session-state, and reducer-event
 shapes. `submitAnswer` rejects malformed evaluator output without changing state.
 The reducer enforces the two-attempt contract and two-follow-up cap. Report
-evidence is valid only when every non-empty quote is an exact substring of the
-transcript.
+evidence is valid only when every non-empty quote is an exact substring of a
+candidate turn.
 
 ## Changed-file review
 

@@ -1,12 +1,27 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ScriptedAnswerEvaluator } from "@/lib/interview/evaluator";
-import { SEEDED_SESSION_ID, SEEDED_QUESTION_PLAN } from "@/lib/interview/seed";
+import { sessionReducer } from "@/lib/interview/reducer";
+import {
+  SEEDED_SESSION_ID,
+  SEEDED_QUESTION_PLAN,
+  createSeededSession,
+} from "@/lib/interview/seed";
 import * as turnRuntime from "@/lib/interview/turn";
 import { PracticeClient } from "./practice-client";
 
 const concreteAnswer =
-  "I built a React test harness and reduced regressions by 40% in two weeks.";
+  "I disagreed with a teammate on an API design decision, considered the tradeoffs, reduced delivery risk, and shipped the product change by 40 percent.";
+
+function renderPractice(): void {
+  render(
+    <PracticeClient
+      initialState={sessionReducer(createSeededSession(SEEDED_SESSION_ID), {
+        type: "START_SESSION",
+      })}
+    />,
+  );
+}
 
 function answerAndSubmit(answer: string): void {
   fireEvent.change(screen.getByRole("textbox", { name: "Your answer" }), {
@@ -19,7 +34,7 @@ describe("PracticeClient", () => {
   afterEach(() => vi.restoreAllMocks());
 
   it("shows the seeded question, progress, and opening transcript", () => {
-    render(<PracticeClient sessionId={SEEDED_SESSION_ID} />);
+    renderPractice();
 
     expect(screen.getByTestId("question-progress")).toHaveTextContent(
       "Question 1 of 3",
@@ -34,7 +49,7 @@ describe("PracticeClient", () => {
   });
 
   it("validates empty input without changing the transcript", () => {
-    render(<PracticeClient sessionId={SEEDED_SESSION_ID} />);
+    renderPractice();
     answerAndSubmit("   ");
 
     expect(screen.getByRole("alert")).toHaveTextContent(
@@ -44,9 +59,11 @@ describe("PracticeClient", () => {
   });
 
   it("shows specificity pressure for a vague answer, then advances for a concrete answer", async () => {
-    render(<PracticeClient sessionId={SEEDED_SESSION_ID} />);
+    renderPractice();
 
-    answerAndSubmit("We talked it through.");
+    answerAndSubmit(
+      "I had a disagreement with a teammate but we figured it out.",
+    );
     expect(
       await screen.findAllByText(/Can you make that more specific/i),
     ).toHaveLength(2);
@@ -55,7 +72,7 @@ describe("PracticeClient", () => {
     );
     expect(screen.getByTestId("follow-up-count")).toHaveTextContent("1 of 2");
     expect(screen.getByLabelText("Interview transcript")).toHaveTextContent(
-      "We talked it through.",
+      "I had a disagreement with a teammate but we figured it out.",
     );
 
     answerAndSubmit(concreteAnswer);
@@ -80,7 +97,7 @@ describe("PracticeClient", () => {
       ScriptedAnswerEvaluator.prototype,
       "evaluate",
     ).mockRejectedValueOnce(new Error("offline"));
-    render(<PracticeClient sessionId={SEEDED_SESSION_ID} />);
+    renderPractice();
 
     answerAndSubmit("A candidate answer that cannot be evaluated.");
     expect(await screen.findByRole("alert")).toHaveTextContent(
@@ -96,7 +113,7 @@ describe("PracticeClient", () => {
     vi.spyOn(turnRuntime, "submitAnswer").mockRejectedValueOnce(
       new Error("unexpected"),
     );
-    render(<PracticeClient sessionId={SEEDED_SESSION_ID} />);
+    renderPractice();
 
     answerAndSubmit(concreteAnswer);
     expect(await screen.findByRole("alert")).toHaveTextContent(
@@ -106,7 +123,7 @@ describe("PracticeClient", () => {
   });
 
   it("renders the terminal state after the final question", async () => {
-    render(<PracticeClient sessionId={SEEDED_SESSION_ID} />);
+    renderPractice();
 
     for (let questionIndex = 1; questionIndex <= 3; questionIndex += 1) {
       answerAndSubmit(concreteAnswer);

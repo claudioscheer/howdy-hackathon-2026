@@ -26,13 +26,38 @@ import {
   savePlannedQuestions,
 } from "./questions";
 
+function sampleBrief(
+  competency: string,
+  importance: "core" | "supporting",
+  timeBudgetMinutes: number,
+  maxFollowUps: 1 | 2,
+  answerBudget: number,
+) {
+  return {
+    competency,
+    roleRelevance: "Needed for the role.",
+    importance,
+    expectedDepth: "A concrete owned example.",
+    evidenceToListenFor: ["owned action"],
+    followUpTriggers: ["missing ownership"],
+    timeBudgetMinutes,
+    answerBudget,
+    maxFollowUps,
+    stopWhen: ["enough evidence is present"],
+  };
+}
+
 const opportunityRow = {
   id: "opp-2",
   role: "fullstack",
   seniority: "senior",
   targetTechStack: ["TypeScript"],
-  interviewType: "behavioral",
+  interviewType: "behavioral" as const,
   jobDescription: "Build the coach.",
+  questionPrepStatus: "idle" as const,
+  targetMinutes: 40,
+  sessionAnswerBudget: 10,
+  practiceSessionId: "opp-2",
   candidate: { displayName: "Alex", curriculum: "React work." },
 };
 
@@ -110,6 +135,25 @@ describe("planned questions", () => {
           id: "q-1",
           prompt: "  First?  ",
           primaryDimension: "specificity",
+          brief: sampleBrief("Ownership", "core", 8, 2, 3),
+        },
+        {
+          id: "q-2",
+          prompt: "Second?",
+          primaryDimension: "fundamentals",
+          brief: sampleBrief("API design", "core", 9, 2, 3),
+        },
+        {
+          id: "q-3",
+          prompt: "Third?",
+          primaryDimension: "fundamentals",
+          brief: sampleBrief("Data modeling", "core", 8, 2, 3),
+        },
+        {
+          id: "q-4",
+          prompt: "Fourth?",
+          primaryDimension: "structure",
+          brief: sampleBrief("Collaboration", "supporting", 5, 1, 2),
         },
       ],
     });
@@ -118,7 +162,11 @@ describe("planned questions", () => {
     expect(createMany).toHaveBeenCalledOnce();
     expect(update).toHaveBeenCalledWith({
       where: { id: "opp-2" },
-      data: { questionPrepStatus: "ready" },
+      data: {
+        questionPrepStatus: "ready",
+        targetMinutes: 40,
+        sessionAnswerBudget: 10,
+      },
     });
   });
 
@@ -139,16 +187,70 @@ describe("planned questions", () => {
     await expect(generatePlannedQuestions("opp-2", { plan })).rejects.toThrow(
       "The question planner returned an invalid plan.",
     );
+
+    plan.mockResolvedValue({
+      questions: [
+        {
+          id: "q-1",
+          prompt: "Only one prompt?",
+          primaryDimension: "specificity",
+        },
+      ],
+    });
+    await expect(generatePlannedQuestions("opp-2", { plan })).rejects.toThrow(
+      "The question planner returned an invalid plan.",
+    );
   });
 
   it("saves trimmed prompts and marks idle when none remain", async () => {
-    await savePlannedQuestions("opp-2", ["  Keep me  ", "   "]);
+    findUnique.mockResolvedValue(opportunityRow);
+    await savePlannedQuestions("opp-2", [
+      {
+        prompt: "  Keep me  ",
+        primaryDimension: "specificity",
+      },
+      {
+        prompt: "   ",
+        primaryDimension: "specificity",
+      },
+    ]);
     expect(createMany).toHaveBeenCalledOnce();
-    await savePlannedQuestions("opp-2", ["  ", ""]);
+    expect(update).toHaveBeenCalledWith({
+      where: { id: "opp-2" },
+      data: {
+        questionPrepStatus: "ready",
+        targetMinutes: 40,
+        sessionAnswerBudget: 10,
+      },
+    });
+    await savePlannedQuestions("opp-2", [
+      { prompt: "  ", primaryDimension: "specificity" },
+      { prompt: "", primaryDimension: "specificity" },
+    ]);
     expect(createMany).toHaveBeenCalledTimes(1);
     expect(update).toHaveBeenLastCalledWith({
       where: { id: "opp-2" },
-      data: { questionPrepStatus: "idle" },
+      data: {
+        questionPrepStatus: "idle",
+        targetMinutes: 40,
+        sessionAnswerBudget: 10,
+      },
     });
+  });
+
+  it("rejects a duplicate prompt-only plan and a missing opportunity", async () => {
+    findUnique.mockResolvedValue(opportunityRow);
+    await expect(
+      savePlannedQuestions("opp-2", [
+        { prompt: "Same?", primaryDimension: "specificity" },
+        { prompt: "Same?", primaryDimension: "specificity" },
+      ]),
+    ).rejects.toThrow("The plan repeats a question prompt.");
+    findUnique.mockResolvedValue(null);
+    await expect(
+      savePlannedQuestions("missing", [
+        { prompt: "Keep me", primaryDimension: "specificity" },
+      ]),
+    ).rejects.toThrow("Opportunity not found.");
   });
 });

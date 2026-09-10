@@ -1,33 +1,31 @@
 import { z } from "zod";
+import { InterviewerBriefSchema } from "./brief";
+import { QuestionOutcomeSchema } from "./judgment";
+import { RubricDimensionSchema } from "./rubric";
 
-export const RubricDimensionSchema = z.enum([
-  "relevance",
-  "specificity",
-  "fundamentals",
-  "structure",
-]);
-export type RubricDimension = z.infer<typeof RubricDimensionSchema>;
+export { InterviewerBriefSchema, planReadiness } from "./brief";
+export type { InterviewerBrief, PlanReadiness } from "./brief";
+export {
+  AppliedStopReasonSchema,
+  InterviewerDecisionSchema,
+  JudgmentEvidenceSchema,
+  ProbePurposeSchema,
+  QuestionOutcomeSchema,
+  RecommendedStopReasonSchema,
+} from "./judgment";
+export type {
+  AppliedStopReason,
+  InterviewerDecision,
+  JudgmentEvidence,
+  ProbePurpose,
+  QuestionOutcome,
+  RecommendedStopReason,
+} from "./judgment";
+export { RubricDimensionSchema } from "./rubric";
+export type { RubricDimension } from "./rubric";
 
 export const DecisionTypeSchema = z.enum(["FOLLOW_UP", "MOVE_ON"]);
 export type DecisionType = z.infer<typeof DecisionTypeSchema>;
-
-const FollowUpDecisionSchema = z.object({
-  decision: z.literal("FOLLOW_UP"),
-  reason: z.string().min(5),
-  dimension: RubricDimensionSchema,
-  followUp: z.string().trim().min(1),
-});
-
-const MoveOnDecisionSchema = z.object({
-  decision: z.literal("MOVE_ON"),
-  reason: z.string().min(5),
-});
-
-export const InterviewerDecisionSchema = z.discriminatedUnion("decision", [
-  FollowUpDecisionSchema,
-  MoveOnDecisionSchema,
-]);
-export type InterviewerDecision = z.infer<typeof InterviewerDecisionSchema>;
 
 export const InterviewTypeSchema = z.enum([
   "behavioral",
@@ -50,10 +48,14 @@ export const OpportunityProfileSchema = z.object({
 });
 export type OpportunityProfile = z.infer<typeof OpportunityProfileSchema>;
 
+export const DEFAULT_TARGET_MINUTES = 40;
+export const DEFAULT_SESSION_ANSWER_BUDGET = 10;
+
 export const InterviewQuestionSchema = z.object({
   id: z.string().min(1),
   prompt: z.string().min(1),
   primaryDimension: RubricDimensionSchema,
+  brief: InterviewerBriefSchema.optional(),
 });
 export type InterviewQuestion = z.infer<typeof InterviewQuestionSchema>;
 
@@ -69,6 +71,12 @@ export const QuestionPlanInputSchema = z.object({
 });
 
 export const QuestionPlanSchema = z.object({
+  targetMinutes: z.number().positive().default(DEFAULT_TARGET_MINUTES),
+  sessionAnswerBudget: z
+    .number()
+    .int()
+    .positive()
+    .default(DEFAULT_SESSION_ANSWER_BUDGET),
   questions: z.array(InterviewQuestionSchema).min(1),
 });
 export type QuestionPlan = z.infer<typeof QuestionPlanSchema>;
@@ -93,13 +101,28 @@ export type AnswerEvaluationInput = z.infer<typeof AnswerEvaluationInputSchema>;
 export const ReportEvidenceSchema = z.object({
   questionId: z.string().min(1),
   quote: z.string().min(1),
+  supports: z.string().min(1).optional(),
 });
 
-export const ReportDimensionSchema = z.object({
+const ScoredDimensionSchema = z.object({
+  status: z.literal("scored"),
   score: z.number().int().min(1).max(5),
   summary: z.string().min(1),
   evidence: z.array(ReportEvidenceSchema),
+  remainingUnknown: z.string().min(1).optional(),
 });
+
+const InsufficientEvidenceDimensionSchema = z.object({
+  status: z.literal("insufficient_evidence"),
+  summary: z.string().min(1),
+  evidence: z.array(ReportEvidenceSchema),
+  remainingUnknown: z.string().min(1),
+});
+
+export const ReportDimensionSchema = z.discriminatedUnion("status", [
+  ScoredDimensionSchema,
+  InsufficientEvidenceDimensionSchema,
+]);
 
 export const SessionReportSchema = z.object({
   attemptNumber: z.number().int().min(1),
@@ -117,6 +140,8 @@ export const ReportEvaluationInputSchema = z.object({
   opportunity: OpportunityProfileSchema,
   attemptNumber: z.number().int().min(1),
   transcript: z.array(TranscriptTurnSchema).min(1),
+  questions: z.array(InterviewQuestionSchema).min(1),
+  questionOutcomes: z.array(QuestionOutcomeSchema),
 });
 
 export interface QuestionPlanner {

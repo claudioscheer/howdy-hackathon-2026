@@ -25,6 +25,12 @@ enum QuestionPrepStatus {
   ready
 }
 
+enum QuestionImportance {
+  core
+  supporting
+  optional
+}
+
 model Opportunity {
   id                  String             @id
   role                String
@@ -34,6 +40,8 @@ model Opportunity {
   jobDescription      String
   status              OpportunityStatus  @default(Draft)
   questionPrepStatus  QuestionPrepStatus @default(idle)
+  targetMinutes       Int                @default(40)
+  sessionAnswerBudget Int                @default(10)
   attemptsLimit       Int                @default(2)
   attemptsUsed        Int                @default(0)
   token               String             @unique
@@ -45,12 +53,16 @@ model Opportunity {
 }
 
 model PlannedQuestion {
-  id            String      @id
-  opportunityId String
-  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
-  prompt        String
-  sortOrder     Int
-  createdAt     DateTime    @default(now())
+  id                String               @id
+  opportunityId     String
+  opportunity       Opportunity          @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  prompt            String
+  sortOrder         Int
+  primaryDimension  String               @default("specificity")
+  importance        QuestionImportance?
+  competency        String?
+  brief             Json?
+  createdAt         DateTime             @default(now())
 }
 
 model Candidate {

@@ -8,6 +8,68 @@ with no new human prompt in the middle of that loop. Keep it short. Add a note o
 
 ---
 
+## 2026-09-09 — Saved plans and policy bugs failed the gate, then passed
+
+**Act.** Wired saved questions into practice, made relevance brief- and
+history-aware, required candidate-turn evidence, and fixed follow-up caps,
+optional/supporting reservation, brief review, and plan persistence.
+
+**Verify / observe.** `pnpm run verify` failed coverage on skip/evidence
+branches, harness counts after new goldens, then Playwright: leftover generated
+questions on the demo opportunity, empty tech stacks 404ing new sessions, and
+duplicate candidate names.
+
+**Fix / verify again.** Covered the remaining branches, updated golden/holdout
+counts, seeded the three demo prompts, defaulted an empty stack, and used a
+unique candidate name in the browser journey. The next `pnpm run verify` passed.
+
+---
+
+## 2026-09-09 — Empty OpenCode completion crashed generate, then passed
+
+**Act.** Raised the planner completion budget and taught the OpenCode client to
+read GLM reasoning fallbacks so question generation is not empty.
+
+**Verify / observe.** `pnpm run verify` failed lint on an `import()` type in a
+panel test, then coverage on ignored multimodal content parts.
+
+**Fix / verify again.** Matched the existing `importOriginal` pattern and
+loosened content-part parsing. The next `pnpm run verify` passed. A live
+`opp-3` generate then stored four briefed questions.
+
+---
+
+## 2026-09-09 — Four-question planner failed generate, then passed
+
+**Act.** Replaced the hardcoded “exactly 3 prompts” planner with a 37-minute
+arc (background, two cores, collaboration) and added importance controls to
+question review.
+
+**Verify / observe.** `pnpm run verify` failed typecheck until `prisma generate`,
+then coverage on form-field fallbacks, then lint on an `as unknown` JSON parse.
+
+**Fix / verify again.** Regenerated the client, covered prompt-only drafts, and
+parsed JSON into `unknown` without a cast. The next `pnpm run verify` passed.
+
+---
+
+## 2026-09-09 — Interview plan freeze failed the gate, then passed
+
+**Act.** Froze the interview-plan contract: interviewer briefs, answer
+budgets, model vs policy stop reasons, insufficient-evidence reports, and the
+`irrelevant-react-on-conflict` golden.
+
+**Verify / observe.** `pnpm run verify` failed typecheck on a duplicate
+`InterviewerDecision` export, then coverage on new policy branches, then the
+Playwright journey because a stale server on :3000 never applied the filled
+answer.
+
+**Fix / verify again.** Removed the extra export, covered the budget/skip
+branches, asserted the filled answer before submit, and reran against a fresh
+dev server. The next `pnpm run verify` passed.
+
+---
+
 ## 2026-09-08 — OpenCode planner lint failed, then passed
 
 **Act.** Replaced placeholder question generation with an OpenCode Zen client

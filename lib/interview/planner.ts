@@ -10,6 +10,9 @@ import {
   type OpenCodeClient,
 } from "./opencode-client";
 import { completeJson } from "./opencode-json";
+import { DEFAULT_MAX_COMPLETION_TOKENS } from "./opencode-config";
+import { PLANNER_SYSTEM_PROMPT } from "./planner-prompt";
+import { briefedPlanProblems } from "./plan-quality";
 
 export type QuestionBriefing = {
   opportunity: OpportunityProfile;
@@ -23,15 +26,6 @@ export interface QuestionGenerator {
   plan(briefing: QuestionBriefing): Promise<unknown>;
 }
 
-const PLANNER_SYSTEM_PROMPT = [
-  "You plan mock interview questions for a fictional practice interview.",
-  "Return JSON only in this shape:",
-  '{"questions":[{"id":"string","prompt":"string","primaryDimension":"relevance"|"specificity"|"fundamentals"|"structure"}]}',
-  "Propose exactly 3 questions tailored to the role, seniority, interview type, tech stack, job description, and candidate curriculum.",
-  "Each prompt must be a single interviewer question the candidate can answer in text.",
-  "Do not repeat used questions. Cover distinct rubric dimensions when possible.",
-].join(" ");
-
 export function openCodeSessionId(
   kind: "question-plan" | "interview",
   id: string,
@@ -43,13 +37,14 @@ export async function planQuestionsWithOpenCode(
   client: OpenCodeClient,
   briefing: QuestionBriefing,
 ): Promise<unknown> {
-  return completeJson(
+  const plan = await completeJson(
     client,
     {
       sessionId: openCodeSessionId(
         "question-plan",
         `${briefing.opportunity.id}:attempt:${briefing.attemptNumber}`,
       ),
+      maxTokens: DEFAULT_MAX_COMPLETION_TOKENS,
       messages: [
         { role: "system", content: PLANNER_SYSTEM_PROMPT },
         { role: "user", content: JSON.stringify(briefing) },
@@ -57,6 +52,14 @@ export async function planQuestionsWithOpenCode(
     },
     QuestionPlanSchema,
   );
+  const problems = briefedPlanProblems(
+    plan,
+    briefing.opportunity.interviewType,
+  );
+  if (problems.length > 0) {
+    throw new Error("The question planner returned an invalid plan.");
+  }
+  return plan;
 }
 
 export function createOpenCodeQuestionGenerator(

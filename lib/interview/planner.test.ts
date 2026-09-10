@@ -22,12 +22,52 @@ const briefing: QuestionBriefing = {
   curriculum: "Shipped React apps.",
 };
 
+function sampleBrief(
+  competency: string,
+  importance: "core" | "supporting",
+  timeBudgetMinutes: number,
+  maxFollowUps: 1 | 2,
+  answerBudget: number,
+) {
+  return {
+    competency,
+    roleRelevance: "Needed for this role.",
+    importance,
+    expectedDepth: "A concrete owned example at this seniority.",
+    evidenceToListenFor: ["owned action"],
+    followUpTriggers: ["missing ownership"],
+    timeBudgetMinutes,
+    answerBudget,
+    maxFollowUps,
+    stopWhen: ["the expected evidence is present"],
+  };
+}
+
 const plan = {
   questions: [
     {
       id: "q-1",
-      prompt: "Walk through a recent TypeScript change you owned.",
+      prompt: "What have you focused on in the last year?",
       primaryDimension: "specificity",
+      brief: sampleBrief("Recent ownership", "core", 8, 2, 3),
+    },
+    {
+      id: "q-2",
+      prompt: "Walk through a TypeScript change you owned.",
+      primaryDimension: "fundamentals",
+      brief: sampleBrief("TypeScript delivery", "core", 9, 2, 3),
+    },
+    {
+      id: "q-3",
+      prompt: "How did you design the PostgreSQL schema for that change?",
+      primaryDimension: "fundamentals",
+      brief: sampleBrief("Data modeling", "core", 8, 2, 3),
+    },
+    {
+      id: "q-4",
+      prompt: "Tell me about a disagreement with a teammate.",
+      primaryDimension: "structure",
+      brief: sampleBrief("Collaboration", "supporting", 5, 1, 2),
     },
   ],
 };
@@ -47,19 +87,40 @@ describe("OpenCode question planner", () => {
     );
   });
 
+  it("rejects a three-prompt plan that has no interviewer briefs", async () => {
+    const complete = vi.fn(async () =>
+      JSON.stringify({
+        questions: [
+          {
+            id: "q-1",
+            prompt: "Only one prompt?",
+            primaryDimension: "specificity",
+          },
+        ],
+      }),
+    );
+    const client: OpenCodeClient = { complete };
+    await expect(planQuestionsWithOpenCode(client, briefing)).rejects.toThrow(
+      "The question planner returned an invalid plan.",
+    );
+  });
+
   it("asks OpenCode for a structured question plan", async () => {
     const complete = vi.fn(async () => JSON.stringify(plan));
     const client: OpenCodeClient = { complete };
-    await expect(planQuestionsWithOpenCode(client, briefing)).resolves.toEqual(
-      plan,
-    );
+    await expect(planQuestionsWithOpenCode(client, briefing)).resolves.toEqual({
+      ...plan,
+      targetMinutes: 40,
+      sessionAnswerBudget: 10,
+    });
     expect(complete).toHaveBeenCalledWith({
       sessionId: "question-plan:opp-2:attempt:1",
       json: true,
+      maxTokens: 8192,
       messages: [
         {
           role: "system",
-          content: expect.stringContaining("Propose exactly 3 questions"),
+          content: expect.stringContaining("close to 40 minutes"),
         },
         { role: "user", content: JSON.stringify(briefing) },
       ],
@@ -70,7 +131,11 @@ describe("OpenCode question planner", () => {
     const complete = vi.fn(async () => JSON.stringify(plan));
     const client: OpenCodeClient = { complete };
     const generator = createOpenCodeQuestionGenerator(client);
-    await expect(generator.plan(briefing)).resolves.toEqual(plan);
+    await expect(generator.plan(briefing)).resolves.toEqual({
+      ...plan,
+      targetMinutes: 40,
+      sessionAnswerBudget: 10,
+    });
 
     const planner = new OpenCodeQuestionPlanner(client);
     await planner.plan({
@@ -112,6 +177,10 @@ describe("OpenCode question planner", () => {
       ),
     );
     const generator = createOpenCodeQuestionGenerator();
-    await expect(generator.plan(briefing)).resolves.toEqual(plan);
+    await expect(generator.plan(briefing)).resolves.toEqual({
+      ...plan,
+      targetMinutes: 40,
+      sessionAnswerBudget: 10,
+    });
   });
 });

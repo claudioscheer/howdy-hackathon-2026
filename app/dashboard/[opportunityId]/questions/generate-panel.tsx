@@ -1,5 +1,6 @@
 "use client";
 
+import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { QUESTIONS_PAGE } from "@/lib/ui/copy";
 import { generateQuestionsAction } from "./actions";
@@ -23,18 +24,34 @@ export function GenerateQuestionsPanel({
 }: {
   opportunityId: string;
 }): React.JSX.Element {
+  const [state, action] = useActionState(generateQuestionsAction, {});
   return (
     <form
       data-testid="generate-questions-form"
-      action={generateQuestionsAction.bind(null, opportunityId)}
+      action={action}
       className="flex max-w-xl flex-col gap-4"
     >
+      <input
+        type="hidden"
+        name="opportunityId"
+        value={opportunityId}
+        data-testid="generate-opportunity-id"
+      />
       <p
         data-testid="generate-questions-copy"
         className="text-sm leading-relaxed text-[#5a5a5f]"
       >
         {QUESTIONS_PAGE.generateDescription}
       </p>
+      {state.error !== undefined ? (
+        <p
+          role="alert"
+          data-testid="generate-questions-error"
+          className="text-sm font-bold text-[#a30000]"
+        >
+          {state.error}
+        </p>
+      ) : null}
       <GenerateSubmit />
     </form>
   );

@@ -34,6 +34,14 @@ export function proveSchemaContract(): Proof {
     dimension: "specificity",
     followUp: "Can you provide a concrete incident?",
     reason: "Answer was generic.",
+    probePurpose: "clarification",
+    unresolvedGap: "The answer lacks a concrete incident.",
+    evidence: [
+      {
+        quote: "I generally communicate well",
+        supports: "The answer stays generic.",
+      },
+    ],
   });
   return {
     pass:

@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { SEEDED_SESSION_ID } from "../lib/interview/seed";
+import { SEEDED_QUESTION_PLAN, SEEDED_SESSION_ID } from "../lib/interview/seed";
 
 const prisma = new PrismaClient();
 
@@ -38,7 +38,7 @@ const SEEDED_OPPORTUNITIES = [
     attemptsUsed: 0,
     token: "fs-3b17c",
     practiceSessionId: SEEDED_SESSION_ID,
-    questionPrepStatus: "idle" as const,
+    questionPrepStatus: "ready" as const,
     candidate: {
       id: "candidate-alex-rivera",
       displayName: "Alex Rivera",
@@ -94,10 +94,26 @@ async function seedOpportunity(
   });
 }
 
+async function seedDemoQuestions(): Promise<void> {
+  await prisma.plannedQuestion.deleteMany({
+    where: { opportunityId: { in: ["opp-1", "opp-2", "opp-3"] } },
+  });
+  await prisma.plannedQuestion.createMany({
+    data: SEEDED_QUESTION_PLAN.map((question, sortOrder) => ({
+      id: question.id,
+      opportunityId: "opp-2",
+      prompt: question.prompt,
+      sortOrder,
+      primaryDimension: question.primaryDimension,
+    })),
+  });
+}
+
 async function main(): Promise<void> {
   for (const opportunity of SEEDED_OPPORTUNITIES) {
     await seedOpportunity(opportunity);
   }
+  await seedDemoQuestions();
 }
 
 main()

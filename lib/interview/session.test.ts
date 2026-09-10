@@ -22,6 +22,11 @@ const state = {
   ],
   questionIndex: 0,
   followUpCount: 0,
+  sessionAnswerBudget: 10,
+  sessionAnswersUsed: 0,
+  questionAnswersUsed: 0,
+  evaluationPath: "basic",
+  questionOutcomes: [],
   history: [],
   completedQuestionIds: [],
   usedQuestions: [],
@@ -54,6 +59,13 @@ describe("session state contract", () => {
         decision: {
           decision: "MOVE_ON",
           reason: "The answer is sufficiently specific.",
+          recommendedStopReason: "evidence_sufficient",
+          evidence: [
+            {
+              quote: "I owned the rollback",
+              supports: "The candidate described personal ownership.",
+            },
+          ],
         },
       }).success,
     ).toBe(true);

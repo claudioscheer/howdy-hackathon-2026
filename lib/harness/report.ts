@@ -75,7 +75,7 @@ export const ACCEPTANCE_SPECS: Array<
     id: "ACC-PRODUCT-GROUNDED-REPORT",
     layer: 1,
     description:
-      "A completed interview produces all four scores with transcript-grounded feedback",
+      "A completed interview reports all four dimensions as scored or insufficient-evidence, with transcript-grounded feedback",
   },
   {
     id: "ACC-PRODUCT-RETRY-COMPARISON",

@@ -39,6 +39,8 @@ function row(overrides: Partial<OpportunityRow> = {}): OpportunityRow {
     token: "fs-3b17c",
     practiceSessionId: "fullstack-product-engineer",
     questionPrepStatus: "idle",
+    targetMinutes: 40,
+    sessionAnswerBudget: 10,
     jobDescription:
       "Ship product features across React, Node.js, and PostgreSQL.",
     createdAt: new Date("2026-01-01"),

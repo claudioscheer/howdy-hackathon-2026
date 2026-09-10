@@ -41,7 +41,8 @@ describe("harness runner", () => {
       description: "Impossible expected transition.",
       steps: [
         {
-          answer: "I led a TypeScript migration that cut errors by 30 percent.",
+          answer:
+            "I disagreed with a teammate on a TypeScript migration that cut errors by 30 percent.",
           expected: {
             outcome: "APPLIED",
             recommendedDecision: "FOLLOW_UP",
@@ -140,10 +141,10 @@ describe("harness runner", () => {
     expect(result.ok).toBe(true);
     expect(result.trace.runtime).toBe("lib/interview");
     expect(result.trace.layer1).toMatchObject({
-      passedGoldens: 3,
-      totalGoldens: 3,
-      holdoutsPassed: 1,
-      totalHoldouts: 1,
+      passedGoldens: 5,
+      totalGoldens: 5,
+      holdoutsPassed: 2,
+      totalHoldouts: 2,
       adaptivePath: true,
       secondFollowUp: true,
       deterministicCap: true,

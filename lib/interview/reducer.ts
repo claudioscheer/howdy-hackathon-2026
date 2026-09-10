@@ -1,100 +1,13 @@
-import type {
-  InterviewQuestion,
-  InterviewerDecision,
-  TranscriptTurn,
-} from "./contracts";
+import type { InterviewQuestion } from "./contracts";
 import {
-  MAX_FOLLOW_UPS_PER_QUESTION,
-  type SessionEvent,
-  type SessionReducer,
-  type SessionState,
-} from "./session";
+  applyDecision,
+  appendTurn,
+  startPlannedSession,
+} from "./session-transition";
+import type { SessionEvent, SessionReducer, SessionState } from "./session";
 
 function currentQuestion(state: SessionState): InterviewQuestion | undefined {
   return state.questions[state.questionIndex];
-}
-
-function appendTurn(
-  state: SessionState,
-  turn: Omit<TranscriptTurn, "id">,
-): TranscriptTurn[] {
-  return [
-    ...state.history,
-    {
-      ...turn,
-      id: `${state.sessionId}-turn-${state.history.length + 1}`,
-    },
-  ];
-}
-
-function rememberQuestion(
-  state: SessionState,
-  question: InterviewQuestion,
-): Pick<SessionState, "completedQuestionIds" | "usedQuestions"> {
-  return {
-    completedQuestionIds: state.completedQuestionIds.includes(question.id)
-      ? state.completedQuestionIds
-      : [...state.completedQuestionIds, question.id],
-    usedQuestions: state.usedQuestions.some((used) => used.id === question.id)
-      ? state.usedQuestions
-      : [...state.usedQuestions, { id: question.id, prompt: question.prompt }],
-  };
-}
-
-function advanceQuestion(
-  state: SessionState,
-  question: InterviewQuestion,
-): SessionState {
-  const remembered = rememberQuestion(state, question);
-  const nextQuestion = state.questions[state.questionIndex + 1];
-
-  if (nextQuestion === undefined) {
-    return {
-      ...state,
-      ...remembered,
-      status: "COMPLETE",
-      followUpCount: 0,
-    };
-  }
-
-  return {
-    ...state,
-    ...remembered,
-    status: "AWAITING_ANSWER",
-    questionIndex: state.questionIndex + 1,
-    followUpCount: 0,
-    history: appendTurn(state, {
-      questionId: nextQuestion.id,
-      speaker: "interviewer",
-      kind: "question",
-      content: nextQuestion.prompt,
-    }),
-  };
-}
-
-function applyDecision(
-  state: SessionState,
-  question: InterviewQuestion,
-  decision: InterviewerDecision,
-): SessionState {
-  if (
-    decision.decision === "FOLLOW_UP" &&
-    state.followUpCount < MAX_FOLLOW_UPS_PER_QUESTION
-  ) {
-    return {
-      ...state,
-      status: "AWAITING_ANSWER",
-      followUpCount: state.followUpCount + 1,
-      history: appendTurn(state, {
-        questionId: question.id,
-        speaker: "interviewer",
-        kind: "follow_up",
-        content: decision.followUp,
-      }),
-    };
-  }
-
-  return advanceQuestion(state, question);
 }
 
 export const sessionReducer: SessionReducer = (
@@ -105,19 +18,10 @@ export const sessionReducer: SessionReducer = (
 
   switch (event.type) {
     case "START_SESSION":
-      if (state.status !== "PLANNED" || question === undefined) {
+      if (state.status !== "PLANNED") {
         return state;
       }
-      return {
-        ...state,
-        status: "AWAITING_ANSWER",
-        history: appendTurn(state, {
-          questionId: question.id,
-          speaker: "interviewer",
-          kind: "question",
-          content: question.prompt,
-        }),
-      };
+      return startPlannedSession(state);
 
     case "ANSWER_SUBMITTED":
       if (state.status !== "AWAITING_ANSWER" || question === undefined) {
@@ -126,6 +30,8 @@ export const sessionReducer: SessionReducer = (
       return {
         ...state,
         status: "EVALUATING_ANSWER",
+        sessionAnswersUsed: state.sessionAnswersUsed + 1,
+        questionAnswersUsed: state.questionAnswersUsed + 1,
         history: appendTurn(state, {
           questionId: question.id,
           speaker: "candidate",

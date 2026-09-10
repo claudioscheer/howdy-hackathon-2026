@@ -1,0 +1,18 @@
+{
+  "id": "relevant-conflict-paraphrase",
+  "description": "A paraphrased conflict answer that never repeats disagreement or teammate still addresses the question",
+  "evaluator": "SCRIPTED",
+  "steps": [
+    {
+      "answer": "A colleague proposed a rewrite. I compared alternatives, kept PostgreSQL, and we agreed on a smaller change that cut latency 30 percent.",
+      "expected": {
+        "outcome": "APPLIED",
+        "recommendedDecision": "MOVE_ON",
+        "questionIndex": 1,
+        "followUpCount": 0,
+        "historyLength": 3,
+        "status": "AWAITING_ANSWER"
+      }
+    }
+  ]
+}

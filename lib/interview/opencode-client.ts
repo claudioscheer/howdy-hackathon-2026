@@ -1,6 +1,10 @@
 import { z } from "zod";
+import { completionText } from "./completion-text";
 import type { OpenCodeConfig } from "./opencode-config";
-import { readOpenCodeConfig } from "./opencode-config";
+import {
+  DEFAULT_MAX_COMPLETION_TOKENS,
+  readOpenCodeConfig,
+} from "./opencode-config";
 
 export type OpenCodeRole = "system" | "user" | "assistant";
 
@@ -20,18 +24,6 @@ export type OpenCodeCompleteInput = {
 export interface OpenCodeClient {
   complete(input: OpenCodeCompleteInput): Promise<string>;
 }
-
-const ChatCompletionSchema = z.object({
-  choices: z
-    .array(
-      z.object({
-        message: z.object({
-          content: z.union([z.string(), z.null()]).optional(),
-        }),
-      }),
-    )
-    .min(1),
-});
 
 const OpenCodeErrorSchema = z.object({
   error: z
@@ -100,7 +92,7 @@ function requestBody(
   const body: Record<string, unknown> = {
     model: config.model,
     messages: input.messages,
-    max_tokens: input.maxTokens ?? 2048,
+    max_tokens: input.maxTokens ?? DEFAULT_MAX_COMPLETION_TOKENS,
   };
   if (input.json === true) {
     body.response_format = { type: "json_object" };
@@ -126,13 +118,4 @@ function errorMessage(payload: unknown, status: number): string {
     return `OpenCode request failed (${status}): ${detail}`;
   }
   return `OpenCode request failed (${status}).`;
-}
-
-function completionText(payload: unknown): string {
-  const parsed = ChatCompletionSchema.safeParse(payload);
-  const content = parsed.data?.choices[0]?.message.content?.trim() ?? "";
-  if (!parsed.success || content.length === 0) {
-    throw new Error("OpenCode returned an empty completion.");
-  }
-  return content;
 }

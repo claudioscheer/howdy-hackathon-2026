@@ -25,6 +25,8 @@ const record = {
   jobDescription: "Ship product work.",
   status: "Active" as const,
   questionPrepStatus: "idle" as const,
+  targetMinutes: 40,
+  sessionAnswerBudget: 10,
   attemptsLimit: 2,
   attemptsUsed: 0,
   token: "fs-3b17c",

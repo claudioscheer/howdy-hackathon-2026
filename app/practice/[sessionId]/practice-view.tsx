@@ -1,5 +1,5 @@
+import { questionFollowUpCap } from "@/lib/interview/session-policy";
 import {
-  MAX_FOLLOW_UPS_PER_QUESTION,
   MAX_SESSION_ATTEMPTS,
   type SessionState,
 } from "@/lib/interview/session";
@@ -88,15 +88,15 @@ export function CurrentQuestion({
       >
         {isComplete ? "You completed this practice interview." : activePrompt}
       </h2>
-      {!isComplete && (
+      {!isComplete && question !== undefined ? (
         <p
           className="mt-3 text-sm text-[#5a5a5f]"
           data-testid="follow-up-count"
         >
           Follow-ups on this question: {session.followUpCount} of{" "}
-          {MAX_FOLLOW_UPS_PER_QUESTION}
+          {questionFollowUpCap(question)}
         </p>
-      )}
+      ) : null}
     </div>
   );
 }

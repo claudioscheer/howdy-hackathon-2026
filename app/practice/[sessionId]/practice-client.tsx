@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { ScriptedAnswerEvaluator } from "@/lib/interview/evaluator";
-import { sessionReducer } from "@/lib/interview/reducer";
-import { createSeededSession } from "@/lib/interview/seed";
 import type { SessionState } from "@/lib/interview/session";
 import { submitAnswer } from "@/lib/interview/turn";
 import {
@@ -15,18 +13,12 @@ import {
 
 const evaluator = new ScriptedAnswerEvaluator();
 
-function createStartedSession(sessionId: string): SessionState {
-  return sessionReducer(createSeededSession(sessionId), {
-    type: "START_SESSION",
-  });
-}
-
 export function PracticeClient({
-  sessionId,
+  initialState,
 }: {
-  sessionId: string;
+  initialState: SessionState;
 }): React.JSX.Element {
-  const [session, setSession] = useState(() => createStartedSession(sessionId));
+  const [session, setSession] = useState(initialState);
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState<string>();
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -30,6 +30,7 @@ export function proveRuntimeContractSet(): Proof {
     history: [],
   });
   const dimension = {
+    status: "scored",
     score: 3,
     summary: "Needs more evidence.",
     evidence: [{ questionId: "q1", quote: "reduced P99 latency" }],

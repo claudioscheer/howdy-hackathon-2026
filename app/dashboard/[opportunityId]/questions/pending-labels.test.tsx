@@ -35,7 +35,18 @@ describe("pending question form labels", () => {
 
   it("shows saving while review save is pending", () => {
     render(
-      <ReviewQuestionsForm opportunityId="opp-2" initialPrompts={["Q"]} />,
+      <ReviewQuestionsForm
+        opportunityId="opp-2"
+        initialQuestions={[
+          {
+            prompt: "Q",
+            importance: "",
+            competency: "",
+            primaryDimension: "specificity",
+            briefJson: "",
+          },
+        ]}
+      />,
     );
     expect(screen.getByTestId("save-questions-submit")).toHaveTextContent(
       "Saving",

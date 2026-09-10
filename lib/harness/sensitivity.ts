@@ -9,6 +9,13 @@ import { type EvalScenario } from "./fixtures";
 const ALWAYS_MOVE_ON: InterviewerDecision = {
   decision: "MOVE_ON",
   reason: "Mutation always advances regardless of answer quality.",
+  recommendedStopReason: "evidence_sufficient",
+  evidence: [
+    {
+      quote: "placeholder",
+      supports: "Mutation ignores whether the quote supports moving on.",
+    },
+  ],
 };
 
 const ALWAYS_FOLLOW_UP: InterviewerDecision = {
@@ -16,13 +23,29 @@ const ALWAYS_FOLLOW_UP: InterviewerDecision = {
   reason: "Mutation always follows up regardless of answer quality.",
   dimension: "specificity",
   followUp: "Mutation asks another question every time.",
+  probePurpose: "clarification",
+  unresolvedGap: "Mutation always claims a gap remains.",
+  evidence: [
+    {
+      quote: "placeholder",
+      supports: "Mutation ignores whether the quote supports a follow-up.",
+    },
+  ],
 };
 
 class ConstantDecisionEvaluator implements AnswerEvaluator {
   constructor(private readonly decision: InterviewerDecision) {}
 
-  async evaluate(_input: AnswerEvaluationInput): Promise<unknown> {
-    return this.decision;
+  async evaluate(input: AnswerEvaluationInput): Promise<unknown> {
+    return {
+      ...this.decision,
+      evidence: [
+        {
+          quote: input.answer,
+          supports: "Mutation ignores whether the quote supports the decision.",
+        },
+      ],
+    };
   }
 }
 

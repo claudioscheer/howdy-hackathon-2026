@@ -1,5 +1,6 @@
 export const DEFAULT_OPENCODE_BASE_URL = "https://opencode.ai/zen/v1";
 export const DEFAULT_OPENCODE_MODEL = "glm-5.3-flash";
+export const DEFAULT_MAX_COMPLETION_TOKENS = 8192;
 
 export type OpenCodeConfig = {
   apiKey: string;

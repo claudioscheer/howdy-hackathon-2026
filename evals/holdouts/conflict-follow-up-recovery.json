@@ -1,0 +1,30 @@
+{
+  "id": "conflict-follow-up-recovery",
+  "description": "An off-topic first answer can recover on the follow-up without repeating the original question vocabulary",
+  "evaluator": "SCRIPTED",
+  "steps": [
+    {
+      "answer": "My side project was a photo gallery I built in JavaScript.",
+      "expected": {
+        "outcome": "APPLIED",
+        "recommendedDecision": "FOLLOW_UP",
+        "dimension": "relevance",
+        "questionIndex": 0,
+        "followUpCount": 1,
+        "historyLength": 3,
+        "status": "AWAITING_ANSWER"
+      }
+    },
+    {
+      "answer": "An engineer wanted a full rebuild. I walked the tradeoff against extracting one module, kept the Postgres schema, and we shipped the smaller cut that dropped errors from 12 percent to 3 percent.",
+      "expected": {
+        "outcome": "APPLIED",
+        "recommendedDecision": "MOVE_ON",
+        "questionIndex": 1,
+        "followUpCount": 0,
+        "historyLength": 5,
+        "status": "AWAITING_ANSWER"
+      }
+    }
+  ]
+}

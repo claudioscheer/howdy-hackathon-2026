@@ -1,0 +1,31 @@
+{
+  "id": "irrelevant-react-on-conflict",
+  "description": "A fluent React personal-project answer does not satisfy a teammate-disagreement question and must FOLLOW_UP on relevance, including the teammate paraphrase and a later on-topic recovery",
+  "evaluator": "SCRIPTED",
+  "steps": [
+    {
+      "answer": "I used React for six months on a personal project",
+      "expected": {
+        "outcome": "APPLIED",
+        "recommendedDecision": "FOLLOW_UP",
+        "dimension": "relevance",
+        "questionIndex": 0,
+        "followUpCount": 1,
+        "historyLength": 3,
+        "status": "AWAITING_ANSWER"
+      }
+    },
+    {
+      "answer": "I used React with a teammate for six months on a personal project.",
+      "expected": {
+        "outcome": "APPLIED",
+        "recommendedDecision": "FOLLOW_UP",
+        "dimension": "relevance",
+        "questionIndex": 0,
+        "followUpCount": 2,
+        "historyLength": 5,
+        "status": "AWAITING_ANSWER"
+      }
+    }
+  ]
+}

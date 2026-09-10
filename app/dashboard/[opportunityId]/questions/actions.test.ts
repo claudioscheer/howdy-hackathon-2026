@@ -30,20 +30,103 @@ describe("question actions", () => {
 
   it("generates planned questions and returns to review", async () => {
     generatePlannedQuestions.mockResolvedValue(undefined);
-    await generateQuestionsAction("opp-2");
+    const formData = new FormData();
+    formData.append("opportunityId", "opp-2");
+    await generateQuestionsAction({}, formData);
     expect(generatePlannedQuestions).toHaveBeenCalledWith("opp-2");
     expect(redirect).toHaveBeenCalledWith("/dashboard/opp-2/questions");
+  });
+
+  it("returns a visible error instead of crashing the page", async () => {
+    generatePlannedQuestions.mockRejectedValue(
+      new Error("OpenCode returned an empty completion."),
+    );
+    const formData = new FormData();
+    formData.append("opportunityId", "opp-2");
+    await expect(generateQuestionsAction({}, formData)).resolves.toEqual({
+      error: "OpenCode returned an empty completion.",
+    });
+    expect(redirect).not.toHaveBeenCalled();
+  });
+
+  it("maps unknown generation failures to a generic message", async () => {
+    generatePlannedQuestions.mockRejectedValue("nope");
+    const formData = new FormData();
+    formData.append("opportunityId", "opp-2");
+    await expect(generateQuestionsAction({}, formData)).resolves.toEqual({
+      error: "Question generation failed.",
+    });
+  });
+
+  it("rejects a generate submit without an opportunity id", async () => {
+    await expect(generateQuestionsAction({}, new FormData())).resolves.toEqual({
+      error: "Opportunity not found.",
+    });
   });
 
   it("saves submitted prompts", async () => {
     savePlannedQuestions.mockResolvedValue(undefined);
     const formData = new FormData();
     formData.append("prompt", "First?");
+    formData.append("importance", "core");
+    formData.append("competency", "Ownership");
+    formData.append("primaryDimension", "specificity");
     formData.append("prompt", "Second?");
-    await saveQuestionsAction("opp-2", formData);
-    expect(savePlannedQuestions).toHaveBeenCalledWith("opp-2", [
-      "First?",
-      "Second?",
-    ]);
+    formData.append("importance", "supporting");
+    formData.append("competency", "Judgment");
+    formData.append("primaryDimension", "structure");
+    formData.append("targetMinutes", "40");
+    formData.append("sessionAnswerBudget", "10");
+    formData.append("opportunityId", "opp-2");
+    await saveQuestionsAction({}, formData);
+    expect(savePlannedQuestions).toHaveBeenCalledWith(
+      "opp-2",
+      [
+        {
+          prompt: "First?",
+          primaryDimension: "specificity",
+          importance: "core",
+          competency: "Ownership",
+          brief: undefined,
+          briefIncomplete: false,
+        },
+        {
+          prompt: "Second?",
+          primaryDimension: "structure",
+          importance: "supporting",
+          competency: "Judgment",
+          brief: undefined,
+          briefIncomplete: false,
+        },
+      ],
+      { targetMinutes: 40, sessionAnswerBudget: 10 },
+    );
+  });
+
+  it("returns a visible save error instead of redirecting", async () => {
+    savePlannedQuestions.mockRejectedValue(
+      new Error("The plan repeats a question prompt."),
+    );
+    const formData = new FormData();
+    formData.append("opportunityId", "opp-2");
+    await expect(saveQuestionsAction({}, formData)).resolves.toEqual({
+      error: "The plan repeats a question prompt.",
+    });
+    expect(redirect).not.toHaveBeenCalled();
+  });
+
+  it("rejects a save submit without an opportunity id", async () => {
+    await expect(saveQuestionsAction({}, new FormData())).resolves.toEqual({
+      error: "Opportunity not found.",
+    });
+  });
+
+  it("maps unknown save failures to a generic message", async () => {
+    savePlannedQuestions.mockRejectedValue("nope");
+    const formData = new FormData();
+    formData.append("opportunityId", "opp-2");
+    await expect(saveQuestionsAction({}, formData)).resolves.toEqual({
+      error: "Could not save questions.",
+    });
   });
 });

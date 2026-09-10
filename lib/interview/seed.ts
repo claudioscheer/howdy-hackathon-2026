@@ -1,5 +1,5 @@
 import type { InterviewQuestion } from "./contracts";
-import type { SessionState } from "./session";
+import { DEFAULT_SESSION_ANSWER_BUDGET, type SessionState } from "./session";
 
 export const SEEDED_SESSION_ID = "fullstack-product-engineer";
 
@@ -45,6 +45,11 @@ export function createSeededSession(
     questions: SEEDED_QUESTION_PLAN.map((question) => ({ ...question })),
     questionIndex: 0,
     followUpCount: 0,
+    sessionAnswerBudget: DEFAULT_SESSION_ANSWER_BUDGET,
+    sessionAnswersUsed: 0,
+    questionAnswersUsed: 0,
+    evaluationPath: "basic",
+    questionOutcomes: [],
     history: [],
     completedQuestionIds: [],
     usedQuestions: [],

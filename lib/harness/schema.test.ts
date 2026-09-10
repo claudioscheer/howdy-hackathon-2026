@@ -14,6 +14,14 @@ describe("shared schema facade", () => {
         reason: "The answer lacks concrete evidence.",
         dimension: "specificity",
         followUp: "What did you personally do?",
+        probePurpose: "ownership",
+        unresolvedGap: "The candidate did not describe a personal action.",
+        evidence: [
+          {
+            quote: "We shipped it",
+            supports: "The answer stays collective.",
+          },
+        ],
       }).success,
     ).toBe(true);
     expect(

@@ -41,6 +41,9 @@ describe("landing copy", () => {
     expect(DASHBOARD_PAGE.generateQuestionsButton).toBe("Generate questions");
     expect(DASHBOARD_PAGE.reviewQuestionsButton).toBe("Review questions");
     expect(QUESTIONS_PAGE.generating).toContain("Preparing");
+    expect(QUESTIONS_PAGE.generateDescription).toContain("close to 40 minutes");
+    expect(QUESTIONS_PAGE.generateDescription).not.toContain("exactly 4");
+    expect(QUESTIONS_PAGE.importanceCore).toContain("Core");
     expect(CREATE_OPPORTUNITY_PAGE.editTitle).toBe("Edit Opportunity");
     expect(DASHBOARD_PAGE.badge).toBe("DEV DAY 2026 // EM PORTAL");
     expect(DASHBOARD_PAGE.disclaimer).toContain("two-attempt product policy");

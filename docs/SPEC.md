@@ -67,8 +67,12 @@ The evaluator should detect:
 - rambling or poorly structured communication; and
 - answers that do not address the question.
 
-Application policy caps follow-ups at two per question. The model may recommend
-another follow-up, but it cannot override that cap or other session policy.
+Application policy caps follow-ups at two per question and enforces the session
+answer budget, per-topic answer budget, and core-opening reservation. The model
+may recommend another follow-up, but it cannot override that cap or other
+session policy. v1 is turn-only: remaining interview minutes are not a runtime
+input. A weak answer does not justify another follow-up if that would exhaust
+the session or topic answer budget or crowd out a remaining core.
 
 ### Feedback report
 
@@ -81,9 +85,11 @@ Every completed session reports on:
 | Fundamentals                | Direct, role-relevant fundamentals held up.               |
 | Communication structure     | The response was organized and understandable.            |
 
-Each dimension has a score, concise guidance, and zero or more evidence items.
-Every quoted evidence item must be an exact non-empty substring of the candidate
-transcript.
+Each dimension is either scored 1–5 or marked `insufficient_evidence` when the
+session never gathered enough signal. A time-boxed answer can still contribute
+observed evidence; unknown remaining material is named instead of scored as
+weakness. Every quoted evidence item must be an exact non-empty substring of the
+candidate transcript.
 
 ### Retry and comparison
 
@@ -114,9 +120,12 @@ FOLLOW_UP / MOVE_ON policy
 - `QuestionPlanner` proposes structured questions for the opportunity and avoids
   used questions.
 - `AnswerEvaluator` returns a structured decision, reason, dimension when weak,
-  and follow-up wording when needed.
-- `SessionReducer` owns question index, follow-up count, transcript history,
-  completed questions, attempt number, used questions, and completion state.
+  and follow-up wording when needed. v1 judgments use the question, brief,
+  answer, transcript history, and turn budgets. Elapsed-time inputs are an
+  explicit later decision, not part of this freeze.
+- `SessionReducer` owns question index, follow-up count, answer budgets,
+  transcript history, completed questions, question outcomes, attempt number,
+  used questions, and completion state.
 - `ReportEvaluator` proposes the four-dimension report.
 - Deterministic report validation rejects fabricated transcript quotes.
 
@@ -169,8 +178,8 @@ the user journey uses browser tests.
 - [ ] A weak answer visibly triggers an appropriate follow-up.
 - [ ] A sufficient answer advances to the next planned question.
 - [ ] Deterministic state owns all transitions and enforces the follow-up cap.
-- [ ] The final report covers all four dimensions with validated transcript
-      evidence.
+- [ ] The final report covers all four dimensions as scored or
+      insufficient-evidence, with validated transcript evidence.
 - [ ] One retry varies questions and compares against the previous attempt.
 - [ ] `pnpm install` and `pnpm run verify` pass locally and in GitHub Actions on the
       documented Node version.
@@ -181,3 +190,116 @@ the user journey uses browser tests.
 Audio and production authentication are explicitly dismissed from the definition
 of done. Access is seeded and link-driven to prioritize the core interview and
 coaching features.
+
+## Interview plan freeze (2026-09-09)
+
+This freeze is the contract for the next implementation slices. It does not
+change the product evaluator to a live model in this milestone.
+
+### Agenda
+
+Pilot target is close to 40 minutes. Minutes describe the agenda for managers.
+Turns enforce the budget at runtime. The number of scored questions is not
+fixed: it follows the opportunity (role, seniority, job description, and what
+must be learned) and the time those topics can take. Prefer fewer deeper
+questions over many shallow ones. A finished interview is not padded to fill
+time.
+
+Typical parts, when the opportunity needs them:
+
+| Part                            | Notes                                                   |
+| ------------------------------- | ------------------------------------------------------- |
+| Introduction and warm-up        | Canned format explanation. Not scored. About 3 minutes. |
+| Recent project ownership        | Often `core` when recent focus matters.                 |
+| Highest-signal role competency  | `core`.                                                 |
+| Another distinct competency     | `core` or `supporting` only if the role needs it.       |
+| Collaboration or judgment       | Often `supporting`; droppable under schedule pressure.  |
+| Candidate questions and closing | Canned close. Not scored. About 4 minutes.              |
+
+Topics adapt to `interviewType`. A system-design interview is one core scenario.
+Supporting probes inside that scenario are follow-ups on the same question and
+share the same two-follow-up cap. That interview may finish well before 40
+minutes.
+
+Default session answer budget is 10 candidate submissions. Every candidate
+submission, including follow-up answers, consumes one unit.
+`topic_budget_exhausted` is defined against the per-question answer budget, not
+a wall clock. `timeBudgetMinutes` stays on the brief for planning and review.
+
+### Interviewer brief
+
+Each question may include a brief:
+
+- competency and role relevance (what we assess, distinct from rubric
+  dimensions);
+- importance: `core` / `supporting` / `optional`;
+- expected depth for this seniority;
+- evidence to listen for;
+- follow-up triggers (kinds, not canned sentences);
+- time budget, answer budget, and follow-up limit (v1 cap remains 2);
+- stopping criteria.
+
+Prompt-only saved records remain valid for the basic question flow. Briefed
+evaluation is enabled only when every question has a complete brief. The product
+must not invent assessment criteria from a prompt.
+
+### Follow-ups
+
+Plan the triggers. Write the follow-up live from transcript evidence.
+
+The evaluator returns `FOLLOW_UP` or `MOVE_ON`. A follow-up cites transcript
+quotes, names the unresolved gap, and names a probe purpose: `diagnosis`,
+`ownership`, `tradeoff`, `consequence`, `contradiction`, `close`, `relevance`,
+or `clarification`. Contradiction cites both statements. Off-topic answers
+recover through `relevance` or `clarification`. Evidence `supports` text must
+explain the judgment; an exact quote alone is not enough. Quotes must still be
+substrings of the transcript.
+
+Ask one thing. Do not praise, hint, or coach in the live turn.
+
+### Remaining time (later decision)
+
+v1 runtime budgets are turn counts: the session answer budget, per-question
+answer budget, and follow-up cap. `targetMinutes` and `timeBudgetMinutes` are
+planning and review fields for a close-to-40-minute agenda. They are not a
+second runtime clock.
+
+Adding elapsed-time inputs to live `FOLLOW_UP` / `MOVE_ON` judgments is an
+explicit later decision. Do not introduce that system in this freeze.
+
+### Policy versus model stop
+
+The model may recommend `evidence_sufficient`, `no_new_information`, or
+`candidate_cannot_go_deeper`. The reducer owns `follow_up_cap`,
+`topic_budget_exhausted`, and `protect_remaining_core_or_close`. Persist both
+the recommendation and the applied outcome. A forced advance is never stored as
+a satisfactory answer.
+
+Skipping: drop `optional` first, then `supporting`. Never skip a `core`. Reserve
+one initial answer for every remaining core (in the basic path, every remaining
+question). An early topic cannot consume another core's first opportunity.
+
+Within the two-follow-up ceiling, move on when evidence is sufficient, probing
+adds nothing, the candidate cannot go deeper, the topic answer budget is gone,
+or continuing would crowd out a remaining core or the close.
+
+### Named regression
+
+`evals/goldens/irrelevant-react-on-conflict.json` locks the case where “I used
+React for six months on a personal project” is asked after a teammate-
+disagreement question and must `FOLLOW_UP` on `relevance`. Paraphrased
+negatives (adding “with a teammate”) and paraphrased recoveries on the
+follow-up are locked with it.
+
+### Implementation order
+
+1. Wire saved plans into the candidate session (prompt-only is enough for the
+   basic flow).
+2. Persist and review interviewer briefs; require brief completion before the
+   briefed evaluation path.
+3. Replace the product evaluator with a brief-aware, transcript-grounded
+   decision under these timing rules.
+4. Report stop reasons and insufficient-evidence dimensions.
+
+`pnpm run verify` stays keyless. Live-model conversation review stays off the
+merge gate.
