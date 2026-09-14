@@ -16,6 +16,7 @@ describe("PracticeBriefing", () => {
     expect(screen.getByText(/Fullstack Product Engineer/)).toBeInTheDocument();
     expect(screen.getByText(/40 minutes/)).toBeInTheDocument();
     expect(screen.getByText(/OS dictation/)).toBeInTheDocument();
+    expect(screen.queryByText(/two attempts/i)).not.toBeInTheDocument();
     fireEvent.click(screen.getByTestId("start-interview-button"));
     expect(onStart).toHaveBeenCalledOnce();
   });
