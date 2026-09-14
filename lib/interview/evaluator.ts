@@ -60,6 +60,7 @@ export class ScriptedAnswerEvaluator implements AnswerEvaluator {
       !answersQuestion(input.question.prompt, input.answer, {
         brief: input.question.brief,
         history: input.history,
+        questionId: input.question.id,
       })
     ) {
       return followUp(input, {
