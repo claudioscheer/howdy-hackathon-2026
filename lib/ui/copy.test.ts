@@ -68,6 +68,7 @@ describe("landing copy", () => {
       "Opportunity and candidate configuration is stored",
     );
     expect(DASHBOARD_PAGE.emptyState).toContain("No opportunities yet");
+    expect(DASHBOARD_PAGE.copyFailedButton).toBe("Copy failed");
     expect(CREATE_OPPORTUNITY_PAGE.title).toBe("Create Opportunity");
     expect(CREATE_OPPORTUNITY_PAGE.submitButton).toBe("Save Opportunity");
     expect(CREATE_OPPORTUNITY_PAGE.roleHint).toContain("Full stack");

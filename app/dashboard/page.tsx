@@ -3,6 +3,7 @@ import { listDashboardOpportunities } from "@/lib/db/opportunities";
 import { DASHBOARD_PAGE } from "@/lib/ui/copy";
 import { DashboardHeader } from "./header";
 import { OpportunityCard, StatCard } from "./opportunity-card";
+import { countOpenablePractice } from "./practice-eligibility";
 
 function DashboardStats({
   opportunityCount,
@@ -34,8 +35,8 @@ function DashboardStats({
 
 export default async function DashboardPage(): Promise<React.JSX.Element> {
   const opportunities = await listDashboardOpportunities();
-  const practiceCount = opportunities.filter(
-    (item) => item.practiceSessionId !== undefined,
+  const activeCount = opportunities.filter(
+    (item) => item.status === "Active",
   ).length;
 
   return (
@@ -44,8 +45,8 @@ export default async function DashboardPage(): Promise<React.JSX.Element> {
 
       <main className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-10">
         <DashboardStats
-          opportunityCount={opportunities.length}
-          practiceCount={practiceCount}
+          opportunityCount={activeCount}
+          practiceCount={countOpenablePractice(opportunities)}
         />
 
         <div

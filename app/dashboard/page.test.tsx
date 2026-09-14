@@ -21,6 +21,7 @@ const SEEDED_ITEMS: OpportunityItem[] = [
     attemptsUsed: 2,
     status: "Expired",
     token: "sys-9f82a",
+    practiceSessionId: "expired-infrastructure-session",
     hasBriefing: true,
     questionCount: 0,
     questionPrepStatus: "idle",
@@ -39,6 +40,19 @@ const SEEDED_ITEMS: OpportunityItem[] = [
     hasBriefing: true,
     questionCount: 0,
     questionPrepStatus: "idle",
+  },
+  {
+    id: "opp-3",
+    role: "frontend",
+    seniority: "medium",
+    track: "React",
+    attemptsLimit: 2,
+    attemptsUsed: 1,
+    status: "Active",
+    token: "fe-7c21d",
+    hasBriefing: true,
+    questionCount: 4,
+    questionPrepStatus: "ready",
   },
 ];
 
@@ -60,6 +74,8 @@ describe("DashboardPage", () => {
     );
   });
 
+  // Expired rows are not active, and a session id alone does not make
+  // practice available: only opp-3 is openable from the dashboard.
   it("renders create opportunity link, stats, and disclaimer", async () => {
     listDashboardOpportunities.mockResolvedValue(SEEDED_ITEMS);
     render(await DashboardPage());

@@ -45,6 +45,7 @@ export const DASHBOARD_PAGE = {
   editButton: "Edit",
   copyLinkButton: "Copy link",
   copiedLinkButton: "Copied",
+  copyFailedButton: "Copy failed",
   generateQuestionsButton: "Generate questions",
   reviewQuestionsButton: "Review questions",
   preparingQuestionsButton: "Preparing questions",
