@@ -1,9 +1,11 @@
 import { PRACTICE_PAGE } from "@/lib/ui/copy";
 
 export function PracticeEndDialog({
+  isSubmitting,
   onCancel,
   onConfirm,
 }: {
+  isSubmitting: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 }): React.JSX.Element {
@@ -37,7 +39,8 @@ export function PracticeEndDialog({
             type="button"
             data-testid="end-interview-confirm"
             onClick={onConfirm}
-            className="cursor-pointer rounded-full bg-black px-5 py-2 text-xs font-bold uppercase tracking-wider text-white"
+            disabled={isSubmitting}
+            className="cursor-pointer rounded-full bg-black px-5 py-2 text-xs font-bold uppercase tracking-wider text-white disabled:cursor-wait disabled:opacity-60"
           >
             {PRACTICE_PAGE.endConfirm}
           </button>

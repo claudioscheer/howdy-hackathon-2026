@@ -7,12 +7,14 @@ export function PracticeStatusBar({
   isComplete,
   elapsedSeconds,
   targetMinutes,
+  isSubmitting,
   onEnd,
 }: {
   session: SessionState;
   isComplete: boolean;
   elapsedSeconds: number;
   targetMinutes: number;
+  isSubmitting: boolean;
   onEnd: () => void;
 }): React.JSX.Element {
   const question = session.questions[session.questionIndex];
@@ -52,7 +54,8 @@ export function PracticeStatusBar({
             type="button"
             data-testid="end-interview-button"
             onClick={onEnd}
-            className="cursor-pointer text-xs font-bold uppercase tracking-wider text-black underline"
+            disabled={isSubmitting}
+            className="cursor-pointer text-xs font-bold uppercase tracking-wider text-black underline disabled:cursor-wait disabled:opacity-60"
           >
             {PRACTICE_PAGE.endInterview}
           </button>

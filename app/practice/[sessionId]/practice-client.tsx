@@ -42,6 +42,7 @@ export function PracticeClient({
           isComplete={isComplete}
           elapsedSeconds={practice.elapsedSeconds}
           targetMinutes={targetMinutes}
+          isSubmitting={practice.isSubmitting}
           onEnd={() => practice.setConfirmEnd(true)}
         />
         <div className="py-6">
@@ -62,6 +63,7 @@ export function PracticeClient({
       </div>
       {practice.confirmEnd ? (
         <PracticeEndDialog
+          isSubmitting={practice.isSubmitting}
           onCancel={() => practice.setConfirmEnd(false)}
           onConfirm={() => {
             void practice.confirmEndInterview();

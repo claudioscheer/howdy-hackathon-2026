@@ -16,6 +16,7 @@ describe("PracticeStatusBar", () => {
         isComplete={false}
         elapsedSeconds={75}
         targetMinutes={40}
+        isSubmitting={false}
         onEnd={onEnd}
       />,
     );
@@ -40,6 +41,7 @@ describe("PracticeStatusBar", () => {
         isComplete
         elapsedSeconds={12}
         targetMinutes={40}
+        isSubmitting={false}
         onEnd={vi.fn()}
       />,
     );
@@ -50,5 +52,25 @@ describe("PracticeStatusBar", () => {
     expect(
       screen.queryByTestId("end-interview-button"),
     ).not.toBeInTheDocument();
+  });
+
+  it("disables the end control while an answer is being evaluated", () => {
+    const onEnd = vi.fn();
+    const session = sessionReducer(createSeededSession(), {
+      type: "START_SESSION",
+    });
+    render(
+      <PracticeStatusBar
+        session={session}
+        isComplete={false}
+        elapsedSeconds={30}
+        targetMinutes={40}
+        isSubmitting
+        onEnd={onEnd}
+      />,
+    );
+    expect(screen.getByTestId("end-interview-button")).toBeDisabled();
+    fireEvent.click(screen.getByTestId("end-interview-button"));
+    expect(onEnd).not.toHaveBeenCalled();
   });
 });

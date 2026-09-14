@@ -106,6 +106,22 @@ describe("dashboard opportunity queries", () => {
     });
   });
 
+  it("stops labeling an abandoned generation as preparing", () => {
+    expect(
+      toOpportunityItem(
+        row({ questionPrepStatus: "generating", updatedAt: new Date() }),
+      ).questionPrepStatus,
+    ).toBe("generating");
+    expect(
+      toOpportunityItem(
+        row({
+          questionPrepStatus: "generating",
+          updatedAt: new Date("2026-01-01"),
+        }),
+      ).questionPrepStatus,
+    ).toBe("idle");
+  });
+
   it("lists opportunities after waiting for the request", async () => {
     findMany.mockResolvedValue([row()]);
     const items = await listDashboardOpportunities();

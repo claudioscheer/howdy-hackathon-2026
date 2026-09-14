@@ -141,8 +141,8 @@ describe("harness runner", () => {
     expect(result.ok).toBe(true);
     expect(result.trace.runtime).toBe("lib/interview");
     expect(result.trace.layer1).toMatchObject({
-      passedGoldens: 5,
-      totalGoldens: 5,
+      passedGoldens: 6,
+      totalGoldens: 6,
       holdoutsPassed: 2,
       totalHoldouts: 2,
       adaptivePath: true,

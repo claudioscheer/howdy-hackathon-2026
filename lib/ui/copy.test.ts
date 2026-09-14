@@ -38,6 +38,18 @@ describe("landing copy", () => {
     expect(LOGIN_PAGE.showcaseHeadline).toBe("Help your engineers succeed.");
   });
 
+  it("does not claim unenforced trial limits or link policies", () => {
+    expect(LOGIN_PAGE.description).toBe(
+      "Sign in to configure interview templates, generate questions, and share candidate practice links.",
+    );
+    expect(LOGIN_PAGE.description.toLowerCase()).not.toContain("trial");
+    expect(LOGIN_PAGE.description.toLowerCase()).not.toContain("disposable");
+    expect(PRACTICE_PAGE.formatBody).toBe(
+      "Typed answers, about {minutes} minutes. Follow-ups exist so you can add concrete evidence — situation, action, and result — when an answer is vague.",
+    );
+    expect(practiceFormatBody(40).toLowerCase()).not.toContain("attempt");
+  });
+
   it("exposes dashboard copy for manager workspace", () => {
     expect(DASHBOARD_PAGE.createButton).toBe("Create Opportunity");
     expect(DASHBOARD_PAGE.generateLinkButton).toBe("Generate Link");

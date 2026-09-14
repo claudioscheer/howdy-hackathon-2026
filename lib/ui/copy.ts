@@ -25,7 +25,7 @@ export const LOGIN_PAGE = {
   badge: "DEV DAY 2026 // EM PORTAL",
   title: "Engineering Manager Login",
   description:
-    "Sign in to configure interview templates, set trial limits, and generate disposable candidate invite links.",
+    "Sign in to configure interview templates, generate questions, and share candidate practice links.",
   emailLabel: "Email",
   emailPlaceholder: "manager@howdy.com",
   passwordLabel: "Password",
@@ -118,7 +118,7 @@ export const PRACTICE_PAGE = {
   briefingTitle: "Before you begin",
   formatLabel: "Format",
   formatBody:
-    "Typed answers, about {minutes} minutes. This link allows two attempts. Follow-ups exist so you can add concrete evidence — situation, action, and result — when an answer is vague.",
+    "Typed answers, about {minutes} minutes. Follow-ups exist so you can add concrete evidence — situation, action, and result — when an answer is vague.",
   dictationHint:
     "Prefer speaking? Use OS dictation (macOS Fn+Fn, Windows Win+H, or Whisper), then paste into the chat.",
   startButton: "Start practice interview",

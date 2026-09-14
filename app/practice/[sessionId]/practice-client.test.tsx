@@ -162,6 +162,28 @@ describe("PracticeClient", () => {
     );
   });
 
+  it("disables End while an answer is being evaluated", async () => {
+    let settle: (value: { ok: false; error: string }) => void = () => undefined;
+    submitPracticeAnswerAction.mockReturnValueOnce(
+      new Promise((resolve) => {
+        settle = resolve;
+      }),
+    );
+    renderPractice();
+    startInterview();
+    fireEvent.click(screen.getByTestId("end-interview-button"));
+    answerAndSubmit(concreteAnswer);
+    expect(screen.getByTestId("end-interview-button")).toBeDisabled();
+    expect(screen.getByTestId("end-interview-confirm")).toBeDisabled();
+    fireEvent.click(screen.getByTestId("end-interview-confirm"));
+    expect(endPracticeAction).not.toHaveBeenCalled();
+    settle({ ok: false, error: "Evaluation failed." });
+    await waitFor(() =>
+      expect(screen.getByTestId("end-interview-button")).toBeEnabled(),
+    );
+    expect(submitPracticeAnswerAction).toHaveBeenCalledOnce();
+  });
+
   it("cancels end-interview and confirms it to generate a report", async () => {
     const started = sessionReducer(createSeededSession(), {
       type: "START_SESSION",
