@@ -1,6 +1,6 @@
 {
   "id": "irrelevant-react-on-conflict",
-  "description": "A fluent React personal-project answer does not satisfy a teammate-disagreement question and must FOLLOW_UP on relevance, including the teammate paraphrase and a later on-topic recovery",
+  "description": "A fluent React personal-project answer does not satisfy a teammate-disagreement question and must FOLLOW_UP on relevance, and adding a teammate to the same story must FOLLOW_UP on relevance again; recovery after the follow-up is checked by the conflict-follow-up-recovery holdout, not this golden",
   "evaluator": "SCRIPTED",
   "steps": [
     {

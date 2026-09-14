@@ -82,6 +82,11 @@ export function behaviorCoverageFailures(goldens: EvalScenario[]): string[] {
       step.expected.recommendedDecision === "FOLLOW_UP" &&
       step.expected.questionIndex > 0,
   );
+  const hasRelevanceFollowUp = expectedSteps.some(
+    (step) =>
+      step.expected.recommendedDecision === "FOLLOW_UP" &&
+      step.expected.dimension === "relevance",
+  );
   const hasMalformed = goldens.some(
     (scenario) => scenario.evaluator === "MALFORMED",
   );
@@ -90,6 +95,7 @@ export function behaviorCoverageFailures(goldens: EvalScenario[]): string[] {
     [hasMoveOn, "MOVE_ON"],
     [hasSecondFollowUp, "a second follow-up"],
     [hasCap, "the deterministic follow-up cap"],
+    [hasRelevanceFollowUp, "a relevance follow-up"],
     [hasMalformed, "malformed evaluator output"],
   ]
     .filter(([present]) => !present)

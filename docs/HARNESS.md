@@ -33,9 +33,12 @@ not own a second interview state machine.
   `MOVE_ON` result is always a failed case.
 
 The current slice locks specificity pressure, improvement after follow-up, the
-two-follow-up cap, malformed evaluator output, transcript/state progression, and
-relevance misses plus paraphrased recoveries around teammate-disagreement
-questions. It asserts behavior and state rather than exact follow-up prose.
+two-follow-up cap, malformed evaluator output, transcript/state progression,
+relevance misses around teammate-disagreement questions (including the
+"with a teammate" paraphrase), a paraphrased on-topic conflict answer, and
+per-question topic isolation. Goldens do not lock recovery after a relevance
+follow-up; the independent `conflict-follow-up-recovery` holdout checks it. The
+suite asserts behavior and state rather than exact follow-up prose.
 Evaluator evidence must be a candidate-turn substring and include a `supports`
 explanation; contradiction follow-ups must cite two distinct candidate
 statements.
@@ -78,7 +81,8 @@ For that set it deterministically checks:
 - changed `app/` and `lib/` TypeScript sources have colocated tests;
 - changed source files remain below the configured size limit;
 - scenario IDs are unique and goldens cover `FOLLOW_UP`, `MOVE_ON`, continued
-  pressure, the follow-up cap, and malformed evaluator output;
+  pressure, the follow-up cap, a `relevance` follow-up, and malformed evaluator
+  output;
 - holdout answers are independent from goldens by containment and token overlap.
 
 This is not semantic code review. Human judgment still decides whether a change
