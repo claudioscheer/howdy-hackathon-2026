@@ -19,6 +19,7 @@ import {
   type QuestionDraft,
 } from "./question-drafts";
 import { saveDraftProblems, type PlanSettings } from "./question-plan";
+import { effectiveQuestionPrepStatus } from "./question-prep-status";
 import { getPrisma } from "./prisma";
 
 export type OpportunityQuestionPrep = {
@@ -56,13 +57,14 @@ export async function getOpportunityQuestionPrep(
       sessionAnswerBudget: true,
       practiceSessionId: true,
       interviewType: true,
+      updatedAt: true,
     },
   });
   if (row === null) {
     return null;
   }
   return {
-    status: row.questionPrepStatus,
+    status: effectiveQuestionPrepStatus(row.questionPrepStatus, row.updatedAt),
     targetMinutes: row.targetMinutes,
     sessionAnswerBudget: row.sessionAnswerBudget,
     practiceSessionId: row.practiceSessionId,
@@ -170,20 +172,27 @@ async function persistQuestions(
   trimmed: QuestionDraft[],
   settings: PlanSettings,
 ): Promise<void> {
-  await getPrisma().plannedQuestion.deleteMany({ where: { opportunityId } });
-  if (trimmed.length > 0) {
-    await getPrisma().plannedQuestion.createMany({
-      data: trimmed.map((draft, sortOrder) =>
-        prismaQuestionData(opportunityId, draft, sortOrder),
-      ),
-    });
-  }
-  await getPrisma().opportunity.update({
-    where: { id: opportunityId },
-    data: {
-      questionPrepStatus: trimmed.length > 0 ? "ready" : "idle",
-      targetMinutes: settings.targetMinutes,
-      sessionAnswerBudget: settings.sessionAnswerBudget,
-    },
-  });
+  const prisma = getPrisma();
+  // One transaction: a failed insert must not leave the old plan deleted
+  // while the status still claims the opportunity is ready.
+  await prisma.$transaction([
+    prisma.plannedQuestion.deleteMany({ where: { opportunityId } }),
+    ...(trimmed.length > 0
+      ? [
+          prisma.plannedQuestion.createMany({
+            data: trimmed.map((draft, sortOrder) =>
+              prismaQuestionData(opportunityId, draft, sortOrder),
+            ),
+          }),
+        ]
+      : []),
+    prisma.opportunity.update({
+      where: { id: opportunityId },
+      data: {
+        questionPrepStatus: trimmed.length > 0 ? "ready" : "idle",
+        targetMinutes: settings.targetMinutes,
+        sessionAnswerBudget: settings.sessionAnswerBudget,
+      },
+    }),
+  ]);
 }
