@@ -296,9 +296,12 @@ or continuing would crowd out a remaining core or the close.
 
 `evals/goldens/irrelevant-react-on-conflict.json` locks the case where “I used
 React for six months on a personal project” is asked after a teammate-
-disagreement question and must `FOLLOW_UP` on `relevance`. Paraphrased
-negatives (adding “with a teammate”) and paraphrased recoveries on the
-follow-up are locked with it.
+disagreement question and must `FOLLOW_UP` on `relevance`. The paraphrased
+negative (adding “with a teammate”) is locked with it. Recovery on the
+follow-up is checked by the independent holdout
+`evals/holdouts/conflict-follow-up-recovery.json`, and
+`evals/goldens/api-topic-isolated-from-conflict.json` locks that a later
+question is not judged against the conflict topic.
 
 ### Implementation order
 
