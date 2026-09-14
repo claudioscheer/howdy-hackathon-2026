@@ -1,0 +1,41 @@
+{
+  "id": "api-topic-isolated-from-conflict",
+  "description": "After the disagreement question advances, the API design question is judged on its own topic: a leftover conflict story follows up on relevance and an API answer with no conflict vocabulary moves on",
+  "evaluator": "SCRIPTED",
+  "steps": [
+    {
+      "answer": "My teammate and I disagreed about caching, so I measured both designs, deployed the Redis layer, and reduced page latency by 30 percent.",
+      "expected": {
+        "outcome": "APPLIED",
+        "recommendedDecision": "MOVE_ON",
+        "questionIndex": 1,
+        "followUpCount": 0,
+        "historyLength": 3,
+        "status": "AWAITING_ANSWER"
+      }
+    },
+    {
+      "answer": "A coworker objected to my plan in standup, we debated it for an afternoon, and I resolved the argument within two days.",
+      "expected": {
+        "outcome": "APPLIED",
+        "recommendedDecision": "FOLLOW_UP",
+        "dimension": "relevance",
+        "questionIndex": 1,
+        "followUpCount": 1,
+        "historyLength": 5,
+        "status": "AWAITING_ANSWER"
+      }
+    },
+    {
+      "answer": "I designed an idempotent REST endpoint whose payload carried a request key, and we reduced duplicate orders by 90 percent.",
+      "expected": {
+        "outcome": "APPLIED",
+        "recommendedDecision": "MOVE_ON",
+        "questionIndex": 2,
+        "followUpCount": 0,
+        "historyLength": 7,
+        "status": "AWAITING_ANSWER"
+      }
+    }
+  ]
+}
