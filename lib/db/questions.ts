@@ -18,6 +18,7 @@ import {
   prismaQuestionData,
   type QuestionDraft,
 } from "./question-drafts";
+import { profileTechStack } from "./opportunity-tech-stack";
 import { saveDraftProblems, type PlanSettings } from "./question-plan";
 import { effectiveQuestionPrepStatus } from "./question-prep-status";
 import { getPrisma } from "./prisma";
@@ -125,7 +126,7 @@ export async function loadQuestionBriefing(
     id: row.id,
     role: row.role,
     seniority: row.seniority,
-    targetTechStack: row.targetTechStack,
+    targetTechStack: profileTechStack(row.targetTechStack),
     interviewType: row.interviewType,
   });
   if (!opportunity.success) {
