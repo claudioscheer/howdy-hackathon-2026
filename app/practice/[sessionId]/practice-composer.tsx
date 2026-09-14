@@ -30,7 +30,9 @@ export function PracticeComposer({
       className="border-t border-[#e0e0e8] pt-5"
       onSubmit={(event) => {
         event.preventDefault();
-        void onSubmit();
+        if (!isSubmitting) {
+          void onSubmit();
+        }
       }}
     >
       <label htmlFor="candidate-answer" className="text-sm font-bold">

@@ -54,4 +54,22 @@ describe("PracticeComposer", () => {
     fireEvent.click(screen.getByRole("button", { name: "Submit answer" }));
     expect(onSubmit).toHaveBeenCalledOnce();
   });
+
+  it("ignores a form submit while evaluating", () => {
+    const onSubmit = vi.fn(async () => undefined);
+    render(
+      <PracticeComposer
+        answer="A detailed answer"
+        isSubmitting
+        onAnswerChange={vi.fn()}
+        onSubmit={onSubmit}
+      />,
+    );
+    const form = screen.getByTestId("candidate-answer").closest("form");
+    expect(form).not.toBeNull();
+    if (form) {
+      fireEvent.submit(form);
+    }
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
 });
