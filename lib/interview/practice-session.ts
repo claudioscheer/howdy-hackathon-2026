@@ -1,6 +1,7 @@
 import type { Candidate, Opportunity, PlannedQuestion } from "@prisma/client";
 import { connection } from "next/server";
 import { getPrisma } from "@/lib/db/prisma";
+import { profileTechStack } from "@/lib/db/opportunity-tech-stack";
 import { storedBrief } from "@/lib/db/question-drafts";
 import { canEnableBriefedEvaluation } from "./brief";
 import {
@@ -56,8 +57,7 @@ export function sessionFromOpportunity(
     id: row.id,
     role: row.role,
     seniority: row.seniority,
-    targetTechStack:
-      row.targetTechStack.length > 0 ? row.targetTechStack : ["General"],
+    targetTechStack: profileTechStack(row.targetTechStack),
     interviewType: row.interviewType,
   });
   if (!opportunity.success) {

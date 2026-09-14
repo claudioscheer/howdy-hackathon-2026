@@ -20,6 +20,7 @@ vi.mock("@/lib/interview/planner", () => ({
   createOpenCodeQuestionGenerator: () => ({ plan: defaultPlan }),
 }));
 
+import { OpportunityProfileSchema } from "@/lib/interview/contracts";
 import { STALE_GENERATION_MS } from "./question-prep-status";
 import {
   generatePlannedQuestions,
@@ -194,14 +195,38 @@ describe("planned questions", () => {
     });
   });
 
+  it("briefs an opportunity saved without a tech stack", async () => {
+    findUnique.mockResolvedValue({ ...opportunityRow, targetTechStack: [] });
+    const briefing = await loadQuestionBriefing("opp-2");
+    expect(briefing.opportunity.targetTechStack).toEqual(["General"]);
+    expect(
+      OpportunityProfileSchema.safeParse(briefing.opportunity).success,
+    ).toBe(true);
+  });
+
+  it("generates questions for an opportunity without a tech stack", async () => {
+    findUnique.mockResolvedValue({ ...opportunityRow, targetTechStack: [] });
+    const plan = vi.fn(async () => ({ questions: [] }));
+    await expect(generatePlannedQuestions("opp-2", { plan })).rejects.toThrow(
+      "The question planner returned an invalid plan.",
+    );
+    expect(plan).toHaveBeenCalledWith(
+      expect.objectContaining({
+        opportunity: expect.objectContaining({ targetTechStack: ["General"] }),
+      }),
+    );
+  });
+
   it("rejects a missing or incomplete opportunity", async () => {
     findUnique.mockResolvedValue(null);
     await expect(loadQuestionBriefing("missing")).rejects.toThrow(
       "Opportunity not found.",
     );
+    // An empty tech stack now falls back to "General"; an empty role is still
+    // a genuinely incomplete opportunity the planner must refuse.
     findUnique.mockResolvedValue({
       ...opportunityRow,
-      targetTechStack: [],
+      role: "",
       candidate: null,
     });
     await expect(loadQuestionBriefing("opp-2")).rejects.toThrow(
