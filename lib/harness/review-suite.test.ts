@@ -45,50 +45,81 @@ describe("scenario review", () => {
       1,
     );
   });
+});
 
+function coveredScenario(firstDimension?: "relevance"): EvalScenario {
+  return EvalScenarioSchema.parse({
+    id: "covered",
+    description: "Covers all expected behaviors.",
+    evaluator: "MALFORMED",
+    steps: [
+      {
+        answer: "first weak answer",
+        expected: {
+          outcome: "APPLIED",
+          recommendedDecision: "FOLLOW_UP",
+          dimension: firstDimension,
+          questionIndex: 0,
+          followUpCount: 2,
+          historyLength: 3,
+          status: "AWAITING_ANSWER",
+        },
+      },
+      {
+        answer: "second weak answer",
+        expected: {
+          outcome: "APPLIED",
+          recommendedDecision: "FOLLOW_UP",
+          questionIndex: 1,
+          followUpCount: 0,
+          historyLength: 5,
+          status: "AWAITING_ANSWER",
+        },
+      },
+      {
+        answer: "strong answer",
+        expected: {
+          outcome: "APPLIED",
+          recommendedDecision: "MOVE_ON",
+          questionIndex: 1,
+          followUpCount: 0,
+          historyLength: 7,
+          status: "AWAITING_ANSWER",
+        },
+      },
+    ],
+  });
+}
+
+describe("golden behavior coverage", () => {
   it("requires every business-critical golden behavior", () => {
     expect(behaviorCoverageFailures([])[0]).toMatch(/FOLLOW_UP/);
-    const covered = EvalScenarioSchema.parse({
-      id: "covered",
-      description: "Covers all expected behaviors.",
-      evaluator: "MALFORMED",
-      steps: [
-        {
-          answer: "first weak answer",
-          expected: {
-            outcome: "APPLIED",
-            recommendedDecision: "FOLLOW_UP",
-            questionIndex: 0,
-            followUpCount: 2,
-            historyLength: 3,
-            status: "AWAITING_ANSWER",
-          },
-        },
-        {
-          answer: "second weak answer",
-          expected: {
-            outcome: "APPLIED",
-            recommendedDecision: "FOLLOW_UP",
-            questionIndex: 1,
-            followUpCount: 0,
-            historyLength: 5,
-            status: "AWAITING_ANSWER",
-          },
-        },
-        {
-          answer: "strong answer",
-          expected: {
-            outcome: "APPLIED",
-            recommendedDecision: "MOVE_ON",
-            questionIndex: 1,
-            followUpCount: 0,
-            historyLength: 7,
-            status: "AWAITING_ANSWER",
-          },
-        },
-      ],
-    });
+    const covered = coveredScenario("relevance");
     expect(behaviorCoverageFailures([covered])).toEqual([]);
     expect(reviewEvalSuite({ goldens: [covered], holdouts: [] })).toEqual([]);
+  });
+
+  it("requires a golden step that follows up on relevance", () => {
+    expect(behaviorCoverageFailures([coveredScenario()])).toEqual([
+      "Goldens missing coverage for a relevance follow-up",
+    ]);
+  });
+
+  it("does not count a relevance dimension on a MOVE_ON step", () => {
+    const uncovered = coveredScenario();
+    const relevanceMoveOn = {
+      ...uncovered,
+      steps: uncovered.steps.map((step) =>
+        step.expected.recommendedDecision === "MOVE_ON"
+          ? {
+              ...step,
+              expected: { ...step.expected, dimension: "relevance" as const },
+            }
+          : step,
+      ),
+    };
+    expect(behaviorCoverageFailures([relevanceMoveOn])).toEqual([
+      "Goldens missing coverage for a relevance follow-up",
+    ]);
   });
 });

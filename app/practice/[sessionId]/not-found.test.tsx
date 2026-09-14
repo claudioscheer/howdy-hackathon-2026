@@ -14,5 +14,15 @@ describe("PracticeNotFound", () => {
     expect(
       screen.getByRole("link", { name: "Return to dashboard" }),
     ).toHaveAttribute("href", "/dashboard");
+    expect(
+      screen.getByTestId("practice-not-found-dashboard-link"),
+    ).toHaveAttribute("href", "/dashboard");
+  });
+
+  it("does not name a specific opportunity for an unknown session", () => {
+    const { container } = render(<PracticeNotFound />);
+
+    expect(container).not.toHaveTextContent(/Fullstack|Product Engineer/);
+    expect(container).toHaveTextContent("active opportunity");
   });
 });

@@ -8,6 +8,22 @@ with no new human prompt in the middle of that loop. Keep it short. Add a note o
 
 ---
 
+## 2026-09-14 — Question 2 was judged against question 1's topic
+
+**Act.** An audit reported that scripted relevance merged every earlier
+question's prompt into the current one. The Engine context wrote
+`api-topic-isolated-from-conflict.json` before touching `relevance.ts`.
+
+**Verify / observe.** Against the old code the golden failed twice: a recycled
+conflict story on the API question moved on, and an on-topic API answer got a
+relevance follow-up (`"api"` was also dropped as a short token).
+
+**Fix / verify again.** Relevance now reads only the current question's turns
+and topic cues see short words. The golden, unit tests, and `pnpm run verify`
+passed; the integration smoke run showed `main` still failing the same path.
+
+---
+
 ## 2026-09-10 — CI browser journey had no production build
 
 **Act.** Playwright started `next start` on port 3010 so the gate would not reuse a live `next dev`.

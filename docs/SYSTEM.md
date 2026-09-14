@@ -69,6 +69,33 @@ from `main` was replaced.
 | Evaluation/Harness     | Harness proof, acceptance, Playwright | Adapted to the newer product constructor and stored-plan browser path |
 | Serial integration     | Shared docs and verification scripts  | Main architecture preserved; one canonical gate remains               |
 
+### Audit-driven fix batches (2026-09-14)
+
+A human-written spec and codebase audit catalogued bugs against `SPEC.md`. The
+orchestrator split the findings into items that needed no product decision
+(dispatched) and items that change shared contracts or product policy (held for
+humans: two-attempt enforcement, persisted report quotes, live-evaluator freeze
+cleanup, retry comparison). Each dispatched context received one bug cluster,
+owned paths, and the instruction to prove its lock fails on the old code.
+
+| Batch | Context     | Owned paths                                | Handoff                                                                  |
+| ----- | ----------- | ------------------------------------------ | ------------------------------------------------------------------------ |
+| 1     | Engine      | `lib/interview/relevance*`, one golden     | Q2 relevance scoped to its own topic; new golden failed on old code      |
+| 1     | DB          | `lib/db/question-generation*`, `questions` | Generation cannot stick on `generating`; plan save is one transaction    |
+| 1     | UI          | `app/practice/**`, `lib/ui/copy*`          | Single-flight submit/End lock; copy no longer claims unenforced policy   |
+| 2     | UI          | `app/dashboard/**`, `app/practice/**`      | Consistent role labels, truthful dashboard counts, clipboard failure     |
+| 2     | Eval        | `evals/`, `lib/harness/`, test config      | Golden description made truthful; review now requires relevance coverage |
+| 2     | DB          | `lib/db/questions*`, tech-stack helper     | Empty tech stack falls back to one shared default for generation         |
+| 1, 2  | Integration | Merge branch, shared docs, `tsconfig`      | Serial merge, full `pnpm run verify`, browser smoke run against `main`   |
+
+Every batch merged without conflicts. The integration smoke run exercised the
+paths the gate does not cover (question 3 and the report, generation without an
+API key, End during evaluation) on both the fix branch and `main`, so each fix
+was shown to change observable behavior. Workers that needed a file outside
+their paths (a golden count in `lib/harness/run.test.ts`, the shared fallback in
+`lib/interview/practice-session.ts`) reported it in the handoff rather than
+silently widening scope.
+
 ### Seeded adaptive-loop milestone
 
 The seeded adaptive-loop milestone used the first real three-way split. Phase 0
