@@ -6,11 +6,13 @@ const update = vi.hoisted(() => vi.fn());
 const deleteMany = vi.hoisted(() => vi.fn());
 const createMany = vi.hoisted(() => vi.fn());
 const defaultPlan = vi.hoisted(() => vi.fn());
+const transaction = vi.hoisted(() => vi.fn());
 
 vi.mock("./prisma", () => ({
   getPrisma: () => ({
     opportunity: { findUnique, update },
     plannedQuestion: { findMany, deleteMany, createMany },
+    $transaction: transaction,
   }),
 }));
 
@@ -18,13 +20,26 @@ vi.mock("@/lib/interview/planner", () => ({
   createOpenCodeQuestionGenerator: () => ({ plan: defaultPlan }),
 }));
 
+import { STALE_GENERATION_MS } from "./question-prep-status";
 import {
   generatePlannedQuestions,
+  getOpportunityQuestionPrep,
   getQuestionPrepStatus,
   listPlannedQuestions,
   loadQuestionBriefing,
   savePlannedQuestions,
 } from "./questions";
+
+/** A Prisma-style lazy write: it only runs when something awaits it. */
+function lazyWrite(name: string): {
+  name: string;
+  then: ReturnType<typeof vi.fn>;
+} {
+  return {
+    name,
+    then: vi.fn((resolve: (value: string) => void) => resolve(name)),
+  };
+}
 
 function sampleBrief(
   competency: string,
@@ -58,6 +73,7 @@ const opportunityRow = {
   targetMinutes: 40,
   sessionAnswerBudget: 10,
   practiceSessionId: "opp-2",
+  updatedAt: new Date("2026-01-01"),
   candidate: { displayName: "Alex", curriculum: "React work." },
 };
 
@@ -69,9 +85,82 @@ describe("planned questions", () => {
     deleteMany.mockReset();
     createMany.mockReset();
     defaultPlan.mockReset();
+    transaction.mockReset();
     update.mockResolvedValue({});
     deleteMany.mockResolvedValue({});
     createMany.mockResolvedValue({});
+    transaction.mockImplementation(async (writes: unknown[]) =>
+      Promise.all(writes),
+    );
+  });
+
+  it("reports a recent generating status and retires an abandoned one", async () => {
+    findUnique.mockResolvedValue({
+      ...opportunityRow,
+      questionPrepStatus: "generating",
+      updatedAt: new Date(),
+    });
+    await expect(getOpportunityQuestionPrep("opp-2")).resolves.toMatchObject({
+      status: "generating",
+    });
+    expect(findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        select: expect.objectContaining({ updatedAt: true }),
+      }),
+    );
+
+    findUnique.mockResolvedValue({
+      ...opportunityRow,
+      questionPrepStatus: "generating",
+      updatedAt: new Date(Date.now() - STALE_GENERATION_MS - 60_000),
+    });
+    await expect(getOpportunityQuestionPrep("opp-2")).resolves.toMatchObject({
+      status: "idle",
+    });
+  });
+
+  it("replaces a saved plan atomically in one transaction", async () => {
+    findUnique.mockResolvedValue(opportunityRow);
+    const removal = lazyWrite("delete");
+    const insert = lazyWrite("create");
+    const status = lazyWrite("status");
+    deleteMany.mockReturnValue(removal);
+    createMany.mockReturnValue(insert);
+    update.mockReturnValue(status);
+    transaction.mockResolvedValue([]);
+
+    await savePlannedQuestions("opp-2", [
+      { prompt: "Keep me", primaryDimension: "specificity" },
+    ]);
+
+    expect(transaction).toHaveBeenCalledOnce();
+    expect(transaction).toHaveBeenCalledWith([removal, insert, status]);
+    expect(removal.then).not.toHaveBeenCalled();
+    expect(insert.then).not.toHaveBeenCalled();
+    expect(status.then).not.toHaveBeenCalled();
+
+    transaction.mockClear();
+    await savePlannedQuestions("opp-2", []);
+    expect(transaction).toHaveBeenCalledWith([removal, status]);
+  });
+
+  it("keeps the previous plan when the replacement transaction fails", async () => {
+    findUnique.mockResolvedValue(opportunityRow);
+    const removal = lazyWrite("delete");
+    const status = lazyWrite("status");
+    deleteMany.mockReturnValue(removal);
+    createMany.mockReturnValue(lazyWrite("create"));
+    update.mockReturnValue(status);
+    transaction.mockRejectedValue(new Error("createMany failed"));
+
+    await expect(
+      savePlannedQuestions("opp-2", [
+        { prompt: "Keep me", primaryDimension: "specificity" },
+      ]),
+    ).rejects.toThrow("createMany failed");
+
+    expect(removal.then).not.toHaveBeenCalled();
+    expect(status.then).not.toHaveBeenCalled();
   });
 
   it("lists planned questions in sort order", async () => {

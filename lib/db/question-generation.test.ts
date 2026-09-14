@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const getOpportunityQuestionPrep = vi.hoisted(() => vi.fn());
 const generatePlannedQuestions = vi.hoisted(() => vi.fn());
 const prismaUpdate = vi.hoisted(() => vi.fn());
+const prismaUpdateMany = vi.hoisted(() => vi.fn());
 const createOpenCodeQuestionGenerator = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/interview/planner", () => ({
@@ -18,6 +19,7 @@ vi.mock("./prisma", () => ({
   getPrisma: () => ({
     opportunity: {
       update: prismaUpdate,
+      updateMany: prismaUpdateMany,
     },
   }),
 }));
@@ -29,10 +31,35 @@ import {
   startQuestionGeneration,
 } from "./question-generation";
 
+const idlePrep = {
+  status: "idle",
+  targetMinutes: 40,
+  sessionAnswerBudget: 10,
+  practiceSessionId: null,
+  interviewType: "behavioral",
+};
+
+function deferredJob(): {
+  promise: Promise<void>;
+  reject: (err: Error) => void;
+} {
+  let reject: (err: Error) => void = () => {};
+  const promise = new Promise<void>((_, rejectJob) => {
+    reject = rejectJob;
+  });
+  return { promise, reject };
+}
+
+async function flushBackground(): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 10));
+}
+
 describe("question generation background", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     createOpenCodeQuestionGenerator.mockReturnValue({ plan: vi.fn() });
+    prismaUpdate.mockResolvedValue({});
+    prismaUpdateMany.mockResolvedValue({ count: 1 });
     clearGenerationError("opp-test");
   });
 
@@ -59,31 +86,32 @@ describe("question generation background", () => {
 
   it("does not restart generation if already generating", async () => {
     getOpportunityQuestionPrep.mockResolvedValue({
+      ...idlePrep,
       status: "generating",
-      targetMinutes: 40,
-      sessionAnswerBudget: 10,
-      practiceSessionId: null,
-      interviewType: "behavioral",
     });
     await startQuestionGeneration("opp-test");
     expect(prismaUpdate).not.toHaveBeenCalled();
     expect(generatePlannedQuestions).not.toHaveBeenCalled();
   });
 
-  it("marks generating, launches background work, and records failure", async () => {
-    getOpportunityQuestionPrep.mockResolvedValue({
-      status: "idle",
-      targetMinutes: 40,
-      sessionAnswerBudget: 10,
-      practiceSessionId: null,
-      interviewType: "behavioral",
+  it("surfaces a missing API key without ever marking the row generating", async () => {
+    getOpportunityQuestionPrep.mockResolvedValue(idlePrep);
+    createOpenCodeQuestionGenerator.mockImplementation(() => {
+      throw new Error("OPENCODE_API_KEY is not set.");
     });
-    prismaUpdate.mockResolvedValue({});
-    let rejectJob: (err: Error) => void = () => {};
-    const deferred = new Promise<void>((_, reject) => {
-      rejectJob = reject;
-    });
-    generatePlannedQuestions.mockReturnValue(deferred);
+
+    await expect(startQuestionGeneration("opp-test")).rejects.toThrow(
+      "OPENCODE_API_KEY is not set.",
+    );
+
+    expect(prismaUpdate).not.toHaveBeenCalled();
+    expect(prismaUpdateMany).not.toHaveBeenCalled();
+    expect(generatePlannedQuestions).not.toHaveBeenCalled();
+  });
+
+  it("builds the generator before marking generating, then launches background work", async () => {
+    getOpportunityQuestionPrep.mockResolvedValue(idlePrep);
+    generatePlannedQuestions.mockReturnValue(deferredJob().promise);
 
     recordGenerationError("opp-test", new Error("Previous error"));
     await startQuestionGeneration("opp-test");
@@ -93,29 +121,51 @@ describe("question generation background", () => {
       where: { id: "opp-test" },
       data: { questionPrepStatus: "generating" },
     });
+    const [builtAt] = createOpenCodeQuestionGenerator.mock.invocationCallOrder;
+    const [markedAt] = prismaUpdate.mock.invocationCallOrder;
+    expect(builtAt).toBeLessThan(markedAt ?? 0);
     expect(generatePlannedQuestions).toHaveBeenCalledWith(
       "opp-test",
       expect.anything(),
     );
+    expect(prismaUpdateMany).not.toHaveBeenCalled();
+  });
 
-    rejectJob(new Error("LLM failure."));
-    await new Promise((resolve) => setTimeout(resolve, 10));
+  it("records a background failure and returns the row to idle", async () => {
+    getOpportunityQuestionPrep.mockResolvedValue(idlePrep);
+    const job = deferredJob();
+    generatePlannedQuestions.mockReturnValue(job.promise);
+
+    await startQuestionGeneration("opp-test");
+    job.reject(new Error("LLM failure."));
+    await flushBackground();
+
     expect(getGenerationError("opp-test")).toBe("LLM failure.");
+    expect(prismaUpdateMany).toHaveBeenCalledWith({
+      where: { id: "opp-test", questionPrepStatus: "generating" },
+      data: { questionPrepStatus: "idle" },
+    });
+  });
+
+  it("keeps the recorded error when the idle reset itself fails", async () => {
+    getOpportunityQuestionPrep.mockResolvedValue(idlePrep);
+    generatePlannedQuestions.mockRejectedValue(new Error("Database down."));
+    prismaUpdateMany.mockRejectedValue(new Error("Still down."));
+
+    await startQuestionGeneration("opp-test");
+    await flushBackground();
+
+    expect(getGenerationError("opp-test")).toBe("Database down.");
+    expect(prismaUpdateMany).toHaveBeenCalledOnce();
   });
 
   it("uses a custom generator when provided", async () => {
-    getOpportunityQuestionPrep.mockResolvedValue({
-      status: "idle",
-      targetMinutes: 40,
-      sessionAnswerBudget: 10,
-      practiceSessionId: null,
-      interviewType: "behavioral",
-    });
-    prismaUpdate.mockResolvedValue({});
+    getOpportunityQuestionPrep.mockResolvedValue(idlePrep);
     generatePlannedQuestions.mockResolvedValue(undefined);
     const customGenerator = { plan: vi.fn() };
     await startQuestionGeneration("opp-test", customGenerator);
 
+    expect(createOpenCodeQuestionGenerator).not.toHaveBeenCalled();
     expect(generatePlannedQuestions).toHaveBeenCalledWith(
       "opp-test",
       customGenerator,

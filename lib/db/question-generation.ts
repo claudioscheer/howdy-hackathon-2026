@@ -39,14 +39,32 @@ export async function startQuestionGeneration(
     return;
   }
   clearGenerationError(opportunityId);
+  // Build the generator first: a missing OPENCODE_API_KEY throws here, before
+  // the row is marked generating, so the manager sees the error and can retry.
+  const activeGenerator = generator ?? createOpenCodeQuestionGenerator();
   await getPrisma().opportunity.update({
     where: { id: opportunityId },
     data: { questionPrepStatus: "generating" },
   });
-  const activeGenerator = generator ?? createOpenCodeQuestionGenerator();
   void generatePlannedQuestions(opportunityId, activeGenerator).catch(
-    (error: unknown) => {
-      recordGenerationError(opportunityId, error);
-    },
+    (error: unknown) => failGeneration(opportunityId, error),
   );
+}
+
+async function failGeneration(
+  opportunityId: string,
+  error: unknown,
+): Promise<void> {
+  recordGenerationError(opportunityId, error);
+  // generatePlannedQuestions resets to idle itself, but that write (or its
+  // opening "generating" write) can fail too. Only clear a row still marked
+  // generating so a newer finished plan is never downgraded.
+  try {
+    await getPrisma().opportunity.updateMany({
+      where: { id: opportunityId, questionPrepStatus: "generating" },
+      data: { questionPrepStatus: "idle" },
+    });
+  } catch {
+    // The stale-generation window still lets the manager retry.
+  }
 }

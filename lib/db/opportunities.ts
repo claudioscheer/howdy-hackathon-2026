@@ -7,6 +7,7 @@ import {
 } from "./opportunity-item";
 import type { CreateOpportunityInput } from "./opportunity-input";
 import { getPrisma } from "./prisma";
+import { effectiveQuestionPrepStatus } from "./question-prep-status";
 
 type OpportunityWithCandidate = Opportunity & {
   candidate: Candidate | null;
@@ -34,7 +35,10 @@ export function toOpportunityItem(
       row.candidate?.curriculum,
     ),
     questionCount: row._count?.questions ?? 0,
-    questionPrepStatus: row.questionPrepStatus,
+    questionPrepStatus: effectiveQuestionPrepStatus(
+      row.questionPrepStatus,
+      row.updatedAt,
+    ),
   };
 }
 
