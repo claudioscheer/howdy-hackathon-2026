@@ -11,11 +11,12 @@ export default function PracticeNotFound(): React.JSX.Element {
           This seeded session is not available.
         </h1>
         <p className="mt-3 text-sm leading-6 text-[#5a5a5f]">
-          Return to the demo dashboard and open the active Fullstack Product
-          Engineer opportunity.
+          Return to the demo dashboard and open practice from an active
+          opportunity.
         </p>
         <Link
           href="/dashboard"
+          data-testid="practice-not-found-dashboard-link"
           className="mt-6 inline-flex rounded-full bg-black px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white"
         >
           Return to dashboard

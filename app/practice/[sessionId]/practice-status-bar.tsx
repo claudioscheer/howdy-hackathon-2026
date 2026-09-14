@@ -1,3 +1,4 @@
+import { opportunityHeading } from "@/lib/db/opportunity-options";
 import { questionFollowUpCap } from "@/lib/interview/session-policy";
 import type { SessionState } from "@/lib/interview/session";
 import { PRACTICE_PAGE, formatElapsed, practiceProgress } from "@/lib/ui/copy";
@@ -21,7 +22,11 @@ export function PracticeStatusBar({
   return (
     <header className="border-b border-[#e0e0e8] pb-5">
       <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#5a5a5f]">
-        {session.opportunity.role} · Attempt {session.attemptNumber} of 2
+        {opportunityHeading(
+          session.opportunity.role,
+          session.opportunity.seniority,
+        )}{" "}
+        · Attempt {session.attemptNumber} of 2
       </p>
       <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
         <h1 className="text-3xl font-bold uppercase tracking-tight">
@@ -41,7 +46,7 @@ export function PracticeStatusBar({
       </div>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm text-[#5a5a5f]">
         <p data-testid="practice-timer">
-          {formatElapsed(elapsedSeconds)} / {targetMinutes}:00
+          {formatElapsed(elapsedSeconds)} / {formatElapsed(targetMinutes * 60)}
         </p>
         {!isComplete && question !== undefined ? (
           <p data-testid="follow-up-count">

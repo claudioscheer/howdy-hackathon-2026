@@ -1,3 +1,4 @@
+import { opportunityHeading } from "@/lib/db/opportunity-options";
 import type { TranscriptTurn } from "@/lib/interview/contracts";
 import type { SessionState } from "@/lib/interview/session";
 import { practiceGreeting } from "@/lib/ui/copy";
@@ -12,12 +13,12 @@ function bubbleClass(speaker: TranscriptTurn["speaker"]): string {
 function turnContent(
   turn: TranscriptTurn,
   index: number,
-  role: string,
+  roleLabel: string,
 ): string {
   const isOpening =
     index === 0 && turn.speaker === "interviewer" && turn.kind === "question";
   if (isOpening) {
-    return `${practiceGreeting(role)}\n\n${turn.content}`;
+    return `${practiceGreeting(roleLabel)}\n\n${turn.content}`;
   }
   return turn.content;
 }
@@ -27,6 +28,10 @@ export function PracticeChatThread({
 }: {
   session: SessionState;
 }): React.JSX.Element {
+  const roleLabel = opportunityHeading(
+    session.opportunity.role,
+    session.opportunity.seniority,
+  );
   const lastInterviewer = [...session.history]
     .reverse()
     .find((turn) => turn.speaker === "interviewer");
@@ -49,7 +54,7 @@ export function PracticeChatThread({
             {turn.speaker}
           </p>
           <p className="mt-1 whitespace-pre-wrap text-sm leading-6">
-            {turnContent(turn, index, session.opportunity.role)}
+            {turnContent(turn, index, roleLabel)}
           </p>
         </li>
       ))}

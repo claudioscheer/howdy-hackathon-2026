@@ -1,3 +1,4 @@
+import { opportunityHeading } from "@/lib/db/opportunity-options";
 import { PRACTICE_PAGE, practiceFormatBody } from "@/lib/ui/copy";
 import type { SessionState } from "@/lib/interview/session";
 
@@ -13,8 +14,11 @@ export function PracticeBriefing({
   return (
     <section className="rounded border border-[#e0e0e8] bg-white p-6 sm:p-8">
       <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#5a5a5f]">
-        {session.opportunity.role} · {session.opportunity.seniority} · Attempt{" "}
-        {session.attemptNumber} of 2
+        {opportunityHeading(
+          session.opportunity.role,
+          session.opportunity.seniority,
+        )}{" "}
+        · Attempt {session.attemptNumber} of 2
       </p>
       <h1 className="mt-3 text-3xl font-bold uppercase tracking-tight">
         {PRACTICE_PAGE.briefingTitle}

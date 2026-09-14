@@ -21,6 +21,27 @@ describe("PracticeChatThread", () => {
     );
   });
 
+  it("greets with the dashboard role label", () => {
+    const started = sessionReducer(createSeededSession(), {
+      type: "START_SESSION",
+    });
+    const session = {
+      ...started,
+      opportunity: {
+        ...started.opportunity,
+        role: "fullstack",
+        seniority: "senior",
+      },
+    };
+    render(<PracticeChatThread session={session} />);
+    expect(screen.getByTestId("current-question")).toHaveTextContent(
+      "for the Senior Full stack role",
+    );
+    expect(screen.getByTestId("current-question")).not.toHaveTextContent(
+      "the fullstack role",
+    );
+  });
+
   it("does not prefix later interviewer turns", () => {
     const started = sessionReducer(createSeededSession(), {
       type: "START_SESSION",

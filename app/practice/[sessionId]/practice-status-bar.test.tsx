@@ -73,4 +73,34 @@ describe("PracticeStatusBar", () => {
     fireEvent.click(screen.getByTestId("end-interview-button"));
     expect(onEnd).not.toHaveBeenCalled();
   });
+
+  it("formats the target like the elapsed time and labels the role", () => {
+    const started = sessionReducer(createSeededSession(), {
+      type: "START_SESSION",
+    });
+    const session = {
+      ...started,
+      opportunity: {
+        ...started.opportunity,
+        role: "fullstack",
+        seniority: "senior",
+      },
+    };
+    render(
+      <PracticeStatusBar
+        session={session}
+        isComplete={false}
+        elapsedSeconds={30}
+        targetMinutes={5}
+        isSubmitting={false}
+        onEnd={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId("practice-timer")).toHaveTextContent(
+      /^00:30 \/ 05:00$/,
+    );
+    expect(
+      screen.getByText(/^Senior Full stack · Attempt 1 of 2$/),
+    ).toBeInTheDocument();
+  });
 });
