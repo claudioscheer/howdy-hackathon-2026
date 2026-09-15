@@ -92,6 +92,31 @@ describe("usePracticeSession", () => {
     expect(result.current.answer).toBe("");
   });
 
+  it("forwards mock mode to the answer action", async () => {
+    submitPracticeAnswerAction.mockResolvedValue({
+      ok: true,
+      state: answeredState(),
+    });
+    const { result } = renderHook(() =>
+      usePracticeSession(createSeededSession(), true),
+    );
+    act(() => {
+      result.current.startInterview();
+    });
+    act(() => {
+      result.current.setAnswer("A concrete answer with a result.");
+    });
+    await act(async () => {
+      await result.current.submitCurrentAnswer();
+    });
+    expect(submitPracticeAnswerAction).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "AWAITING_ANSWER" }),
+      "A concrete answer with a result.",
+      expect.any(Number),
+      true,
+    );
+  });
+
   it("ignores End while an answer is in flight", async () => {
     const pending = deferred();
     submitPracticeAnswerAction.mockReturnValue(pending.promise);

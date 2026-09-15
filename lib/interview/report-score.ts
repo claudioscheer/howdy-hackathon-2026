@@ -6,8 +6,8 @@ import type {
   RubricDimension,
   TranscriptTurn,
 } from "./contracts";
-import { candidateTurns } from "./evidence";
 import { answersQuestion } from "./relevance";
+import { answersFor, hasScoreableDimensionSignal } from "./report-signal";
 
 const OWNED_ACTION_RE =
   /\b(?:i|we)\s+(?:built|changed|created|debugged|deployed|designed|implemented|introduced|investigated|led|measured|migrated|refactored|removed|resolved|tested|traced|used)\b/i;
@@ -37,17 +37,6 @@ function signalCount(answer: string): number {
     OUTCOME_RE,
   ];
   return patterns.filter((pattern) => pattern.test(answer)).length;
-}
-
-export function answersFor(
-  history: TranscriptTurn[],
-  questionId?: string,
-): TranscriptTurn[] {
-  const turns = candidateTurns(history);
-  if (questionId === undefined) {
-    return turns;
-  }
-  return turns.filter((turn) => turn.questionId === questionId);
 }
 
 export function quoteEvidence(
@@ -95,13 +84,16 @@ export function scoreDimension(
     answersFor(history, question.id),
   );
   const leftover = unassessedReasons(
-    outcomes.filter((outcome) =>
-      primary.some((question) => question.id === outcome.questionId),
-    ),
+    primary.length > 0
+      ? outcomes.filter((outcome) =>
+          primary.some((question) => question.id === outcome.questionId),
+        )
+      : outcomes,
   );
   if (
     answers.length === 0 ||
-    (primary.length > 0 && primaryAnswers.length === 0)
+    (primary.length > 0 && primaryAnswers.length === 0) ||
+    !hasScoreableDimensionSignal(dimension, questions, history)
   ) {
     return insufficient(dimension, leftover);
   }

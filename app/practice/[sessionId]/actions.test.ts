@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ScriptedAnswerEvaluator } from "@/lib/interview/evaluator";
+import { PlannedQuestionSpeaker } from "@/lib/interview/interviewer-ask";
 import { sessionReducer } from "@/lib/interview/reducer";
 import { createSeededSession } from "@/lib/interview/seed";
 
@@ -53,6 +55,21 @@ describe("practice server actions", () => {
     });
     expect(endInterview).toHaveBeenCalledOnce();
     expect(savePracticeAttempt).not.toHaveBeenCalled();
+  });
+
+  it("uses scripted answers and follow-ups when mock is true", async () => {
+    const started = sessionReducer(createSeededSession(), {
+      type: "START_SESSION",
+    });
+    progressInterview.mockResolvedValue({ ok: true, state: started });
+    await submitPracticeAnswerAction(started, "A concrete answer", 0, true);
+    expect(progressInterview.mock.calls[0]?.[2]).toBeInstanceOf(
+      ScriptedAnswerEvaluator,
+    );
+    expect(progressInterview.mock.calls[0]?.[4]).toBeInstanceOf(
+      PlannedQuestionSpeaker,
+    );
+    expect(progressInterview.mock.calls[0]?.[3]).toBeDefined();
   });
 
   it("does not persist a rejected turn", async () => {

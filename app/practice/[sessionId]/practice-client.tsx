@@ -12,11 +12,13 @@ import { usePracticeSession } from "./use-practice-session";
 export function PracticeClient({
   initialState,
   targetMinutes,
+  mock = false,
 }: {
   initialState: SessionState;
   targetMinutes: number;
+  mock?: boolean;
 }): React.JSX.Element {
-  const practice = usePracticeSession(initialState);
+  const practice = usePracticeSession(initialState, mock);
   const isComplete = practice.session.status === "COMPLETE";
   const isPlanned = practice.session.status === "PLANNED";
 

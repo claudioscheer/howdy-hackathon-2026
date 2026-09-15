@@ -25,6 +25,7 @@ describe("PracticePage", () => {
     render(
       await PracticePage({
         params: Promise.resolve({ sessionId: SEEDED_SESSION_ID }),
+        searchParams: Promise.resolve({ mock: "true" }),
       }),
     );
 

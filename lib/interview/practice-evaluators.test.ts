@@ -7,8 +7,10 @@ import {
   createPracticeReportEvaluator,
   openCodeKeyPresent,
   livePracticeEvaluatorEnabled,
+  livePracticeReportEnabled,
 } from "./practice-evaluators";
 import { PlannedQuestionSpeaker } from "./interviewer-ask";
+import { OpenCodeReportEvaluator } from "./report-evaluator-opencode";
 import { ScriptedReportEvaluator } from "./report-evaluator";
 
 const FakeOpenCodeAnswerEvaluator = vi.hoisted(
@@ -17,6 +19,10 @@ const FakeOpenCodeAnswerEvaluator = vi.hoisted(
 
 const FakeOpenCodeQuestionSpeaker = vi.hoisted(
   () => class FakeOpenCodeQuestionSpeaker {},
+);
+
+const FakeOpenCodeReportEvaluator = vi.hoisted(
+  () => class FakeOpenCodeReportEvaluator {},
 );
 
 vi.mock("./evaluator-opencode", () => ({
@@ -28,6 +34,11 @@ vi.mock("./interviewer-ask-opencode", () => ({
   createOpenCodeQuestionSpeaker: () => new FakeOpenCodeQuestionSpeaker(),
 }));
 
+vi.mock("./report-evaluator-opencode", () => ({
+  OpenCodeReportEvaluator: FakeOpenCodeReportEvaluator,
+  createOpenCodeReportEvaluator: () => new FakeOpenCodeReportEvaluator(),
+}));
+
 describe("practice evaluators", () => {
   it("defaults to scripted adapters so verify stays keyless", () => {
     expect(openCodeKeyPresent({})).toBe(false);
@@ -35,9 +46,12 @@ describe("practice evaluators", () => {
     expect(
       createPracticeAnswerEvaluator({ OPENCODE_API_KEY: "" }),
     ).toBeInstanceOf(ScriptedAnswerEvaluator);
-    expect(createPracticeReportEvaluator()).toBeInstanceOf(
-      ScriptedReportEvaluator,
-    );
+    expect(typeof livePracticeReportEnabled()).toBe("boolean");
+    expect(typeof createPracticeReportEvaluator()).toBe("object");
+    expect(livePracticeReportEnabled({})).toBe(false);
+    expect(
+      createPracticeReportEvaluator({ OPENCODE_API_KEY: "" }),
+    ).toBeInstanceOf(ScriptedReportEvaluator);
     expect(
       createPracticeQuestionSpeaker({ OPENCODE_API_KEY: "" }),
     ).toBeInstanceOf(PlannedQuestionSpeaker);
@@ -72,5 +86,35 @@ describe("practice evaluators", () => {
         PRACTICE_LIVE_EVALUATOR: "0",
       }),
     ).toBeInstanceOf(PlannedQuestionSpeaker);
+    expect(
+      createPracticeReportEvaluator({ OPENCODE_API_KEY: "demo-key" }),
+    ).toBeInstanceOf(OpenCodeReportEvaluator);
+    expect(
+      livePracticeReportEnabled({
+        OPENCODE_API_KEY: "demo-key",
+        PRACTICE_LIVE_EVALUATOR: "0",
+      }),
+    ).toBe(false);
+    expect(
+      createPracticeReportEvaluator({
+        OPENCODE_API_KEY: "demo-key",
+        PRACTICE_LIVE_EVALUATOR: "0",
+      }),
+    ).toBeInstanceOf(ScriptedReportEvaluator);
+  });
+
+  it("keeps scripted answers and follow-ups when mock is true", () => {
+    const liveEnv = { OPENCODE_API_KEY: "demo-key" };
+    expect(livePracticeEvaluatorEnabled(liveEnv, true)).toBe(false);
+    expect(createPracticeAnswerEvaluator(liveEnv, true)).toBeInstanceOf(
+      ScriptedAnswerEvaluator,
+    );
+    expect(createPracticeQuestionSpeaker(liveEnv, true)).toBeInstanceOf(
+      PlannedQuestionSpeaker,
+    );
+    expect(livePracticeReportEnabled(liveEnv)).toBe(true);
+    expect(createPracticeReportEvaluator(liveEnv)).toBeInstanceOf(
+      OpenCodeReportEvaluator,
+    );
   });
 });

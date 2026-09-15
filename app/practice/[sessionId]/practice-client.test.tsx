@@ -57,6 +57,30 @@ describe("PracticeClient", () => {
     );
   });
 
+  it("forwards mock mode to the answer action", async () => {
+    submitPracticeAnswerAction.mockResolvedValue({
+      ok: true,
+      state: sessionReducer(createSeededSession(), { type: "START_SESSION" }),
+    });
+    render(
+      <PracticeClient
+        initialState={createSeededSession()}
+        targetMinutes={40}
+        mock
+      />,
+    );
+    startInterview();
+    answerAndSubmit(concreteAnswer);
+    await waitFor(() =>
+      expect(submitPracticeAnswerAction).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "AWAITING_ANSWER" }),
+        concreteAnswer,
+        expect.any(Number),
+        true,
+      ),
+    );
+  });
+
   it("validates empty input without changing the transcript", () => {
     renderPractice();
     startInterview();

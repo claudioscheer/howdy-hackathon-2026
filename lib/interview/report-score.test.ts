@@ -248,6 +248,28 @@ describe("report dimension scoring", () => {
     expect(dimension.status).toBe("scored");
   });
 
+  it("ignores unmatched answers when scoring relevance from a real question", () => {
+    const history: TranscriptTurn[] = [
+      answer(
+        "I disagreed with a teammate on an API, I implemented tests, and reduced errors by 42 percent.",
+      ),
+      {
+        id: "a-miss",
+        questionId: "missing",
+        speaker: "candidate",
+        kind: "answer",
+        content: "I shipped a cache.",
+      },
+    ];
+    const dimension = scoreDimension("relevance", [question], history, [
+      {
+        questionId: "q-spec",
+        appliedStopReason: "evidence_sufficient",
+      },
+    ]);
+    expect(dimension.status).toBe("scored");
+  });
+
   it("treats unmatched answers as not relevant", () => {
     const turn: TranscriptTurn = {
       id: "a3",
@@ -257,9 +279,33 @@ describe("report dimension scoring", () => {
       content: "I shipped a cache.",
     };
     const dimension = scoreDimension("relevance", [question], [turn], []);
-    expect(dimension.status).toBe("scored");
-    if (dimension.status === "scored") {
-      expect(dimension.score).toBe(1);
+    expect(dimension.status).toBe("insufficient_evidence");
+  });
+
+  it("does not score a low mark when a follow-up was left unanswered", () => {
+    const history: TranscriptTurn[] = [
+      answer("I had a disagreement with a teammate but we figured it out."),
+      {
+        id: "f1",
+        questionId: "q-spec",
+        speaker: "interviewer",
+        kind: "follow_up",
+        content: "Can you make that more specific?",
+      },
+    ];
+    const ended: QuestionOutcome = {
+      questionId: "q-spec",
+      appliedStopReason: "candidate_ended_early",
+    };
+    const specificity = scoreDimension("specificity", [question], history, [
+      ended,
+    ]);
+    expect(specificity.status).toBe("insufficient_evidence");
+    if (specificity.status === "insufficient_evidence") {
+      expect(specificity.evidence).toEqual([]);
+      expect(specificity.remainingUnknown).toContain("ended before");
     }
+    const relevance = scoreDimension("relevance", [question], history, [ended]);
+    expect(relevance.status).toBe("insufficient_evidence");
   });
 });

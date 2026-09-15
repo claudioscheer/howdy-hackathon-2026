@@ -4,6 +4,7 @@ import {
   type SessionReport,
 } from "./contracts";
 import { scoreDimension } from "./report-score";
+import { EARLY_END_REPORT_SUMMARY } from "./report-signal";
 
 export function buildScriptedReport(
   input: ReturnType<typeof ReportEvaluationInputSchema.parse>,
@@ -40,7 +41,7 @@ export function buildScriptedReport(
   return {
     attemptNumber: input.attemptNumber,
     summary: endedEarly
-      ? "The interview ended before every core topic was assessed. Remaining competencies are insufficient evidence, not a low score."
+      ? EARLY_END_REPORT_SUMMARY
       : "The scorecard is grounded in the answers given in this practice interview. Use clearer situation-action-result language on the next attempt.",
     dimensions,
   };

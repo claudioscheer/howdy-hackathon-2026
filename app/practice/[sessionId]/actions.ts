@@ -39,6 +39,7 @@ export async function submitPracticeAnswerAction(
   rawState: unknown,
   answer: string,
   elapsedSeconds = 0,
+  mock = false,
 ): Promise<PracticeActionResult> {
   const parsed = SessionStateSchema.safeParse(rawState);
   if (!parsed.success) {
@@ -47,9 +48,9 @@ export async function submitPracticeAnswerAction(
   const result = await progressInterview(
     parsed.data,
     answer,
-    createPracticeAnswerEvaluator(),
-    createPracticeReportEvaluator(),
-    createPracticeQuestionSpeaker(),
+    createPracticeAnswerEvaluator(process.env, mock),
+    createPracticeReportEvaluator(process.env),
+    createPracticeQuestionSpeaker(process.env, mock),
     { elapsedSeconds },
   );
   await persistIfComplete(result, elapsedSeconds);
@@ -66,7 +67,7 @@ export async function endPracticeAction(
   }
   const result = await endInterview(
     parsed.data,
-    createPracticeReportEvaluator(),
+    createPracticeReportEvaluator(process.env),
   );
   await persistIfComplete(result, elapsedSeconds);
   return result;

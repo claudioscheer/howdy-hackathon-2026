@@ -27,6 +27,7 @@ type PracticeSessionControls = {
 
 export function usePracticeSession(
   initialState: SessionState,
+  mock = false,
 ): PracticeSessionControls {
   const [session, setSession] = useState(initialState);
   const [answer, setAnswer] = useState("");
@@ -78,7 +79,12 @@ export function usePracticeSession(
       return;
     }
     const accepted = await runExclusive(() =>
-      submitPracticeAnswerAction(session, candidateAnswer, elapsedSeconds),
+      submitPracticeAnswerAction(
+        session,
+        candidateAnswer,
+        elapsedSeconds,
+        mock,
+      ),
     );
     if (accepted) {
       setAnswer("");
