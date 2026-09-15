@@ -9,6 +9,14 @@ a Prisma/Postgres manager flow, saved and generated interview plans, the candida
 practice route, the adaptive loop, and the repository-owned verification harness.
 Grounded feedback and retry comparison remain intentionally unshipped.
 
+## Live demo
+
+[Open Howdy Interview Coach](https://howdy-interview-coach.vercel.app)
+
+Use `/login` for the seeded manager entry, or open the active fictional practice
+session at `/practice/fullstack-product-engineer`. The public demo uses the
+deterministic evaluator so the adaptive follow-up story remains stable.
+
 ## Requirements
 
 - Node.js 22.22.3, the smallest supported LTS version shared by the current
